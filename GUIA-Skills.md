@@ -1,221 +1,171 @@
-# Guía de Skills para Búsqueda de Empleo
+# Guía de Skills para Búsqueda de Empleo y Clientes
+
+**Léeme primero: [GUIA.md](GUIA.md)** — guía sencilla para el usuario final.
+Este documento es el detalle técnico de las skills instaladas.
 
 ## Skills disponibles
 
 | # | Skill | Propósito | Tipo | Invocación |
 |---|-------|-----------|------|------------|
+| 0 | **asistente-empleo-clientes** | Orquestador central. Punto único de entrada para buscar empleo + clientes, con dedup central | AI guiada | Cargar la skill → delegar cualquier petición |
 | 1 | **job-search** | Busca vacantes Flutter/Dart en 7 fuentes (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo) | Script Python | `python3 $OPENCODE_SKILLS/job-search/job_search.py` |
-| 2 | **linkedin-hidden-jobs** | Busca el "hidden job market" de LinkedIn: posts donde la gente publica vacantes, no avisos oficiales | AI guiada (websearch) | Cargar la skill → el AI ejecuta las queries |
-| 3 | **cv-apply** | Genera CV optimizado ATS + carta de presentación + PDF a partir de una descripción de vacante | AI guiada | Cargar la skill → pegar descripción |
-| 4 | **linkedin-outreach** | Genera mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
-| 5 | **flutter-employers** | Descubre empresas target (startups + establecidas) en LATAM y globales remote-first que usan Flutter | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
+| 2 | **workana-search** | Busca proyectos freelance en Workana (Mobile Development), marca Flutter/Dart ✅ | Script Python | `python3 $OPENCODE_SKILLS/workana-search/workana_search.py` |
+| 3 | **linkedin-hidden-jobs** | "Hidden job market": posts de LinkedIn con vacantes, no avisos oficiales | AI guiada + navegador | Cargar la skill → ejecuta el workflow |
+| 4 | **cv-apply** | CV optimizado ATS + carta + PDF a partir de una descripción de vacante | AI guiada | Cargar la skill → pegar descripción |
+| 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
+| 6 | **flutter-employers** | Descubre empresas target (startups + establecidas) en LATAM y globales remote-first que usan Flutter | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
+| 7 | **prospectar-clientes** | Genera leads de negocios venezolanos que necesiten web/apps/n8n | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
+
+---
+
+## 0. asistente-empleo-clientes — Orquestador (ENTRADA ÚNICA)
+
+Es la puerta de entrada a todo. Absorbe peticiones como *"haz la ronda de
+hoy"*, *"solo empleos"*, *"solo clientes"*, *"aplica a X"*, *"contacta a Y"*
+y decide qué sub-skills ejecutar. **Garantiza que nada se repita** usando
+`estado/historial.json`.
+
+**Archivos:** `~/.opencode/skills/asistente-empleo-clientes/SKILL.md`
+
+### Fases de la "ronda diaria"
+
+```
+1. job-search            → vacantes/            (script)
+2. workana-search        → vacantes-workana/    (script)
+3. linkedin-hidden-jobs  → vacantes-ocultas/    (navegador)
+4. prospectar-clientes   → clientes-potenciales/(navegador)
+5. flutter-employers     → empresas-target/     (navegador)
+   ─────────────────────────────────────────────────────
+   consolidar            → informes/{fecha}-resumen.md
+```
+
+---
+
+## Deduplicación central (NO REPETIR NADA)
+
+Todas las skills consultan y actualizan la misma base:
+
+```
+estado/historial.json   ← "memoria" del asistente
+estado/tracker.py       ← helper (Historial, normalize_*, vacancy_key)
+```
+
+| Categoría | Clave |
+|-----------|-------|
+| `vacantes` | `empresa_normalizada::titulo_normalizado` |
+| `empresas` | dominio o nombre normalizado |
+| `clientes` | dominio o nombre del negocio |
+| `proyectos_workana` | slug del proyecto |
+| `posts_linkedin` | URL del post |
+| `outreach` | URL del perfil |
+
+Ver estado:
+```bash
+python3 "estado/tracker.py" stats
+```
+
+`job_search.py` y `workana_search.py` ya deduplican solos contra el
+historial e imprimen `---SKIPPED---` (cantidad omitida). Las skills
+guiadas por IA deben consultar/actualizar el historial al iniciar/terminar.
 
 ---
 
 ## 1. job-search — Buscador de vacantes
 
-**Archivos:** `job-search/SKILL.md`, `job-search/job_search.py`
+```bash
+python3 ~/.opencode/skills/job-search/job_search.py
+```
+
+- 7 fuentes con paginación (LinkedIn, GetOnBoard, Himalayas, RemoteJobs,
+  Career Nest, Jobicy, Computrabajo).
+- Filtra Flutter/Dart, remoto, LATAM (LinkedIn ≤24h).
+- Normaliza salarios a USD/mes.
+- Dedup entre sesiones contra `estado/historial.json`.
+- Output: `vacantes/{YYYY-MM-DD}.md`
+
+## 2. workana-search — Proyectos freelance
 
 ```bash
-python3 /home/iducdev/.opencode/skills/job-search/job_search.py
+python3 ~/.opencode/skills/workana-search/workana_search.py
 ```
 
-### Qué hace
-- Fetch automático a 7 fuentes con paginación
-- Filtra por Flutter/Dart, remoto, LATAM (≤24h LinkedIn)
-- Deduplica por empresa + título normalizado
-- Normaliza salarios a USD/mes
-- Genera markdown con secciones por fuente
+- Scrapea Workana (IT & Programming > Mobile Development, hasta 20 págs).
+- Marca con ✅ proyectos Flutter/Dart.
+- Dedup entre sesiones (por slug) contra `estado/historial.json`.
+- Output: `vacantes-workana/{YYYY-MM-DD}.md`
 
-### Output
-```
-vacantes/{YYYY-MM-DD}.md
-```
+## 3. linkedin-hidden-jobs — Mercado laboral oculto
 
-### Fuentes consultadas
-| Fuente | API/Formato | Paginación | Autenticación |
-|--------|-------------|------------|---------------|
-| LinkedIn | Guest HTML | 3 páginas (start=0,10,20) | No |
-| GetOnBoard | JSON pública | 1 página | No |
-| Himalayas | JSON pública | 3 páginas (offset=0,20,40) | No |
-| RemoteJobs.org | JSON pública | 1 página | No |
-| Career Nest | JSON pública | Fallback silencioso (inestable) | No |
-| Jobicy | JSON pública | Tags flutter + mobile | No |
-| Computrabajo | JSON-LD + páginas individuales (VE, MX, CO, AR, CL, PE, EC) | 1 página por país | No |
+- Navega LinkedIn Search (sesión del usuario) con queries mixtas
+  es/EN para posts que publican vacantes (no avisos).
+- Filtros: URL `linkedin.com/posts`, oferta real, remoto/LATAM, últimos 3 días.
+- Registra posts vistos en `estado/historial.json`.
+- Output: `vacantes-ocultas/{YYYY-MM-DD}-hidden.md`
 
-### Filtros
-- **Tecnología:** Flutter o Dart en título (o primeros 300 chars de descripción)
-- **Ubicación:** LATAM o worldwide con `locationRestrictions` vacío
-- **Modalidad:** Remoto (VE: todas las modalidades)
-- **Deduplicación:** `normalize_company()` + `normalize_title()`
+## 4. cv-apply — CV optimizado ATS
+
+- Análisis de vacante → decisión con pesos (Flutter core 40%, match ≥ 60%).
+- Genera CV optimizado + carta + PDF (`pandoc`, Liberation Sans).
+- Archivos base: `isaac-urdaneta-base.md`, `cv-ats-prompt.md`.
+- Al aplicar, actualizar estado de la vacante a `applied` en el historial.
+
+## 5. linkedin-outreach — Mensajes para LinkedIn
+
+- Lee CV base → busca info del perfil → pregunta tono → genera mensaje.
+- Registra el perfil contactado en `estado/historial.json`.
+- Output: `mensajes-outreach/{nombre}-{YYYY-MM-DD}.md`
+
+## 6. flutter-employers — Discovery de empresas target
+
+- FASE 1: websearch + GitHub + LinkedIn + directorios (máx 12 queries).
+- FASE 2: dedup normalizado contra `empresas-target/leads-db.json`.
+- FASE 3: enriquecer top 5-8 (website + careers + LinkedIn).
+- FASE 4: scoring 0-100 (Hot/Warm/Cold) → output + DB.
+- Output: `empresas-target/{YYYY-MM-DD}-empresas.md`, `leads-db.json`
+
+## 7. prospectar-clientes — Prospección de leads (VE)
+
+- FASE 1: Overpass API (OpenStreetMap) + infoguia + websearch.
+- FASE 2: visitar y analizar websites con Imagen/IA.
+- FASE 3: scoring con IA (`service_match`, `pain_points`, `icebreaker`).
+- FASE 4: output + DB.
+- Output: `clientes-potenciales/{YYYY-MM-DD}-leads.md`, `leads-db.json`
 
 ---
 
-## 2. linkedin-hidden-jobs — Mercado laboral oculto
-
-**Archivos:** `linkedin-hidden-jobs/SKILL.md`
-
-No tiene script propio. Usa el `websearch` tool del agente.
-
-### Queries que ejecuta el AI
+## Flujo recomendado
 
 ```
-site:linkedin.com/posts flutter hiring remote
-site:linkedin.com/posts flutter vacante remoto
-site:linkedin.com/posts flutter developer contratando
-site:linkedin.com/posts dart developer hiring
-site:linkedin.com/posts "flutter" "remote" latam
-site:linkedin.com/posts flutter empleo
+Diario:  "Haz la ronda de hoy"  → orquestador: empleos + clientes
+Semanal: flutter-employers + prospectar-clientes (descubrir más)
+A demanda: cv-apply (aplicar) · linkedin-outreach (contactar)
 ```
 
-### Filtros (aplica el AI automáticamente)
-1. **URL válida:** solo `linkedin.com/posts/...`
-2. **Oferta real:** snippet contiene `hiring`, `vacante`, `contratando`, etc.
-3. **Remoto/LATAM:** `remote`, `remoto`, `latam`, `worldwide`
-4. **Español:** detección por palabras clave en snippet
-5. **Dedup:** misma URL una sola vez
-6. **Temporal:** últimos 3 días
-
-### Output
-```
-vacantes-ocultas/{YYYY-MM-DD}-hidden.md
-```
-
----
-
-## 3. cv-apply — CV optimizado ATS
-
-**Archivos:** `cv-apply/SKILL.md`
-
-### Workflow
-
-1. **Análisis de la vacante** — extrae requisitos técnicos, funcionales y keywords ATS
-2. **Decisión** — mapea contra CV base con pesos (Flutter core 40%, backend 15%, experiencia 15%, ubicación 15%, inglés 10%, otros 5%)
-3. **Match ≥ 60% y Flutter core** → genera CV optimizado
-4. **CV optimizado** — reescribe resumen, habilidades, experiencia y proyectos alineados a la vacante
-5. **Carta de presentación** — texto plano, mismo idioma de la vacante
-6. **PDF** — `pandoc` con `Liberation Sans`, márgenes 1in
-
-### Archivos base
-- `isaac-urdaneta-base.md` — CV base (nunca se modifica)
-- `cv-ats-prompt.md` — reglas ATS
-
-### Output
-```
-{isaac-urdaneta-base}-{rol}-{empresa}.md
-{isaac-urdaneta-base}-{rol}-{empresa}.pdf
-```
-
-### Dependencias
-- `pandoc` instalado en el sistema
-- Fuente `Liberation Sans` disponible
-
----
-
-## 4. linkedin-outreach — Mensajes para LinkedIn
-
-**Archivos:** `linkedin-outreach/SKILL.md`
-
-### Workflow
-
-1. Lee CV base (`isaac-urdaneta-base.md`)
-2. Busca info pública del perfil con `websearch`
-3. Pregunta tono: **Directo y natural** (recomendado), **Profesional formal**, o **Casual/amistoso**
-4. Genera mensaje personalizado con nombre, empresa y stack
-5. Guarda en archivo y muestra para copiar
-
-### Output
-```
-mensajes-outreach/{nombre-normalizado}-{YYYY-MM-DD}.md
-```
-
----
-
-## 5. flutter-employers — Discovery de empresas target
-
-**Archivos:** `flutter-employers/SKILL.md`
-
-No tiene script propio. El agente ejecuta el pipeline completo siguiendo las instrucciones en SKILL.md.
-
-### Qué hace
-- **FASE 1:** Descubre empresas vía 4 fuentes (Web Search, GitHub, LinkedIn, Directorios)
-- **FASE 2:** Deduplica y normaliza contra DB persistente
-- **FASE 3:** Enriquece top 5-8 empresas (visita website + careers page + LinkedIn)
-- **FASE 4:** Scorea (0-100) y genera output markdown + guarda DB
-
-### Output
-```
-empresas-target/{YYYY-MM-DD}-empresas.md
-empresas-target/leads-db.json        (persistencia)
-```
-
-### Target
-- Startups LATAM que usan Flutter
-- Empresas LATAM establecidas con apps mobile
-- Empresas globales remote-first
-- Solo empresas **producto** (no agencias/consultoras)
-
-### Scoring
-| Nivel | Score | Significado |
-|-------|-------|-------------|
-| 🔥 Hot | ≥ 70 | Prioridad alta. Tienen Flutter + remoto + posible hiring. |
-| 🟡 Warm | 40-69 | Seguimiento. Falta información o señal débil. |
-| ⚪ Cold | < 40 | Baja prioridad. Guardar para futura investigación. |
-
-### Flujo recomendado
-```
-1. flutter-employers     → Descubrir empresas target (semanal)
-2. job-search            → Buscar vacantes activas (diario)
-3. linkedin-hidden-jobs  → Buscar posts ocultos (diario)
-4. linkedin-outreach     → Contactar reclutadores
-5. cv-apply              → Aplicar a vacante específica
-```
+Siempre delegar vía el orquestador (`asistente-empleo-clientes`) para
+que la deduplicación central funcione.
 
 ---
 
 ## Respaldo y restauración
 
-### Backup automático
-Las skills están respaldadas en:
-```
-skills-backup/
-├── cv-apply/SKILL.md
-├── flutter-employers/SKILL.md
-├── job-search/SKILL.md
-├── job-search/job_search.py
-├── linkedin-hidden-jobs/SKILL.md
-└── linkedin-outreach/SKILL.md
-```
-
-### Cómo restaurar (ej: después de formatear)
+Las skills están respaldadas en `skills-backup/` (incluye el orquestador).
 
 ```bash
-# 1. Clonar el proyecto
-git clone <repo> ~/curriculums
-
-# 2. Copiar skills de vuelta al directorio de opencode
-cp -r ~/curriculums/skills-backup/* ~/.opencode/skills/
-
-# 3. Verificar
+# Restaurar después de formatear
+git clone <repo> "~/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes"
+cp -r skills-backup/* ~/.opencode/skills/
 ls ~/.opencode/skills/
-# Debería mostrar: cv-apply/  job-search/  linkedin-hidden-jobs/  linkedin-outreach/
 ```
 
-### Dependencias externas a reinstalar
-| Dependencia | Para | Instalación |
-|-------------|------|-------------|
-| `pandoc` | cv-apply (PDF) | `sudo apt install pandoc` |
-| `Liberation Sans` | cv-apply (PDF) | `sudo apt install fonts-liberation` |
-| Python 3 | job-search | `python3` (viene con Ubuntu) |
+Dependencias externas: `pandoc`, `fonts-liberation`, `python3`, Chrome.
 
 ---
 
-## Pipeline completo (flujo recomendado)
+## Preguntas frecuentes
 
-```
-1. flutter-employers       → Descubrir empresas target (semanal)
-2. job-search              → Buscar vacantes activas (diario)
-3. linkedin-hidden-jobs    → Buscar posts ocultos (diario)
-4. linkedin-outreach       → Contactar reclutadores (cuando haya un perfil relevante)
-5. cv-apply                → Aplicar a vacante específica (cuando se decida aplicar)
-```
+- **"Busqué dos veces el mismo día y no vi la vacante."** → Si ya estaba
+  en `estado/historial.json`, se omite a propósito (así no se repite).
+  El resumen te dice cuántas omitió.
+- **"Quiero ver todo otra vez."** → Pide explícitamente "muéstrame todo,
+  ignora el historial" y el asistente consultará las fuentes sin filtrar.
+- **"¿Dónde está mi historial?"** → `estado/historial.json`

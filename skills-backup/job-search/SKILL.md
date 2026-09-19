@@ -304,7 +304,7 @@ Cuando el usuario vea la lista y quiera aplicar a una:
 ## Archivos de salida
 
 ```
-/home/iducdev/Escritorio/curriculums/vacantes/{YYYY-MM-DD}.md
+/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes/{YYYY-MM-DD}.md
 ```
 
 Si se invoca varias veces el mismo día, sobrescribe el archivo del día (siempre la versión más reciente).

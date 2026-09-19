@@ -1,0 +1,281 @@
+{
+  "vacantes": [
+    {
+      "key": "santri soluções::programador flutter",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Santri Soluções",
+      "titulo": "Programador Flutter",
+      "url": "https://br.linkedin.com/jobs/view/programador-flutter-at-santri-solu%C3%A7%C3%B5es-4466934707",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "senior sistemas::software developer ii flutter hcm 11778",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Senior Sistemas",
+      "titulo": "Software Developer II Flutter (HCM) - 11778",
+      "url": "https://br.linkedin.com/jobs/view/software-developer-ii-flutter-hcm-11778-at-senior-sistemas-4466697717",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "fcamara::pessoa desenvolvedora flutter sênior",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "FCamara",
+      "titulo": "Pessoa Desenvolvedora Flutter - Sênior",
+      "url": "https://br.linkedin.com/jobs/view/pessoa-desenvolvedora-flutter-s%C3%AAnior-at-fcamara-4469169967",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "praxis::desarrollador a móvil flutter dart",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Praxis",
+      "titulo": "Desarrollador(a) Móvil – Flutter/Dart",
+      "url": "https://pa.linkedin.com/jobs/view/desarrollador-a-m%C3%B3vil-%E2%80%93-flutter-dart-at-praxis-4469269974",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "20553::web app developer python flutter",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "20553",
+      "titulo": "Web & App Developer (Python/Flutter)",
+      "url": "https://www.getonbrd.com/jobs/web-app-developer-python-flutter-routed-labs-inc-remote",
+      "fuente": "GetOnBoard"
+    },
+    {
+      "key": "canonical::web frontend engineer js css react flutter",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Canonical",
+      "titulo": "Web Frontend Engineer - JS, CSS, React, Flutter",
+      "url": "https://himalayas.app/companies/canonical/jobs/web-frontend-engineer-js-css-react-flutter",
+      "fuente": "Himalayas",
+      "salario": 48000
+    },
+    {
+      "key": "immiland canada::ios flutter developer",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Immiland Canada",
+      "titulo": "iOS & Flutter Developer",
+      "url": "https://himalayas.app/companies/immiland-canada/jobs/ios-flutter-developer",
+      "fuente": "Himalayas"
+    },
+    {
+      "key": "gray media::flutter developer remote usa gdm gray media group",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Gray Media",
+      "titulo": "FLUTTER DEVELOPER (REMOTE/USA) - GDM (Gray Media Group)",
+      "url": "https://remotejobs.org/remote-jobs/flutter-developer-remoteusa-gdm-gray-media-group-gray-media",
+      "fuente": "RemoteJobs.org",
+      "salario": 75000
+    },
+    {
+      "key": "cowlar design studio::nust h 12 2026",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Cowlar Design Studio",
+      "titulo": "NUST H-12 2026",
+      "url": "https://remotejobs.org/remote-jobs/nust-h-12-2026-cowlar-design-studio",
+      "fuente": "RemoteJobs.org"
+    },
+    {
+      "key": "somnio software::senior flutter developer",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Somnio Software",
+      "titulo": "Senior Flutter Developer",
+      "url": "https://remotejobs.org/remote-jobs/senior-flutter-developer-somnio-software",
+      "fuente": "RemoteJobs.org"
+    },
+    {
+      "key": "photon interactive uk limited::lead flutter developer usa",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Photon Interactive UK Limited",
+      "titulo": "Lead Flutter Developer - USA",
+      "url": "https://remotejobs.org/remote-jobs/lead-flutter-developer-usa-photon-interactive-uk-limited",
+      "fuente": "RemoteJobs.org",
+      "salario": 44000
+    },
+    {
+      "key": "highlevel::software development engineer ii content hub mobile flutter",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "HighLevel",
+      "titulo": "Software Development Engineer II - Content Hub (Mobile Flutter)",
+      "url": "https://remotejobs.org/remote-jobs/software-development-engineer-ii-content-hub-mobile-flutter-highlevel",
+      "fuente": "RemoteJobs.org"
+    },
+    {
+      "key": "asteci::desarrollador fullstack flutter",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Asteci",
+      "titulo": "Desarrollador Fullstack Flutter",
+      "url": "https://mx.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrollador-fullstack-flutter-en-cuauhtemoc-6E5598CD30C0893861373E686DCF3405",
+      "fuente": "Computrabajo MX"
+    },
+    {
+      "key": "finlag valetodo::desarrollador flutter torreon coah",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "FINLAG (VALETODO)",
+      "titulo": "Desarrollador Flutter Torreon Coah",
+      "url": "https://mx.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrollador-flutter-torreon-coah-en-torreon-04C3C0ACBAFA73F561373E686DCF3405",
+      "fuente": "Computrabajo MX"
+    },
+    {
+      "key": "ids comercial::desarrollador flutter",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "IDS Comercial, S.A. de C.V.",
+      "titulo": "Desarrollador Flutter",
+      "url": "https://mx.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrollador-flutter-en-benito-juarez-CE55623EF53F06C361373E686DCF3405",
+      "fuente": "Computrabajo MX"
+    },
+    {
+      "key": "ids comercial::flutter architect",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "IDS Comercial, S.A. de C.V.",
+      "titulo": "Flutter Architect",
+      "url": "https://mx.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-flutter-architect-en-benito-juarez-58F43FF6D414DBEB61373E686DCF3405",
+      "fuente": "Computrabajo MX"
+    },
+    {
+      "key": "kutir technologies::flutter engineer ios experience",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "Kutir Technologies",
+      "titulo": "Flutter Engineer Ios Experience",
+      "url": "https://mx.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-flutter-engineer-ios-experience-en-guadalajara-6D30351EEBE6E35761373E686DCF3405",
+      "fuente": "Computrabajo MX"
+    },
+    {
+      "key": "tu talento sas::desarrollador frontend flutter medellin",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "TU TALENTO SAS",
+      "titulo": "Desarrollador Frontend Flutter Medellin",
+      "url": "https://co.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrollador-frontend-flutter-medellin-en-bello-39FD9E2257C8E2C661373E686DCF3405",
+      "fuente": "Computrabajo CO"
+    },
+    {
+      "key": "centro de empleo y talento colsubsidio::desarrollador flutter semi senior desarrollo de software y aplicaciones moviles utilizando flutter y dart",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "CENTRO DE EMPLEO Y TALENTO COLSUBSIDIO",
+      "titulo": "Desarrollador Flutter Semi Senior Desarrollo De Software Y Aplicaciones Moviles Utilizando Flutter Y Dart",
+      "url": "https://co.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrollador-flutter-semi-senior-desarrollo-de-software-y-aplicaciones-moviles-utilizando-flutter-y-dart-en-bogota-dc-68EC3277661DBF3E61373E686DCF3405",
+      "fuente": "Computrabajo CO"
+    },
+    {
+      "key": "centro de empleo y talento colsubsidio::desarrollador flutter junior desarrollo movil utilizando flutter y dart",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "CENTRO DE EMPLEO Y TALENTO COLSUBSIDIO",
+      "titulo": "Desarrollador Flutter Junior Desarrollo Movil Utilizando Flutter Y Dart",
+      "url": "https://co.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrollador-flutter-junior-desarrollo-movil-utilizando-flutter-y-dart-en-bogota-dc-DF24C952523032CA61373E686DCF3405",
+      "fuente": "Computrabajo CO"
+    },
+    {
+      "key": "distracom sa::ingeniero de sistemas desarrollador full stack flutter net sql server",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "DISTRACOM S.A.",
+      "titulo": "Ingeniero De Sistemas Desarrollador Full Stack Flutter Net Sql Server",
+      "url": "https://co.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-ingeniero-de-sistemas-desarrollador-full-stack-flutter-net-sql-server-en-monteria-6D0060A62AEF934761373E686DCF3405",
+      "fuente": "Computrabajo CO"
+    },
+    {
+      "key": "bctecnología::desarrolladora full stack nodejs flutter remoto",
+      "fecha_visto": "2026-09-19T15:45:33+00:00",
+      "estado": "nuevo",
+      "empresa": "BCTecnología",
+      "titulo": "Desarrolladora Full Stack Nodejs Flutter Remoto",
+      "url": "https://cl.computrabajo.com/ofertas-de-trabajo/oferta-de-trabajo-de-desarrolladora-full-stack-nodejs-flutter-remoto-en-santiago-centro-E8EC85BFE5AC223A61373E686DCF3405",
+      "fuente": "Computrabajo CL"
+    }
+  ],
+  "empresas": [],
+  "clientes": [],
+  "proyectos_workana": [
+    {
+      "key": "desarrollo-de-sistema-de-automatizacion-para-respuestas-y-preguntas-en-whatsapp",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Automatización para Respuestas y Preguntas...",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-automatizacion-para-respuestas-y-preguntas-en-whatsapp",
+      "author": "G. D. M. B.",
+      "budget": "USD 100 - 250",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil de Citas para Mascotas al Estilo Tinder",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder",
+      "author": "L. C.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": true
+    },
+    {
+      "key": "desarrollo-de-sistema-de-mensajeria-automatica-para-whatsapp",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Mensajería Automática para Whatsapp",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-mensajeria-automatica-para-whatsapp",
+      "author": "Derwin Y.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-e-commerce-para-ios-y-android-de-productos-wellness",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil E-commerce para Ios y Android de Pro...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-e-commerce-para-ios-y-android-de-productos-wellness",
+      "author": "R. C.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollador-low-code-para-app-movil-con-integracion-filemaker-y-automatizacion-excel",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollador Low-Code para App Móvil con Integración Filemaker y A...",
+      "url": "https://www.workana.com/job/desarrollador-low-code-para-app-movil-con-integracion-filemaker-y-automatizacion-excel",
+      "author": "E. M. M.",
+      "budget": "USD 1.000 - 3.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-sistema-de-automatizacion-de-respuestas-para-whatsapp-31",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Automatización de Respuestas para Whatsapp",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-automatizacion-de-respuestas-para-whatsapp-31",
+      "author": "Manuel A. S. L.",
+      "budget": "Más de USD 3.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-de-mensajeria-interna-para-comunicacion-empresarial",
+      "fecha_visto": "2026-09-19T15:46:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación de Mensajería Interna para Comunicación Em...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-de-mensajeria-interna-para-comunicacion-empresarial",
+      "author": "P. C.",
+      "budget": "Menos de USD 50",
+      "is_flutter": true
+    }
+  ],
+  "posts_linkedin": [],
+  "outreach": []
+}

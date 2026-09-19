@@ -9,8 +9,8 @@ Reemplaza el flujo de n8n. Busca negocios en Venezuela, analiza si necesitan ser
 
 ## Archivos de referencia
 
-- **DB de leads (historial):** `/home/iducdev/Escritorio/curriculums/clientes-potenciales/leads-db.json`
-- **Output del día:** `/home/iducdev/Escritorio/curriculums/clientes-potenciales/{YYYY-MM-DD}-leads.md`
+- **DB de leads (historial):** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/clientes-potenciales/leads-db.json`
+- **Output del día:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/clientes-potenciales/{YYYY-MM-DD}-leads.md`
 
 ---
 
@@ -140,6 +140,23 @@ De cada resultado de `websearch`, extraer:
 Comparar los leads obtenidos de las 3 fuentes. Eliminar duplicados por nombre (normalizado: minúsculas, sin tildes, sin espacios extra).
 
 Para mantener estado entre sesiones, leer `leads-db.json` al inicio y cruzar contra nuevos leads. Los que ya existen se saltan.
+
+Además, cruzar contra el historial central del proyecto:
+`/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`
+(categoría `clientes`, clave: dominio o nombre normalizado), usando el helper:
+
+```bash
+python3 - <<'EOF'
+import sys
+sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+from tracker import Historial
+h = Historial()
+# consultar: h.is_known("clientes", dominio_o_nombre)
+# registrar: h.add("clientes", dominio_o_nombre, meta={"nombre": ..., "web": ..., "rubro": ...})
+EOF
+```
+
+Así ningún cliente se repite entre sesiones ni entre skills.
 
 ### 1.5 — Normalizar a formato común
 

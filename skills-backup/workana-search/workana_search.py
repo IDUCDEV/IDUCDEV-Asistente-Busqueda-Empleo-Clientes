@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sys
+import traceback
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -20,7 +21,7 @@ from html.parser import HTMLParser
 
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
 TIMEOUT = 25
-OUTPUT_DIR = "/home/iducdev/Escritorio/curriculums/vacantes-workana"
+OUTPUT_DIR = "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes-workana"
 
 BASE_URL = "https://www.workana.com/jobs?category=it-programming&subcategory=mobile-development&page={page}"
 
@@ -168,13 +169,42 @@ def main():
 
     flutter_count = sum(1 for j in all_jobs if j["is_flutter"])
 
+    # ── Cross-session dedup vs estado/historial.json ──
+    # No repetir proyectos ya listados en ejecuciones anteriores.
+    skipped = 0
+    sys.path.insert(0, os.path.join(os.path.dirname(OUTPUT_DIR), "estado"))
+    try:
+        from tracker import Historial
+        hist = Historial()
+        fresh = []
+        for j in all_jobs:
+            key = j.get("slug") or f"workana::{j.get('title', '')}"
+            is_new = hist.add("proyectos_workana", key, meta={
+                "titulo": j.get("title", ""),
+                "url": j.get("url", ""),
+                "author": j.get("author", ""),
+                "budget": j.get("budget"),
+                "is_flutter": j.get("is_flutter"),
+            })
+            if is_new:
+                fresh.append(j)
+            else:
+                skipped += 1
+        all_jobs = fresh
+    except Exception:
+        traceback.print_exc()
+
+    flutter_count = sum(1 for j in all_jobs if j["is_flutter"])
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out_path = os.path.join(OUTPUT_DIR, f"{date_str}.md")
 
     lines = []
     lines.append(f"# Workana - Proyectos Mobile - {date_str}\n")
     lines.append(f"> Buscador automático · {time_str} UTC")
-    lines.append(f"> {len(all_jobs)} proyectos encontrados ({pages_fetched} páginas) · {flutter_count} con Flutter/Dart ✅\n")
+    lines.append(f"> {len(all_jobs)} proyectos nuevos ({pages_fetched} páginas) · {flutter_count} con Flutter/Dart ✅")
+    if skipped:
+        lines.append(f"> 🔁 {skipped} ya vistos omitidos (historial central)\n")
 
     if errors:
         lines.append("### Notas")
@@ -216,6 +246,19 @@ def main():
 
     markdown = "\n".join(lines)
 
+    if not all_jobs and os.path.exists(out_path):
+        # Nada nuevo hoy y ya existe informe del día: no sobrescribir la lista que ya tiene.
+        print(out_path + " (sin cambios, informe del día ya existe)")
+        print("---WORKANA---")
+        print(f"Total: {len(all_jobs)}")
+        print(f"Flutter/Dart: {flutter_count}")
+        print(f"Páginas: {pages_fetched}")
+        print(f"Skipped (ya vistos): {skipped}")
+        print("---ERRORS---")
+        for e in errors:
+            print(e)
+        return
+
     with open(out_path, "w") as f:
         f.write(markdown)
 
@@ -224,6 +267,7 @@ def main():
     print(f"Total: {len(all_jobs)}")
     print(f"Flutter/Dart: {flutter_count}")
     print(f"Páginas: {pages_fetched}")
+    print(f"Skipped (ya vistos): {skipped}")
     print("---ERRORS---")
     for e in errors:
         print(e)

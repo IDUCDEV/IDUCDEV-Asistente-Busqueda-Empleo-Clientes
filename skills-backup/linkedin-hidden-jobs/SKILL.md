@@ -171,10 +171,35 @@ Si no hay fecha visible, marcar con ⚠️ y decidir por contenido.
 ## Archivo de salida
 
 ```
-/home/iducdev/Escritorio/curriculums/vacantes-ocultas/{YYYY-MM-DD}-hidden.md
+/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes-ocultas/{YYYY-MM-DD}-hidden.md
 ```
 
 Si se invoca varias veces el mismo dia, sobrescribe el archivo.
+
+---
+
+## Dedup central (NO repetir posts)
+
+Antes de escribir el archivo, consulta y actualiza
+`/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`:
+
+1. Lee las claves ya registradas de la categoría `posts_linkedin` (URL del post).
+2. Para cada post extraído, si su URL ya está → **omítelo** (no listarlo).
+3. Los que sean nuevos → registrarlos con estado `nuevo` y meta
+   (`autor`, `empresa`, `url`, `snippet`).
+
+Helper sugerido (Python):
+
+```bash
+python3 - <<'EOF'
+import sys
+sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+from tracker import Historial
+h = Historial()
+# consultar: h.is_known("posts_linkedin", url)
+# registrar: h.add("posts_linkedin", url, meta={"autor": ..., "url": url})
+EOF
+```
 
 ---
 

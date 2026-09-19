@@ -10,8 +10,8 @@ Enfocado en empresas **producto** (no agencias/consultoras): startups LATAM, emp
 
 ## Archivos de referencia
 
-- **DB de empresas (historial):** `/home/iducdev/Escritorio/curriculums/empresas-target/leads-db.json`
-- **Output del día:** `/home/iducdev/Escritorio/curriculums/empresas-target/{YYYY-MM-DD}-empresas.md`
+- **DB de empresas (historial):** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/empresas-target/leads-db.json`
+- **Output del día:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/empresas-target/{YYYY-MM-DD}-empresas.md`
 
 ---
 
@@ -189,7 +189,7 @@ Al terminar las 4 fuentes, tendrás un array de empresas (posiblemente con dupli
 
 ### 2.1 — Cargar DB existente
 
-Leer `/home/iducdev/Escritorio/curriculums/empresas-target/leads-db.json`.
+Leer `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/empresas-target/leads-db.json`.
 
 Si no existe, inicializar como:
 ```json
@@ -247,6 +247,26 @@ Toda empresa nueva debe tener esta estructura:
 ```
 
 **Campos obligatorios:** `name`, `name_key`, `website` (o motivo de por qué no tiene), `source`, `status`, `first_seen`, `last_checked`.
+
+### 2.5 — Dedup central (historial del proyecto)
+
+Además de `leads-db.json`, registra cada empresa nueva en
+`/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`
+(categoría `empresas`, clave = dominio o nombre normalizado) usando el helper:
+
+```bash
+python3 - <<'EOF'
+import sys
+sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+from tracker import Historial
+h = Historial()
+# consultar: h.is_known("empresas", dominio)
+# registrar: h.add("empresas", dominio, meta={"nombre": ..., "url": website, "score": score})
+EOF
+```
+
+Esto garantiza que `prospectar-clientes`, `flutter-employers` y el
+orquestador nunca repitan la misma empresa entre sí.
 
 ---
 

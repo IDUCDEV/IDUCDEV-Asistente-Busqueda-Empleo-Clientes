@@ -42,7 +42,7 @@ https://www.workana.com/jobs?category=it-programming&subcategory=mobile-developm
 ## Output
 
 ```
-/home/iducdev/Escritorio/curriculums/vacantes-workana/{YYYY-MM-DD}.md
+/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes-workana/{YYYY-MM-DD}.md
 ```
 
 Si se invoca varias veces el mismo día, sobrescribe el archivo del día.

@@ -1,131 +1,50 @@
-# Currículum Isaac Urdaneta
+# IDUCDEV — Asistente de Búsqueda de Empleo y Clientes
 
-Sistema de gestión de currículum vitae personalizable para aplicaciones a diferentes vacantes,
-con optimización para pasar filtros ATS (Applicant Tracking Systems).
+Asistente personal para delegar todo el proceso tedioso de buscar
+**empleo** (vacantes Flutter/Dart remotas, freelance y mercado oculto) y
+**clientes** (leads de negocio y empresas target), con deduplicación
+central para que **nunca se repita** nada.
 
-## Estructura
+## 📘 Guía de uso
+
+**→ [GUIA.md](GUIA.md)** — cómo usarlo: frases para delegar, qué hace por
+ti, dónde se guarda cada cosa y cómo restaurarlo.
+
+## 📁 Estructura
 
 ```
-.
-├── isaac-urdaneta-base.md          # Plantilla base con información completa
-├── cv-ats-prompt.md               # Prompt detallado para generar CVs ATS
-├── CV_Isaac_Urdaneta_ES.md        # Versión en español (lista para usar)
-├── CV_Isaac_Urdaneta_EN.md        # English version (ready to use)
-├── linkedin-optimizacion-isaac-urdaneta.md  # Guía de optimización de LinkedIn
-├── Isaac Urdaneta CV - Español.pdf
-├── Isaac Urdaneta CV - English.pdf
-└── README.md
+├── GUIA.md                      # Guía sencilla (leer primero)
+├── GUIA-Skills.md               # Detalle técnico de las skills
+├── README.md                    # Este archivo
+├── isaac-urdaneta-base.md       # CV base (nunca se modifica)
+├── cv-ats-prompt.md             # Reglas ATS para CVs
+├── CV_*.md / *.pdf              # CVs y PDFs generados
+├── vacantes/                    # Vacantes del día
+├── vacantes-workana/            # Proyectos freelance
+├── vacantes-ocultas/            # Vacantes de posts de LinkedIn
+├── clientes-potenciales/        # Leads de negocio (scoring)
+├── empresas-target/             # Empresas para aplicar
+├── mensajes-outreach/           # Mensajes de contacto
+├── informes/                    # Resumen diario de la ronda
+├── estado/
+│   ├── historial.json           # Base central "no repitas esto"
+│   └── tracker.py               # Helper de deduplicación
+└── skills-backup/               # Respaldos de skills para restaurar
 ```
 
-## Modo de Uso
+## 🚀 Empezar
 
-### Paso 1: Proporcionar Vacante
+Abre opencode en esta carpeta y di:
 
-Comparte la descripción completa de la vacante/puesto al que quieres aplicar.
-
-### Paso 2: Generar CV Adaptado
-
-Yo uso el prompt `cv-ats-prompt.md` para:
-1. Analizar los requisitos de la vacante
-2. Extraer keywords técnicos y funcionales
-3. Mapear tu experiencia con los requisitos
-4. Reescribir el CV optimizado para ATS
-5. Generar archivo `.md` y `.pdf`
-
-### Paso 3: Recibir Resultado
-
-Obtienes:
-- `isaac-urdaneta-{Rol/especialidad}-{empresa}.md` — CV en markdown
-- `isaac-urdaneta-{Rol/especialidad}-{empresa}.pdf` — PDF listo para enviar
-
----
-
-## Generación Manual (sin asistencia)
-
-### 1. Análisis de Vacante
-
-Extrae manualmente los requisitos:
-
-| Categoría | Ejemplo |
-|-----------|---------|
-| Técnicos | Flutter, Dart, Clean Architecture, BLoC, APIs REST |
-| Funcionales | Desarrollo móvil, publicación en Stores |
-| Blandos | Trabajo en equipo, autonomía |
-| Modalidad | Remoto / Híbrido / Presencial |
-
-### 2. Optimización ATS
-
-**Keywords obligatorios** (busca y menciona todos):
-- Tecnologías requeridas en la vacante
-- Años de experiencia
-- Modalidad de trabajo
-
-**Formato ATS-Safe**:
 ```
-✓ Headers simples: ## Título
-✓ Listas con guiones - o bullets •
-✓ Texto plano sin tablas
-✗ Sin imágenes
-✗ Sin columnas
-✗ Sin footnotes
+"Haz la ronda de hoy"
 ```
 
-### 3. Plantilla de Resumen
+El asistente busca empleos y clientes nuevos, omite lo ya visto y te
+deja un resumen en `informes/`. Ver la [guía](GUIA.md) para más frases.
 
-```markdown
-## Perfil Profesional
+## 🔒 Dependencias
 
-[TÍTULO] con [AÑOS] años de experiencia en [TECNOLOGÍAS PRINCIPALES].
-Especializado en [ARQUITECTURA/PATRONES]. Experiencia en [REQUISITOS CLAVE].
-Capacidad para [RESPONSABILIDADES]. Modalidad: [REMOTO/HÍBRIDO].
-```
-
-### 4. Generar PDF
-
-```bash
-# Usar pandoc instalado
-pandoc input.md -o output.pdf \
-  -V mainfont="Helvetica" \
-  -V fontsize=11 \
-  -V geometry=margin=1in \
-  --standalone
-```
-
----
-
-## Tips de Personalización
-
-| Tipo de Vacante | Qué Destacar |
-|-----------------|--------------|
-| Flutter Senior | Clean Architecture, BLoC, Supabase, FPdart, Publicación Stores |
-| Frontend React | TypeScript, SSR, optimización, Lighthouse, WebSockets |
-| Full Stack | Backend + Móvil + DevOps |
-| Startup | Versatilidad, velocidad de entrega |
-
----
-
-## Enmascarar Información
-
-Si necesitas ocultar datos (ej. email, LinkedIn), busca y reemplaza en `isaac-urdaneta-base.md`:
-- `urdanetacuarteisaacdavid@gmail.com` → `[EMAIL]`
-- `linkedin.com/in/isaac-urdaneta` → `[LINKEDIN]`
-
----
-
-## Optimización ATS - Checklist
-
-Antes de enviar, verifica:
-
-- [ ] Keywords de la vacante incluidos en el CV
-- [ ] Años de experiencia reflejados
-- [ ] Modalidad de trabajo especificada
-- [ ] Sin información inconsistente
-- [ ] Formato ATS-safe (sin tablas/imágenes)
-- [ ] Densidad de keywords: 3-5%
-
----
-
-## Contacto
-
-- Email personal: urdanetacuarteisaacdavid@gmail.com
-- Email freelance: iducdev.inc@gmail.com
+- `python3`, `pandoc`, `fonts-liberation` (para generar PDFs)
+- Navegador Chrome (para LinkedIn, empresas y leads)
+- Skills en `~/.opencode/skills/` (respaldadas en `skills-backup/`)

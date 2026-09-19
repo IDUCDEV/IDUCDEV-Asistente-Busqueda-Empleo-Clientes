@@ -10,8 +10,8 @@ Generación de mensajes personalizados para outreach laboral en LinkedIn.
 Cuando el usuario pegue una URL de LinkedIn y pida un mensaje de contacto para buscar empleo, ejecuta este workflow.
 
 ## Referencias del proyecto
-- **CV Base:** `/home/iducdev/Escritorio/curriculums/isaac-urdaneta-base.md`
-- **Output dir:** `/home/iducdev/Escritorio/curriculums/mensajes-outreach/`
+- **CV Base:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/isaac-urdaneta-base.md`
+- **Output dir:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/mensajes-outreach/`
 
 ## Workflow
 
@@ -75,9 +75,20 @@ Usa estos templates según el tono seleccionado, interpolando nombre y empresa d
 
 1. Guarda el mensaje en:
    ```
-   /home/iducdev/Escritorio/curriculums/mensajes-outreach/{nombre-normalizado}-{YYYY-MM-DD}.md
+   /home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/mensajes-outreach/{nombre-normalizado}-{YYYY-MM-DD}.md
    ```
    Donde `nombre-normalizado` es el nombre de la persona en lowercase con guiones (ej: juan-perez).
 
-2. Muestra el mensaje al usuario listo para copiar y pegar.
-3. Indica la ruta del archivo guardado.
+2. Registra el contacto en el historial central para no repetir:
+   ```bash
+   python3 - <<'EOF'
+   import sys
+   sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+   from tracker import Historial
+   h = Historial()
+   h.add("outreach", "<url-del-perfil>", meta={"nombre": "...", "empresa": "...", "estado": "enviado", "tono": "..."})
+   EOF
+   ```
+
+3. Muestra el mensaje al usuario listo para copiar y pegar.
+4. Indica la ruta del archivo guardado.

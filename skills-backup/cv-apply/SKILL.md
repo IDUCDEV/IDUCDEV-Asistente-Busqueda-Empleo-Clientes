@@ -1,6 +1,6 @@
 ---
 name: cv-apply
-description: Use when the user pastes a job description and wants to evaluate it or generate an ATS-optimized CV and cover letter. Reads isaac-urdaneta-base.md and cv-ats-prompt.md from the curriculums project. Generates .md, .pdf and cover letter.
+description: Use when the user pastes a job description and wants to evaluate it or generate an ATS-optimized CV and cover letter. Reads isaac-urdaneta-base.md and cv-ats-prompt.md from the IDUCDEV -- Asistente de busqueda de empleo y clientes project. Generates .md, .pdf and cover letter.
 ---
 
 # cv-apply — Aplicación automática a vacantes
@@ -8,9 +8,9 @@ description: Use when the user pastes a job description and wants to evaluate it
 Cuando el usuario pegue la descripción de una vacante y pida evaluarla o aplicar, ejecuta este workflow completo usando sus archivos de CV base y reglas ATS.
 
 ## Referencias del proyecto
-- **CV Base:** `/home/iducdev/Escritorio/curriculums/isaac-urdaneta-base.md`
-- **Reglas ATS:** `/home/iducdev/Escritorio/curriculums/cv-ats-prompt.md`
-- **Output dir:** `/home/iducdev/Escritorio/curriculums/`
+- **CV Base:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/isaac-urdaneta-base.md`
+- **Reglas ATS:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/cv-ats-prompt.md`
+- **Output dir:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/`
 
 ## Workflow
 
@@ -99,5 +99,5 @@ Informa al usuario:
 ## Notas
 - Siempre leer `isaac-urdaneta-base.md` y `cv-ats-prompt.md` frescos antes de empezar
 - No modificar nunca los archivos base
-- Los outputs se guardan en `/home/iducdev/Escritorio/curriculums/`
+- Los outputs se guardan en `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/`
 - Verificar que pandoc está disponible antes de convertir

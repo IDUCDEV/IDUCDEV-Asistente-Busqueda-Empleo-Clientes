@@ -25,7 +25,7 @@ LATAM_COUNTRIES = {
     "honduras", "mexico", "nicaragua", "panama", "paraguay", "peru",
     "uruguay", "venezuela",
 }
-OUTPUT_DIR = "/home/iducdev/Escritorio/curriculums/vacantes"
+OUTPUT_DIR = "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes"
 
 
 # ── helpers ──────────────────────────────────────────────────────────
@@ -870,6 +870,33 @@ def main():
             seen[key] = dict(j)
             deduped.append(seen[key])
 
+    # ── Cross-session dedup vs estado/historial.json ──
+    # No repetir vacantes ya listadas en ejecuciones anteriores.
+    skipped = 0
+    sys.path.insert(0, os.path.join(os.path.dirname(OUTPUT_DIR), "estado"))
+    try:
+        from tracker import Historial, vacancy_key
+        hist = Historial()
+        fresh = []
+        skipped = 0
+        for j in deduped:
+            key = vacancy_key(j.get("company", ""), j.get("title", ""))
+            is_new = hist.add("vacantes", key, meta={
+                "empresa": j.get("company", ""),
+                "titulo": j.get("title", ""),
+                "url": j.get("url", ""),
+                "fuente": j.get("source", ""),
+                "salario": j.get("salary_min"),
+            })
+            if is_new:
+                fresh.append(j)
+            else:
+                skipped += 1
+        deduped = fresh
+    except Exception:
+        # Si no hay historial, se comporta como antes (sin dedup entre sesiones)
+        traceback.print_exc()
+
     # Re-count per source after dedup
     source_counts_deduped = defaultdict(int)
     for j in deduped:
@@ -880,7 +907,11 @@ def main():
     sections = []
     sections.append(f"# Vacantes Flutter - {date_str}\n")
     sections.append(f"> 🎯 Buscador automático · {time_str} UTC · {total_sources} fuentes consultadas")
-    sections.append("> 📍 Remoto LATAM (+ Venezuela presencial/híbrido)\n")
+    sections.append("> 📍 Remoto LATAM (+ Venezuela presencial/híbrido)")
+    if skipped:
+        sections.append(f"> 🔁 {len(deduped)} nuevas · {skipped} ya vistas (historial central)\n")
+    else:
+        sections.append("")
 
     # LinkedIn
     li_jobs = [j for j in deduped if j.get("source") == "LinkedIn"]
@@ -951,12 +982,30 @@ def main():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out_path = os.path.join(OUTPUT_DIR, f"{date_str}.md")
+
+    if not deduped and os.path.exists(out_path):
+        # Nada nuevo hoy y ya existe informe del día: no sobrescribir la lista que ya tiene.
+        print(out_path + " (sin cambios, informe del día ya existe)")
+        print("---JOBCOUNT---")
+        print(len(deduped))
+        print("---SKIPPED---")
+        print(skipped)
+        print("---SOURCES---")
+        for k, v in sorted(source_counts_deduped.items()):
+            print(f"{k}: {v}")
+        print("---ERRORS---")
+        for e in source_errors:
+            print(e)
+        return
+
     with open(out_path, "w") as f:
         f.write(markdown)
 
     print(out_path)
     print("---JOBCOUNT---")
     print(len(deduped))
+    print("---SKIPPED---")
+    print(skipped)
     print("---SOURCES---")
     for k, v in sorted(source_counts_deduped.items()):
         print(f"{k}: {v}")
