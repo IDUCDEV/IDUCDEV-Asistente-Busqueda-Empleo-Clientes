@@ -63,19 +63,22 @@ def skills_bootstrap(paths_dirs):
 PROJECT_DIR = project_root()
 ESTADO_DIR = os.path.join(PROJECT_DIR, "estado")
 SKILLS_DIR = os.path.join(PROJECT_DIR, ".opencode", "skills")
+RESOURCES_DIR = os.path.join(PROJECT_DIR, "recursos")
+RESULTADOS_DIR = os.path.join(PROJECT_DIR, "resultados")
 
 HISTORIAL_PATH = os.path.join(ESTADO_DIR, "historial.json")
 TAREAS_PATH = os.path.join(ESTADO_DIR, "tareas.json")
 RONDAS_PATH = os.path.join(ESTADO_DIR, "rondas.json")
 
 OUTPUT_DIRS = {
-    "vacantes": os.path.join(PROJECT_DIR, "vacantes"),
-    "vacantes-workana": os.path.join(PROJECT_DIR, "vacantes-workana"),
-    "vacantes-ocultas": os.path.join(PROJECT_DIR, "vacantes-ocultas"),
-    "clientes-potenciales": os.path.join(PROJECT_DIR, "clientes-potenciales"),
-    "empresas-target": os.path.join(PROJECT_DIR, "empresas-target"),
-    "mensajes-outreach": os.path.join(PROJECT_DIR, "mensajes-outreach"),
-    "informes": os.path.join(PROJECT_DIR, "informes"),
+    "vacantes": os.path.join(RESULTADOS_DIR, "vacantes"),
+    "vacantes-workana": os.path.join(RESULTADOS_DIR, "vacantes-workana"),
+    "vacantes-ocultas": os.path.join(RESULTADOS_DIR, "vacantes-ocultas"),
+    "clientes-potenciales": os.path.join(RESULTADOS_DIR, "clientes-potenciales"),
+    "empresas-target": os.path.join(RESULTADOS_DIR, "empresas-target"),
+    "mensajes-outreach": os.path.join(RESULTADOS_DIR, "mensajes-outreach"),
+    "cv": os.path.join(RESULTADOS_DIR, "cv"),
+    "informes": os.path.join(RESULTADOS_DIR, "informes"),
 }
 
 SKILL_SCRIPTS = {
@@ -100,6 +103,8 @@ if __name__ == "__main__":
     print(f"PROJECT_DIR      : {PROJECT_DIR}")
     print(f"ESTADO_DIR       : {ESTADO_DIR}")
     print(f"SKILLS_DIR       : {SKILLS_DIR}")
+    print(f"RESOURCES_DIR    : {RESOURCES_DIR}")
+    print(f"RESULTADOS_DIR   : {RESULTADOS_DIR}")
     print(f"HISTORIAL_PATH   : {HISTORIAL_PATH}")
     print(f"TAREAS_PATH      : {TAREAS_PATH}")
     print(f"RONDAS_PATH      : {RONDAS_PATH}")

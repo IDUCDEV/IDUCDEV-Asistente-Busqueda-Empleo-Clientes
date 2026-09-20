@@ -10,13 +10,13 @@ Generación de mensajes personalizados para outreach laboral en LinkedIn.
 Cuando el usuario pegue una URL de LinkedIn y pida un mensaje de contacto para buscar empleo, ejecuta este workflow.
 
 ## Referencias del proyecto (rutas relativas a la raíz)
-- **CV Base:** `isaac-urdaneta-base.md`
-- **Output dir:** `mensajes-outreach/`
+- **CV Base:** `recursos/cv/base-isaac-urdaneta.md`
+- **Output dir:** `resultados/mensajes-outreach/`
 
 ## Workflow
 
 ### Fase 1: Leer CV base
-Lee `isaac-urdaneta-base.md` para conocer los datos de Isaac.
+Lee `recursos/cv/base-isaac-urdaneta.md` para conocer los datos de Isaac.
 
 ### Fase 2: Intentar obtener información del perfil
 
@@ -75,7 +75,7 @@ Usa estos templates según el tono seleccionado, interpolando nombre y empresa d
 
 1. Guarda el mensaje en:
    ```
-   mensajes-outreach/{nombre-normalizado}-{YYYY-MM-DD}.md
+   resultados/mensajes-outreach/{nombre-normalizado}-{YYYY-MM-DD}.md
    ```
    Donde `nombre-normalizado` es el nombre de la persona en lowercase con guiones (ej: juan-perez).
 

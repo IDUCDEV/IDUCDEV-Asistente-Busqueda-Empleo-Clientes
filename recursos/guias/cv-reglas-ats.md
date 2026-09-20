@@ -2,7 +2,7 @@
 
 ## INPUT RECIBIDO
 
-- **CV Base:** `isaac-urdaneta-base.md`
+- **CV Base:** `recursos/cv/base-isaac-urdaneta.md`
 - **Vacante:** [Descripción completa del puesto/vacante]
 
 ---
@@ -163,7 +163,7 @@ En markdown limpio, optimizado para parseo ATS.
 
 ## USO DEL PROMPT
 
-1. Leer CV base de `isaac-urdaneta-base.md`
+1. Leer CV base de `recursos/cv/base-isaac-urdaneta.md`
 2. Leer descripción de vacante proporcionada
 3. Ejecutar instrucciones 1-5
 4. Guardar output como nuevo archivo markdown

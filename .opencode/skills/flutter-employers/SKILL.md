@@ -10,8 +10,8 @@ Enfocado en empresas **producto** (no agencias/consultoras): startups LATAM, emp
 
 ## Archivos de referencia (rutas relativas a la raíz del proyecto)
 
-- **DB de empresas (historial):** `empresas-target/leads-db.json`
-- **Output del día:** `empresas-target/{YYYY-MM-DD}-empresas.md`
+- **DB de empresas (historial):** `resultados/empresas-target/leads-db.json`
+- **Output del día:** `resultados/empresas-target/{YYYY-MM-DD}-empresas.md`
 
 ---
 
@@ -189,7 +189,7 @@ Al terminar las 4 fuentes, tendrás un array de empresas (posiblemente con dupli
 
 ### 2.1 — Cargar DB existente
 
-Leer `empresas-target/leads-db.json`.
+Leer `resultados/empresas-target/leads-db.json`.
 
 Si no existe, inicializar como:
 ```json
@@ -431,7 +431,7 @@ Cuando el usuario invoque la skill (ej: "busca empresas flutter", "flutter-emplo
 # FASE 3 → Enriquecimiento (top 5-8)
 # FASE 4 → Scoring + output markdown + guardar DB
 # Luego registrar la fase en la ronda del día (informe consolidado):
-python3 estado/orquestador.py registrar flutter-employers empresas-target/{YYYY-MM-DD}-empresas.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar flutter-employers resultados/empresas-target/{YYYY-MM-DD}-empresas.md --nuevas N --omitidas M
 ```
 
 ### Límites por ejecución

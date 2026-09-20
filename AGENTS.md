@@ -9,42 +9,56 @@ usando skills de openCode y un "cerebro" en `estado/`.
 1. **NUNCA hardcodear rutas.** La raíz se resuelve con `estado/config.py`
    (vía el marcador `.iducdev-root` o la env `IDUCDEV_PROJECT_DIR`). Usa
    rutas **relativas a la raíz** en comandos y docs; en Python, importa
-   `from config import PROJECT_DIR, OUTPUT_DIRS, ...`.
-2. **NUNCA repetir trabajo.** Todo lo visto queda en `estado/historial.json`
+   `from config import PROJECT_DIR, OUTPUT_DIRS, RESOURCES_DIR, ...`.
+2. **CONSULTA SIEMPRE el centro de recursos.** Antes de ejecutar cualquier
+   skill, lee `recursos/INDICE.md`: ahí está cada recurso de entrada y la
+   salida esperada de cada skill. Los recursos de entrada (CV base, reglas
+   ATS, guías) **NO se modifican**: los actualiza el humano.
+3. **NUNCA repetir trabajo.** Todo lo visto queda en `estado/historial.json`
    (categorías + claves normalizadas). Consulta antes de mostrar, registra
    después.
-3. **Entrada única:** la skill `asistente-empleo-clientes` es la puerta de
+4. **Entrada única:** la skill `asistente-empleo-clientes` es la puerta de
    entrada. La ronda CLI se delega con `estado/orquestador.py`.
-4. **No commitear** a menos que el usuario lo pida explícitamente.
+5. **Toda salida de una skill va a `resultados/<carpeta-de-la-skill>/`.**
+   Nunca sacar resultados a la raíz ni a `recursos/`.
+6. **No commitear** a menos que el usuario lo pida explícitamente.
 
 ## Mapa del repo
 
 ```
+recursos/             # CENTRO DE RECURSOS (entrada, lo mantiene el humano)
+  INDICE.md           # mapa maestro: recursos + salidas (CONSULTAR SIEMPRE)
+  cv/                 # base-isaac-urdaneta.md + CVs canónicos (ES/EN) + PDFs
+  guias/              # cv-reglas-ats.md, linkedin.md
+resultados/           # SALIDAS de las skills (se regeneran, ignoradas por git)
+  vacantes/           #   ← job-search
+  vacantes-workana/   #   ← workana-search
+  vacantes-ocultas/   #   ← linkedin-hidden-jobs
+  clientes-potenciales/#  ← prospectar-clientes
+  empresas-target/    #   ← flutter-employers
+  mensajes-outreach/  #   ← linkedin-outreach
+  cv/                 #   ← cv-apply (CV + carta + PDF)
+  informes/           #   ← orquestador (resumen diario)
 estado/
-  config.py          # fuente única de rutas (IMPORTANTE)
-  tracker.py         # helper historial: Historial, normalize_*, vacancy_key
-  historial.json     # dedup central ("no repitas esto")
-  tareas.json        # bandeja de entrada (acción + vencimiento)
-  rondas.json        # bitácora de rondas (fases + conteos)
-  orquestador.py     # CLI: ronda, registrar, estado, marcar, tareas, informe
+  config.py           # fuente única de rutas (IMPORTANTE)
+  tracker.py          # helper historial: Historial, normalize_*, vacancy_key
+  historial.json      # dedup central ("no repitas esto")
+  tareas.json         # bandeja de entrada (acción + vencimiento)
+  rondas.json         # bitácora de rondas (fases + conteos)
+  orquestador.py      # CLI: ronda, registrar, estado, marcar, tareas, informe
 .opencode/
-  skills/            # las 8 skills del asistente (proyecto-only)
-  command/           # comandos /ronda /estado /nuevo
-informes/            # resumenes diarios ({fecha}-resumen.md)
-vacantes/            # output job-search
-vacantes-workana/    # output workana-search
-vacantes-ocultas/    # output linkedin-hidden-jobs
-clientes-potenciales/# output prospectar-clientes (leads-db.json)
-empresas-target/     # output flutter-employers (leads-db.json)
-mensajes-outreach/   # output linkedin-outreach
+  skills/             # las 8 skills del asistente (proyecto-only)
+  command/            # comandos /ronda /estado /nuevo
+informes/  (ya no — ahora resultados/informes/)
 ```
 
 ## El cerebro (estado/)
 
 - `orquestador.py ronda [--empleos|--clientes]` → corre `job_search.py` y
   `workana_search.py`, anota las fases en `rondas.json` y regenera el
-  informe diario. Las fases de navegador (hidden-jobs, prospectar, empresas)
-  se registran con `orquestador.py registrar <fase> <archivo> --nuevas N`.
+  informe diario en `resultados/informes/`. Las fases de navegador
+  (hidden-jobs, prospectar, empresas) se registran con
+  `orquestador.py registrar <fase> <archivo> --nuevas N`.
 - `orquestador.py estado` expone historial + bandeja + vencidos (pendientes
   y seguimientos). `seguimientos` crea tareas automáticas D+3 (outreach) y
   D+7 (aplicaciones) desde el historial.

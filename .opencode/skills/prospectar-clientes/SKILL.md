@@ -9,8 +9,8 @@ Reemplaza el flujo de n8n. Busca negocios en Venezuela, analiza si necesitan ser
 
 ## Archivos de referencia (rutas relativas a la raíz del proyecto)
 
-- **DB de leads (historial):** `clientes-potenciales/leads-db.json`
-- **Output del día:** `clientes-potenciales/{YYYY-MM-DD}-leads.md`
+- **DB de leads (historial):** `resultados/clientes-potenciales/leads-db.json`
+- **Output del día:** `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md`
 
 ---
 
@@ -391,7 +391,7 @@ Cuando el usuario invoque la skill, ejecutar TODO el flujo en orden:
 4. FASE 4 → Actualizar DB + generar markdown
 5. Registrar la fase en la ronda del día (para el informe consolidado):
    ```bash
-   python3 estado/orquestador.py registrar prospectar-clientes clientes-potenciales/{YYYY-MM-DD}-leads.md --nuevas N --omitidas M
+   python3 estado/orquestador.py registrar prospectar-clientes resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md --nuevas N --omitidas M
    ```
 6. Mostrar el markdown al usuario
 

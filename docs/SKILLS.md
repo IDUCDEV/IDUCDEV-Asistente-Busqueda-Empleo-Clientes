@@ -41,13 +41,13 @@ python3 estado/orquestador.py estado | tareas | seguimientos | informe
 ### Fases de la "ronda diaria"
 
 ```
-1. job-search            → vacantes/            (script)
-2. workana-search        → vacantes-workana/    (script)
-3. linkedin-hidden-jobs  → vacantes-ocultas/    (navegador)
-4. prospectar-clientes   → clientes-potenciales/(navegador)
-5. flutter-employers     → empresas-target/     (navegador)
+1. job-search            → resultados/vacantes/               (script)
+2. workana-search        → resultados/vacantes-workana/       (script)
+3. linkedin-hidden-jobs  → resultados/vacantes-ocultas/       (navegador)
+4. prospectar-clientes   → resultados/clientes-potenciales/   (navegador)
+5. flutter-employers     → resultados/empresas-target/        (navegador)
    ─────────────────────────────────────────────────────
-   consolidar            → informes/{fecha}-resumen.md
+   consolidar            → resultados/informes/{fecha}-resumen.md
 ```
 
 ---
@@ -94,7 +94,7 @@ python3 .opencode/skills/job-search/job_search.py
 - Filtra Flutter/Dart, remoto, LATAM (LinkedIn ≤24h).
 - Normaliza salarios a USD/mes.
 - Dedup entre sesiones contra `estado/historial.json`.
-- Output: `vacantes/{YYYY-MM-DD}.md`
+- Output: `resultados/vacantes/{YYYY-MM-DD}.md`
 
 ## 2. workana-search — Proyectos freelance
 
@@ -105,7 +105,7 @@ python3 .opencode/skills/workana-search/workana_search.py
 - Scrapea Workana (IT & Programming > Mobile Development, hasta 20 págs).
 - Marca con ✅ proyectos Flutter/Dart.
 - Dedup entre sesiones (por slug) contra `estado/historial.json`.
-- Output: `vacantes-workana/{YYYY-MM-DD}.md`
+- Output: `resultados/vacantes-workana/{YYYY-MM-DD}.md`
 
 ## 3. linkedin-hidden-jobs — Mercado laboral oculto
 
@@ -114,13 +114,15 @@ python3 .opencode/skills/workana-search/workana_search.py
 - Filtros: URL `linkedin.com/posts`, oferta real, remoto/LATAM, últimos 3 días.
 - Extrae URL del post vía el menú de 3 puntos (obligatorio por post).
 - Registra posts vistos en `estado/historial.json`.
-- Output: `vacantes-ocultas/{YYYY-MM-DD}-hidden.md`
+- Output: `resultados/vacantes-ocultas/{YYYY-MM-DD}-hidden.md`
 
 ## 4. cv-apply — CV optimizado ATS
 
 - Análisis de vacante → decisión con pesos (Flutter core 40%, match ≥ 60%).
 - Genera CV optimizado + carta + PDF (`pandoc`, Liberation Sans).
-- Archivos base: `isaac-urdaneta-base.md`, `cv-ats-prompt.md`.
+- Archivos base: `recursos/cv/base-isaac-urdaneta.md`,
+  `recursos/guias/cv-reglas-ats.md`.
+- Output: `resultados/cv/{cv-base}-{rol}-{empresa}.md` + carta + PDF
 - Al aplicar, actualizar estado de la vacante a `applied`:
   ```bash
   python3 estado/orquestador.py marcar vacantes "empresa::titulo" applied
@@ -134,15 +136,15 @@ python3 .opencode/skills/workana-search/workana_search.py
   ```bash
   python3 estado/orquestador.py marcar outreach "<url-perfil>" enviado
   ```
-- Output: `mensajes-outreach/{nombre}-{YYYY-MM-DD}.md`
+- Output: `resultados/mensajes-outreach/{nombre}-{YYYY-MM-DD}.md`
 
 ## 6. flutter-employers — Discovery de empresas target
 
 - FASE 1: websearch + GitHub + LinkedIn + directorios (máx 12 queries).
-- FASE 2: dedup normalizado contra `empresas-target/leads-db.json`.
+- FASE 2: dedup normalizado contra `resultados/empresas-target/leads-db.json`.
 - FASE 3: enriquecer top 5-8 (website + careers + LinkedIn).
 - FASE 4: scoring 0-100 (Hot/Warm/Cold) → output + DB.
-- Output: `empresas-target/{YYYY-MM-DD}-empresas.md`, `leads-db.json`
+- Output: `resultados/empresas-target/{YYYY-MM-DD}-empresas.md`, `leads-db.json`
 
 ## 7. prospectar-clientes — Prospección de leads (VE)
 
@@ -150,7 +152,7 @@ python3 .opencode/skills/workana-search/workana_search.py
 - FASE 2: visitar y analizar websites con Imagen/IA.
 - FASE 3: scoring con IA (`service_match`, `pain_points`, `icebreaker`).
 - FASE 4: output + DB.
-- Output: `clientes-potenciales/{YYYY-MM-DD}-leads.md`, `leads-db.json`
+- Output: `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md`, `leads-db.json`
 
 ---
 

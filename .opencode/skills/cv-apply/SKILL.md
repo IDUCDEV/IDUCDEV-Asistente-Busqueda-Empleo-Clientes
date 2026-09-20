@@ -1,6 +1,6 @@
 ---
 name: cv-apply
-description: Use when the user pastes a job description and wants to evaluate it or generate an ATS-optimized CV and cover letter. Reads isaac-urdaneta-base.md and cv-ats-prompt.md from the project root. Generates .md, .pdf and cover letter.
+description: Use when the user pastes a job description and wants to evaluate it or generate an ATS-optimized CV and cover letter. Reads recursos/cv/base-isaac-urdaneta.md and recursos/guias/cv-reglas-ats.md from the resource center. Generates .md, .pdf and cover letter into resultados/cv/.
 ---
 
 # cv-apply — Aplicación automática a vacantes
@@ -8,9 +8,9 @@ description: Use when the user pastes a job description and wants to evaluate it
 Cuando el usuario pegue la descripción de una vacante y pida evaluarla o aplicar, ejecuta este workflow completo usando sus archivos de CV base y reglas ATS.
 
 ## Referencias del proyecto (rutas relativas a la raíz)
-- **CV Base:** `isaac-urdaneta-base.md`
-- **Reglas ATS:** `cv-ats-prompt.md`
-- **Output dir:** raíz del proyecto (`.`) — junto al CV base
+- **CV Base:** `recursos/cv/base-isaac-urdaneta.md` (centro de recursos)
+- **Reglas ATS:** `recursos/guias/cv-reglas-ats.md`
+- **Output dir:** `resultados/cv/` (CV optimizado + carta + PDF)
 
 ## Workflow
 
@@ -46,7 +46,7 @@ Presenta al usuario un resumen claro con:
 
 ### Fase 3: Generación del CV optimizado
 
-Si vale la pena, sigue las reglas de `cv-ats-prompt.md` al pie de la letra:
+Si vale la pena, sigue las reglas de `recursos/guias/cv-reglas-ats.md` al pie de la letra:
 
 1. **Resumen Profesional:** reescribe para enfatizar requisitos de la vacante, incluir keywords principales en primeras 2 líneas, mencionar años y modalidad
 2. **Habilidades Técnicas:** reordenar (primero lo requerido), agregar lo que falte pero se domine
@@ -106,7 +106,7 @@ python3 estado/orquestador.py marcar vacantes "<empresa::titulo>" applied
 ```
 
 ## Notas
-- Siempre leer `isaac-urdaneta-base.md` y `cv-ats-prompt.md` frescos antes de empezar
-- No modificar nunca los archivos base
-- Los outputs se guardan en la raíz del proyecto (junto al CV base)
+- Si no existen `recursos/cv/base-isaac-urdaneta.md` o `recursos/guias/cv-reglas-ats.md`, revisar `recursos/INDICE.md`
+- No modificar nunca los archivos base (los actualiza el usuario)
+- Los outputs se guardan en `resultados/cv/`
 - Verificar que pandoc está disponible antes de convertir

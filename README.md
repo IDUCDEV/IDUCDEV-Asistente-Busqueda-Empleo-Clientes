@@ -5,13 +5,19 @@ Asistente personal para delegar todo el proceso tedioso de buscar
 **clientes** (leads de negocio y empresas target), con deduplicación
 central para que **nunca se repita** nada.
 
-> **Agentes de IA:** lee [AGENTS.md](AGENTS.md) antes de tocar el repo.
+> **📘 Guía completa del proyecto:** **→ [GUIA.md](GUIA.md)**. Es el único
+> documento que necesitas: uso, centro de recursos, dónde caen los
+> resultados, comandos y restauración.
+>
+> **Agentes de IA:** lee [AGENTS.md](AGENTS.md) y consulta
+> [`recursos/INDICE.md`](recursos/INDICE.md) antes de tocar el repo.
 
-## 📘 Guía de uso
+## Estructura en dos zonas
 
-- **→ [GUIA.md](GUIA.md)** — manual del usuario: frases para delegar, qué
-  hace por ti, dónde se guarda cada cosa y cómo restaurarlo.
-- **→ [docs/SKILLS.md](docs/SKILLS.md)** — detalle técnico de las skills.
+| Zona | Qué es |
+|------|--------|
+| `recursos/` | **Centro de recursos**: lo que el asistente consulta (tu CV base, reglas ATS, guías). Los mantienes tú. Ver [GUIA.md §3](GUIA.md). |
+| `resultados/` | **Resultados por skill**: dónde cada skill plasma su salida (vacantes, leads, CVs, mensajes, informes). Ver [GUIA.md §4](GUIA.md). |
 
 ## 🧠 El cerebro (`estado/`)
 
@@ -24,30 +30,6 @@ central para que **nunca se repita** nada.
 | `tracker.py` | Helper del historial (consulta/registro/estado) |
 | `orquestador.py` | CLI: `ronda`, `registrar`, `estado`, `marcar`, `tareas`, `informe` |
 
-## 📁 Estructura
-
-```
-├── GUIA.md                      # Guía del usuario (leer primero)
-├── AGENTS.md                    # Guía para agentes de IA
-├── docs/
-│   └── SKILLS.md                # Detalle técnico de las skills
-├── README.md                    # Este archivo
-├── isaac-urdaneta-base.md       # CV base (nunca se modifica)
-├── cv-ats-prompt.md             # Reglas ATS para CVs
-├── CV_*.md / *.pdf              # CVs y PDFs generados
-├── .opencode/
-│   ├── skills/                  # Las 8 skills (proyecto-only)
-│   └── command/                 # /ronda /estado /nuevo
-├── vacantes/                    # Vacantes del día
-├── vacantes-workana/            # Proyectos freelance
-├── vacantes-ocultas/            # Vacantes de posts de LinkedIn
-├── clientes-potenciales/        # Leads de negocio (scoring)
-├── empresas-target/             # Empresas para aplicar
-├── mensajes-outreach/           # Mensajes de contacto
-├── informes/                    # Resumen diario de la ronda
-└── estado/                      # El cerebro (ver tabla arriba)
-```
-
 ## 🚀 Empezar
 
 Abre opencode en esta carpeta y di:
@@ -56,8 +38,8 @@ Abre opencode en esta carpeta y di:
 "Haz la ronda de hoy"
 ```
 
-El asistente busca empleos y clientes nuevos, omite lo ya visto y te
-deja un resumen en `informes/`. Ver la [guía](GUIA.md) para más frases.
+El asistente busca empleos y clientes nuevos, omite lo ya visto y te deja
+un resumen en `resultados/informes/`. Ver [GUIA.md](GUIA.md) para más frases.
 
 Comandos rápidos de opencode:
 - `/ronda` → ejecuta la ronda del día

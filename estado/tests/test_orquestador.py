@@ -38,7 +38,7 @@ class OrquestadorTestCase(unittest.TestCase):
 
 class TestParseOutput(unittest.TestCase):
     def test_parse_script_output_extrae_secciones(self):
-        out = """vacantes/2026-09-20.md
+        out = """resultados/vacantes/2026-09-20.md
 Posible spam / caducada: 2
 
 ---JOBCOUNT---
@@ -52,7 +52,7 @@ getonboard: 3
 computrabajo: fallo conexión
 """
         res = oq._parse_script_output(out)
-        self.assertEqual(res["path"], "vacantes/2026-09-20.md")
+        self.assertEqual(res["path"], "resultados/vacantes/2026-09-20.md")
         self.assertEqual(res["nuevas"], 5)
         self.assertEqual(res["omitidas"], 3)
         self.assertEqual(res["fuentes"], {"linkedin": "2", "getonboard": "3"})
@@ -84,7 +84,7 @@ class TestTareas(OrquestadorTestCase):
 
 class TestRondas(OrquestadorTestCase):
     def test_registrar_fase_guarda_y_es_idempotente(self):
-        oq.registrar_fase("job-search", "vacantes/2026-09-20.md",
+        oq.registrar_fase("job-search", "resultados/vacantes/2026-09-20.md",
                           nuevas=5, omitidas=3)
         rondas = oq.load_rondas()
         self.assertEqual(len(rondas["rondas"]), 1)
@@ -94,14 +94,14 @@ class TestRondas(OrquestadorTestCase):
         self.assertEqual(fases[0]["nuevas"], 5)
 
         # re-registrar la misma fase no duplica
-        oq.registrar_fase("job-search", "vacantes/2026-09-20.md",
+        oq.registrar_fase("job-search", "resultados/vacantes/2026-09-20.md",
                           nuevas=6, omitidas=3)
         rondas = oq.load_rondas()
         self.assertEqual(len(rondas["rondas"][0]["fases"]), 1)
         self.assertEqual(rondas["rondas"][0]["fases"][0]["nuevas"], 6)
 
     def test_registrar_fase_genera_informe(self):
-        oq.registrar_fase("job-search", "vacantes/2026-09-20.md", nuevas=2)
+        oq.registrar_fase("job-search", "resultados/vacantes/2026-09-20.md", nuevas=2)
         informe = os.path.join(self.info_dir, f"{oq.today()}-resumen.md")
         self.assertTrue(os.path.exists(informe), "debe generar informe del día")
         with open(informe, encoding="utf-8") as fh:

@@ -5,7 +5,7 @@ Centraliza el cerebro del asistente:
   * historial.json  → qué ya se vio (dedup)
   * tareas.json     → qué hay que hacer (bandeja de entrada) y cuándo
   * rondas.json     → qué se hizo hoy (bitácora de rondas)
-  * informes/*.md   → resumen diario consolidado
+  * resultados/informes/*.md   → resumen diario consolidado
 
 Comandos:
 
@@ -36,7 +36,7 @@ Comandos:
         Muestra seguiamientos vencidos y tareas próximas a vencer.
 
   python3 orquestador.py informe
-        (Re)genera informes/{YYYY-MM-DD}-resumen.md a partir de rondas.json.
+        (Re)genera resultados/informes/{YYYY-MM-DD}-resumen.md a partir de rondas.json.
 """
 
 import json
@@ -261,7 +261,7 @@ def cmd_ronda(args):
 
 
 def generar_informe():
-    """Genera informes/{YYYY-MM-DD}-resumen.md a partir de rondas.json."""
+    """Genera resultados/informes/{YYYY-MM-DD}-resumen.md a partir de rondas.json."""
     rondas = load_rondas()
     h = Historial()
     fecha = today()
@@ -501,7 +501,7 @@ def main(argv=None):
         p.print_help()
         print("\nEjemplos:")
         print("  python3 orquestador.py ronda --empleos")
-        print("  python3 orquestador.py registrar linkedin-hidden-jobs vacantes-ocultas/2026-09-20.md --nuevas 4")
+        print("  python3 orquestador.py registrar linkedin-hidden-jobs resultados/vacantes-ocultas/2026-09-20.md --nuevas 4")
         print("  python3 orquestador.py marcar vacantes <key> applied")
         print("  python3 orquestador.py seguimientos")
         return 0

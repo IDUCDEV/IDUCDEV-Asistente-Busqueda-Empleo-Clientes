@@ -5,7 +5,7 @@ Scrapea la categoría IT & Programming > Mobile Development,
 extrae el JSON embebido en el HTML y genera un markdown con todos
 los proyectos, marcando con ✅ los que mencionan Flutter/Dart.
 
-Output: vacantes-workana/{YYYY-MM-DD}.md
+Output: resultados/vacantes-workana/{YYYY-MM-DD}.md
 """
 
 import html
@@ -41,7 +41,7 @@ PROJECT_DIR = _find_project_root()
 if not PROJECT_DIR:
     sys.exit("No se localizó el proyecto IDUCDEV. Define IDUCDEV_PROJECT_DIR.")
 sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
-OUTPUT_DIR = os.path.join(PROJECT_DIR, "vacantes-workana")
+OUTPUT_DIR = os.path.join(PROJECT_DIR, "resultados", "vacantes-workana")
 
 BASE_URL = "https://www.workana.com/jobs?category=it-programming&subcategory=mobile-development&page={page}"
 

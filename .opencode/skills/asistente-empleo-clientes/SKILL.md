@@ -1,6 +1,6 @@
 ---
 name: asistente-empleo-clientes
-description: Orquestador central de búsqueda de empleo y clientes. Delegado único para TODO el proceso tedioso: buscar vacantes (job-search, workana-search, linkedin-hidden-jobs), descubrir empresas (flutter-employers), prospectar clientes (prospectar-clientes), generar outreach (linkedin-outreach) y preparar CVs (cv-apply). NUNCA repite nada: consulta y actualiza estado/historial.json. Genera un resumen diario en informes/.
+description: Orquestador central de búsqueda de empleo y clientes. Delegado único para TODO el proceso tedioso: buscar vacantes (job-search, workana-search, linkedin-hidden-jobs), descubrir empresas (flutter-employers), prospectar clientes (prospectar-clientes), generar outreach (linkedin-outreach) y preparar CVs (cv-apply). NUNCA repite nada: consulta y actualiza estado/historial.json. Genera un resumen diario en resultados/informes/.
 ---
 
 # Asistente IDUCDEV — Empleo + Clientes
@@ -23,9 +23,10 @@ Todas las rutas de este documento son **relativas a la raíz del proyecto**
 - **Historial central (dedup):** `estado/historial.json` (helper: `estado/tracker.py`)
 - **Bandeja de tareas:** `estado/tareas.json`
 - **Bitácora de rondas:** `estado/rondas.json`
-- **Informes diarios:** `informes/{YYYY-MM-DD}-resumen.md`
-- **Guía de uso (para el usuario):** `GUIA.md`
-- **CV base:** `isaac-urdaneta-base.md` | **Reglas ATS:** `cv-ats-prompt.md`
+- **Informes diarios:** `resultados/informes/{YYYY-MM-DD}-resumen.md`
+- **Centro de recursos (consultar antes):** `recursos/INDICE.md`
+- **Guía de uso (único documento, para el usuario):** `GUIA.md`
+- **CV base:** `recursos/cv/base-isaac-urdaneta.md` | **Reglas ATS:** `recursos/guias/cv-reglas-ats.md`
 
 ## Principio de oro: NUNCA repetir
 
@@ -76,14 +77,14 @@ Ejecuta el pipeline completo en este orden, SIN repetir nada:
 python3 estado/orquestador.py ronda --empleos
 ```
 Esto lanza los scripts 1 y 2, registra las fases en `estado/rondas.json`
-y genera `informes/{YYYY-MM-DD}-resumen.md`.
+y genera `resultados/informes/{YYYY-MM-DD}-resumen.md`.
 
 Después de cada fase de **navegador** ejecutada manualmente (pasos 3-5),
 regístrala para que el informe la consolide:
 ```bash
-python3 estado/orquestador.py registrar linkedin-hidden-jobs vacantes-ocultas/{fecha}-hidden.md --nuevas N --omitidas M
-python3 estado/orquestador.py registrar prospectar-clientes clientes-potenciales/{fecha}-leads.md --nuevas N --omitidas M
-python3 estado/orquestador.py registrar flutter-employers empresas-target/{fecha}-empresas.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar linkedin-hidden-jobs resultados/vacantes-ocultas/{fecha}-hidden.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar prospectar-clientes resultados/clientes-potenciales/{fecha}-leads.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar flutter-employers resultados/empresas-target/{fecha}-empresas.md --nuevas N --omitidas M
 ```
 
 Al terminar todas las fases, regenera/consolida el resumen:

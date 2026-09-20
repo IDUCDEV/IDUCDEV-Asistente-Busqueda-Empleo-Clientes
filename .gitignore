@@ -5,10 +5,4 @@ __pycache__/
 *.tmp
 
 # Outputs generados por las skills (se regeneran solos)
-vacantes/
-vacantes-ocultas/
-vacantes-workana/
-clientes-potenciales/
-empresas-target/
-mensajes-outreach/
-informes/
+resultados/

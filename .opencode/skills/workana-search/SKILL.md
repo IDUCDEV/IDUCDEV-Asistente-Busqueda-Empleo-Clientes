@@ -12,7 +12,7 @@ python3 .opencode/skills/workana-search/workana_search.py
 ```
 
 Esto orquesta todo el workflow (fetch, parse, filtros, markdown).  
-El script imprime la ruta del archivo generado (en `vacantes-workana/{fecha}.md`),
+El script imprime la ruta del archivo generado (en `resultados/vacantes-workana/{fecha}.md`),
 conteos y errores.  
 Muéstrale el resultado al usuario e indica que puede aplicar con `cv-apply`.
 
@@ -48,7 +48,7 @@ https://www.workana.com/jobs?category=it-programming&subcategory=mobile-developm
 ## Output
 
 ```
-vacantes-workana/{YYYY-MM-DD}.md
+resultados/vacantes-workana/{YYYY-MM-DD}.md
 ```
 
 Si se invoca varias veces el mismo día, sobrescribe el archivo del día.

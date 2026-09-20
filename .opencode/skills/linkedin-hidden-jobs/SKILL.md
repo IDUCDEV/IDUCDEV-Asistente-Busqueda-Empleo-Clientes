@@ -1,6 +1,6 @@
 ---
 name: linkedin-hidden-jobs
-description: Busca el "hidden job market" de LinkedIn (posts donde la gente publica vacantes de Flutter/Dart, no avisos oficiales). Queries mixtas español/inglés para captar reclutadores LATAM y global. Filtra remoto/LATAM/español/inglés, últimos 3 días. Extrae URL directa del post vía menú de 3 puntos. Genera markdown en vacantes-ocultas/.
+description: Busca el "hidden job market" de LinkedIn (posts donde la gente publica vacantes de Flutter/Dart, no avisos oficiales). Queries mixtas español/inglés para captar reclutadores LATAM y global. Filtra remoto/LATAM/español/inglés, últimos 3 días. Extrae URL directa del post vía menú de 3 puntos. Genera markdown en resultados/vacantes-ocultas/.
 ---
 
 # Skill: linkedin-hidden-jobs
@@ -171,7 +171,7 @@ Si no hay fecha visible, marcar con ⚠️ y decidir por contenido.
 ## Archivo de salida
 
 ```
-vacantes-ocultas/{YYYY-MM-DD}-hidden.md
+resultados/vacantes-ocultas/{YYYY-MM-DD}-hidden.md
 ```
 
 Si se invoca varias veces el mismo dia, sobrescribe el archivo.
@@ -202,7 +202,7 @@ EOF
 
 Al terminar, registra la fase en la ronda (para el informe diario):
 ```bash
-python3 estado/orquestador.py registrar linkedin-hidden-jobs vacantes-ocultas/{fecha}-hidden.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar linkedin-hidden-jobs resultados/vacantes-ocultas/{fecha}-hidden.md --nuevas N --omitidas M
 ```
 
 ---

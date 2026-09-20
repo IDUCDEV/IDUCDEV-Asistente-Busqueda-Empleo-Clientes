@@ -12,7 +12,7 @@ python3 .opencode/skills/job-search/job_search.py
 ```
 
 Esto orquesta TODO el workflow (fetch, parse, filtros, dedup, markdown).  
-El script imprime la ruta del archivo generado (en `vacantes/{fecha}.md`),
+El script imprime la ruta del archivo generado (en `resultados/vacantes/{fecha}.md`),
 conteos y errores.  
 Muéstrale el resultado al usuario e indica que puede aplicar con `cv-apply`.
 
@@ -249,8 +249,8 @@ Cuando el usuario vea la lista y quiera aplicar a una:
 1. Usuario dice: "aplica a esta" y pasa el link o descripción
 2. Cargar la skill `cv-apply`
 3. Ejecutar el workflow de `cv-apply`:
-   - Leer CV base (`isaac-urdaneta-base.md`)
-   - Leer reglas ATS (`cv-ats-prompt.md`)
+   - Leer CV base (`recursos/cv/base-isaac-urdaneta.md`)
+   - Leer reglas ATS (`recursos/guias/cv-reglas-ats.md`)
    - Analizar la vacante
    - Generar CV optimizado en markdown
    - Generar carta de presentación
@@ -266,7 +266,7 @@ Cuando el usuario vea la lista y quiera aplicar a una:
 ## Archivos de salida
 
 ```
-vacantes/{YYYY-MM-DD}.md
+resultados/vacantes/{YYYY-MM-DD}.md
 ```
 
 Si se invoca varias veces el mismo día, sobrescribe el archivo del día (siempre la versión más reciente).

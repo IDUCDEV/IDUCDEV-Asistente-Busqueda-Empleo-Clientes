@@ -2,7 +2,7 @@
 """job_search.py — Flutter/LATAM remote job aggregator.
 
 Orquestra 7+ fuentes, filtra, deduplica, normaliza salarios
-y genera markdown en vacantes/{YYYY-MM-DD}.md
+y genera markdown en resultados/vacantes/{YYYY-MM-DD}.md
 """
 
 import html
@@ -45,7 +45,7 @@ PROJECT_DIR = _find_project_root()
 if not PROJECT_DIR:
     sys.exit("No se localizó el proyecto IDUCDEV. Define IDUCDEV_PROJECT_DIR.")
 sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
-OUTPUT_DIR = os.path.join(PROJECT_DIR, "vacantes")
+OUTPUT_DIR = os.path.join(PROJECT_DIR, "resultados", "vacantes")
 
 
 # ── helpers ──────────────────────────────────────────────────────────
