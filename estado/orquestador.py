@@ -32,6 +32,11 @@ Comandos:
   python3 orquestador.py tarea-done <id>
         Marca una tarea como hecha.
 
+  python3 orquestador.py reset [--yes]
+        Vacía el estado completo para reempezar desde cero: historial.json
+        (dedup), tareas.json (bandeja) y rondas.json (bitácora). Pide
+        confirmación salvo --yes. No toca resultados/.
+
   python3 orquestador.py seguimientos
         Muestra seguiamientos vencidos y tareas próximas a vencer.
 
@@ -47,9 +52,9 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import (ESTADO_DIR, OUTPUT_DIRS, PROJECT_DIR, RONDAS_PATH,
-                    SEGUIMIENTO_DIAS, SKILL_SCRIPTS, TAREAS_PATH)
-from tracker import Historial
+from config import (ESTADO_DIR, HISTORIAL_PATH, OUTPUT_DIRS, PROJECT_DIR,
+                    RONDAS_PATH, SEGUIMIENTO_DIAS, SKILL_SCRIPTS, TAREAS_PATH)
+from tracker import CATEGORIES, Historial
 
 VERSIONADO = "orquestador 1.0"
 
@@ -452,6 +457,27 @@ def cmd_tarea_done(args):
     return 1
 
 
+# ─────────────────────────────── reset ───────────────────────────────
+
+
+def cmd_reset(args):
+    """Vacía los 3 archivos de estado: historial.json, tareas.json, rondas.json."""
+    if not args.yes:
+        respuesta = input("¿Seguro que quieres vaciar historial, tareas y rondas? [y/N] ").strip().lower()
+        if respuesta not in ("y", "yes", "s", "si"):
+            print("Reset cancelado.")
+            return 1
+    save_json(HISTORIAL_PATH, {cat: [] for cat in CATEGORIES})
+    save_json(TAREAS_PATH, {"tareas": []})
+    save_json(RONDAS_PATH, {"rondas": []})
+    print("Estado reiniciado:")
+    print(f"  historial.json → {HISTORIAL_PATH}")
+    print(f"  tareas.json    → {TAREAS_PATH}")
+    print(f"  rondas.json    → {RONDAS_PATH}")
+    print("Informe: " + generar_informe())
+    return 0
+
+
 def main(argv=None):
     import argparse
     p = argparse.ArgumentParser(prog="orquestador.py", description=VERSIONADO)
@@ -496,6 +522,10 @@ def main(argv=None):
     p_td.set_defaults(func=cmd_tarea_done)
     sub.add_parser("informe", help="(re)genera el informe del día").set_defaults(func=lambda a: print(generar_informe()))
 
+    p_reset = sub.add_parser("reset", help="vacía historial, tareas y rondas (reempezar)")
+    p_reset.add_argument("--yes", action="store_true", help="omitir la confirmación")
+    p_reset.set_defaults(func=cmd_reset)
+
     args = p.parse_args(argv)
     if not hasattr(args, "func"):
         p.print_help()
@@ -504,6 +534,7 @@ def main(argv=None):
         print("  python3 orquestador.py registrar linkedin-hidden-jobs resultados/vacantes-ocultas/2026-09-20.md --nuevas 4")
         print("  python3 orquestador.py marcar vacantes <key> applied")
         print("  python3 orquestador.py seguimientos")
+        print("  python3 orquestador.py reset --yes")
         return 0
     return args.func(args)
 

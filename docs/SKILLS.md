@@ -36,6 +36,7 @@ python3 estado/orquestador.py ronda --empleos     # fases 1-2 (script)
 python3 estado/orquestador.py registrar <fase> <archivo> --nuevas N
 python3 estado/orquestador.py marcar <cat> <key> <estado>
 python3 estado/orquestador.py estado | tareas | seguimientos | informe
+python3 estado/orquestador.py reset --yes   # reempezar: vacía historial/tareas/rondas
 ```
 
 ### Fases de la "ronda diaria"

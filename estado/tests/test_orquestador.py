@@ -10,6 +10,8 @@ from types import SimpleNamespace
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+import unittest.mock  # noqa: E402
+
 import orquestador as oq  # noqa: E402
 from tracker import Historial as _Historial  # noqa: E402
 
@@ -25,6 +27,7 @@ class OrquestadorTestCase(unittest.TestCase):
         self.info_dir = os.path.join(self.tmp, "informes")
 
         # Aislar todas las rutas de las que depende el orquestador
+        oq.HISTORIAL_PATH = self.hist_path
         oq.TAREAS_PATH = self.tarea_path
         oq.RONDAS_PATH = self.ronda_path
         oq.OUTPUT_DIRS = {"informes": self.info_dir}
@@ -142,6 +145,30 @@ class TestSeguimientos(OrquestadorTestCase):
         self.assertEqual(creados, 2)
         tipos = {t["tipo"] for t in oq.tareas_pendientes()}
         self.assertEqual(tipos, {"seguimiento_outreach", "seguimiento_aplicacion"})
+
+
+class TestCmdReset(OrquestadorTestCase):
+    def test_reset_limpia_dbs_con_yes(self):
+        self.tracker.add("vacantes", "empresa::puesto", {"url": "https://x"})
+        self.tracker.add("proyectos_workana", "slug-proyecto")
+        oq.tarea_nueva("seguimiento_aplicacion", "vacantes", "empresa::puesto",
+                       "Seguimiento: empresa::puesto", dias=7)
+        oq.registrar_fase("job-search", "resultados/vacantes/2026-09-20.md", nuevas=5)
+
+        self.assertEqual(oq.cmd_reset(SimpleNamespace(yes=True)), 0)
+
+        h = _Historial(path=self.hist_path)
+        self.assertEqual(h.stats(), {cat: 0 for cat in _Historial(path=self.hist_path).stats()})
+        self.assertEqual(sum(h.stats().values()), 0, "historial debe quedar vacío")
+        self.assertEqual(oq.load_tareas(), {"tareas": []})
+        self.assertEqual(oq.load_rondas(), {"rondas": []})
+
+    def test_reset_aborta_sin_confirmacion(self):
+        self.tracker.add("vacantes", "empresa::puesto", {"url": "https://x"})
+        with unittest.mock.patch("builtins.input", return_value="n"):
+            self.assertEqual(oq.cmd_reset(SimpleNamespace(yes=False)), 1)
+        self.assertEqual(len(_Historial(path=self.hist_path).data["vacantes"]), 1,
+                         "sin confirmación no se debe borrar nada")
 
 
 class TestCmdRonda(OrquestadorTestCase):

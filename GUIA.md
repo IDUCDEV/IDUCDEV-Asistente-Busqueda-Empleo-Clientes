@@ -113,7 +113,7 @@ no ensucian el repo.
 | `tareas.json` | Bandeja de entrada (acciones + vencimientos) |
 | `rondas.json` | Bitácora de rondas (fases + conteos) |
 | `tracker.py` | Helper del historial (consulta/registro/estado) |
-| `orquestador.py` | CLI: `ronda`, `registrar`, `estado`, `marcar`, `tareas`, `informe` |
+| `orquestador.py` | CLI: `ronda`, `registrar`, `estado`, `marcar`, `tareas`, `informe`, `reset` |
 
 **Cómo funciona el ciclo de estado:** `nuevo → revisado → en_proceso →
 aplicado/enviado → respuesta/descartado`. Cuando marcas algo como aplicado o
@@ -155,7 +155,13 @@ python3 estado/orquestador.py tareas          # bandeja de entrada
 python3 estado/orquestador.py seguimientos    # seguimientos vencidos/próximos
 python3 estado/orquestador.py ronda --empleos # fases 1-2 + informe
 python3 estado/orquestador.py informe         # regenera el resumen del día
+python3 estado/orquestador.py reset --yes     # ¡CUIDADO! vacía historial/tareas/rondas (reempezar)
 ```
+
+> `reset` borra la deduplicación central (historial), la bandeja de entrada
+> (tareas) y la bitácora (rondas): todo lo ya visto volverá a aparecer.
+> Pide confirmación; una vez ejecutado **no hay marcha atrás** (haz backup
+> de `estado/` si dudas). No toca `resultados/`.
 
 ---
 

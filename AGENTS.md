@@ -45,7 +45,7 @@ estado/
   historial.json      # dedup central ("no repitas esto")
   tareas.json         # bandeja de entrada (acción + vencimiento)
   rondas.json         # bitácora de rondas (fases + conteos)
-  orquestador.py      # CLI: ronda, registrar, estado, marcar, tareas, informe
+  orquestador.py      # CLI: ronda, registrar, estado, marcar, tareas, informe, reset
 .opencode/
   skills/             # las 8 skills del asistente (proyecto-only)
   command/            # comandos /ronda /estado /nuevo
@@ -64,6 +64,8 @@ informes/  (ya no — ahora resultados/informes/)
   D+7 (aplicaciones) desde el historial.
 - `marcar <cat> <key> <estado>` actualiza el historial y crea la tarea de
   seguimiento correspondiente.
+- `reset [--yes]` vacía el estado para reempezar desde cero: historial,
+  tareas y rondas. Pide confirmación salvo `--yes` (no toca `resultados/`).
 
 ## Ciclo de vida del estado (historial.json)
 
