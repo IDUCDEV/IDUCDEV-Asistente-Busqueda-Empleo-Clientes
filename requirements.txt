@@ -1,0 +1,8 @@
+# El asistente usa SOLO la biblioteca estándar de Python: no requiere pip install.
+# (json, os, re, subprocess, argparse, datetime, unittest para tests)
+#
+# Dependencias del sistema operativo:
+#   python3, pandoc, fonts-liberation, chrome (navegador)
+#
+# Tests:
+#   python3 -m unittest discover -s estado/tests

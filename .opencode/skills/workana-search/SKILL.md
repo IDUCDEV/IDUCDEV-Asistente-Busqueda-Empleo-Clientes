@@ -8,12 +8,18 @@ description: Busca proyectos freelance en Workana (IT & Programming > Mobile Dev
 Buscador de proyectos mobile en Workana. Cuando el usuario invoque esta skill, ejecuta:
 
 ```bash
-python3 /home/iducdev/.opencode/skills/workana-search/workana_search.py
+python3 .opencode/skills/workana-search/workana_search.py
 ```
 
 Esto orquesta todo el workflow (fetch, parse, filtros, markdown).  
-El script imprime la ruta del archivo generado, conteos y errores.  
+El script imprime la ruta del archivo generado (en `vacantes-workana/{fecha}.md`),
+conteos y errores.  
 Muéstrale el resultado al usuario e indica que puede aplicar con `cv-apply`.
+
+Si invocas la skill dentro de la ronda, ejecútala vía orquestador:
+```bash
+python3 estado/orquestador.py ronda --empleos
+```
 
 ## Fuente
 
@@ -42,7 +48,7 @@ https://www.workana.com/jobs?category=it-programming&subcategory=mobile-developm
 ## Output
 
 ```
-/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes-workana/{YYYY-MM-DD}.md
+vacantes-workana/{YYYY-MM-DD}.md
 ```
 
 Si se invoca varias veces el mismo día, sobrescribe el archivo del día.
@@ -54,6 +60,10 @@ Cuando el usuario vea la lista y quiera aplicar a un proyecto:
 1. Usuario dice: "aplica a este proyecto" y pasa el link o slug
 2. Cargar la skill `cv-apply`
 3. El workflow de `cv-apply` genera la propuesta personalizada
+4. Marcar el proyecto como `applied`:
+   ```bash
+   python3 estado/orquestador.py marcar proyectos_workana "<slug>" applied
+   ```
 
 ## Pipeline
 

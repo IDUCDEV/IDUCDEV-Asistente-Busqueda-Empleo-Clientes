@@ -8,12 +8,18 @@ description: Use when the user asks to search for Flutter/remote/LATAM job vacan
 Buscador de vacantes Flutter para LATAM. Cuando el usuario invoque esta skill, ejecuta:
 
 ```bash
-python3 /home/iducdev/.opencode/skills/job-search/job_search.py
+python3 .opencode/skills/job-search/job_search.py
 ```
 
 Esto orquesta TODO el workflow (fetch, parse, filtros, dedup, markdown).  
-El script imprime la ruta del archivo generado, conteos y errores.  
+El script imprime la ruta del archivo generado (en `vacantes/{fecha}.md`),
+conteos y errores.  
 Muéstrale el resultado al usuario e indica que puede aplicar con `cv-apply`.
+
+Si invocas la skill dentro de la ronda, ejecútala vía orquestador:
+```bash
+python3 estado/orquestador.py ronda --empleos
+```
 
 ---
 
@@ -228,56 +234,8 @@ https://ec.computrabajo.com/trabajo-de-flutter   (Ecuador)
 ### {ID}. {Título}
 ...
 
----
-
-## Himalayas ({n} vacantes)
-
-...
-
----
-
-## Career Nest ({n} vacantes)
-
-...
-
----
-
-## RemoteJobs.org ({n} vacantes)
-
-...
-
----
-
-## Jobicy ({n} vacantes)
-
-...
-
----
-
-## Computrabajo
-
-### Venezuela ({n} vacantes)
-...
-
-### México ({n} vacantes)
-...
-
-### Colombia ({n} vacantes)
-...
-
-### Argentina ({n} vacantes)
-...
-
-### Chile ({n} vacantes)
-...
-
-### Perú ({n} vacantes)
-...
-
-### Ecuador ({n} vacantes)
-...
-
----
+(se repite el mismo bloque para Himalayas, RemoteJobs.org, Jobicy, Career Nest
+ y Computrabajo por país)
 
 > 📝 Para aplicar: copia el `🔗 link` y dímelo con "aplica a esta vacante" para generar CV personalizado con `cv-apply`.
 ```
@@ -289,7 +247,7 @@ https://ec.computrabajo.com/trabajo-de-flutter   (Ecuador)
 Cuando el usuario vea la lista y quiera aplicar a una:
 
 1. Usuario dice: "aplica a esta" y pasa el link o descripción
-2. Cargar la skill `cv-apply` existente
+2. Cargar la skill `cv-apply`
 3. Ejecutar el workflow de `cv-apply`:
    - Leer CV base (`isaac-urdaneta-base.md`)
    - Leer reglas ATS (`cv-ats-prompt.md`)
@@ -298,13 +256,17 @@ Cuando el usuario vea la lista y quiera aplicar a una:
    - Generar carta de presentación
    - Convertir a PDF con pandoc
    - Mostrar resultado
+4. Marcar la vacante como `applied`:
+   ```bash
+   python3 estado/orquestador.py marcar vacantes "<empresa::titulo>" applied
+   ```
 
 ---
 
 ## Archivos de salida
 
 ```
-/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes/{YYYY-MM-DD}.md
+vacantes/{YYYY-MM-DD}.md
 ```
 
 Si se invoca varias veces el mismo día, sobrescribe el archivo del día (siempre la versión más reciente).

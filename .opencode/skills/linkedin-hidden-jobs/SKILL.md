@@ -171,7 +171,7 @@ Si no hay fecha visible, marcar con ⚠️ y decidir por contenido.
 ## Archivo de salida
 
 ```
-/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes-ocultas/{YYYY-MM-DD}-hidden.md
+vacantes-ocultas/{YYYY-MM-DD}-hidden.md
 ```
 
 Si se invoca varias veces el mismo dia, sobrescribe el archivo.
@@ -180,8 +180,7 @@ Si se invoca varias veces el mismo dia, sobrescribe el archivo.
 
 ## Dedup central (NO repetir posts)
 
-Antes de escribir el archivo, consulta y actualiza
-`/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`:
+Antes de escribir el archivo, consulta y actualiza `estado/historial.json`:
 
 1. Lee las claves ya registradas de la categoría `posts_linkedin` (URL del post).
 2. Para cada post extraído, si su URL ya está → **omítelo** (no listarlo).
@@ -193,12 +192,17 @@ Helper sugerido (Python):
 ```bash
 python3 - <<'EOF'
 import sys
-sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+sys.path.insert(0, "estado")
 from tracker import Historial
 h = Historial()
 # consultar: h.is_known("posts_linkedin", url)
 # registrar: h.add("posts_linkedin", url, meta={"autor": ..., "url": url})
 EOF
+```
+
+Al terminar, registra la fase en la ronda (para el informe diario):
+```bash
+python3 estado/orquestador.py registrar linkedin-hidden-jobs vacantes-ocultas/{fecha}-hidden.md --nuevas N --omitidas M
 ```
 
 ---

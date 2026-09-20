@@ -7,10 +7,10 @@ description: Genera leads de negocios venezolanos que necesiten desarrollo web, 
 
 Reemplaza el flujo de n8n. Busca negocios en Venezuela, analiza si necesitan servicios digitales y genera un markdown listo para usar.
 
-## Archivos de referencia
+## Archivos de referencia (rutas relativas a la raíz del proyecto)
 
-- **DB de leads (historial):** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/clientes-potenciales/leads-db.json`
-- **Output del día:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/clientes-potenciales/{YYYY-MM-DD}-leads.md`
+- **DB de leads (historial):** `clientes-potenciales/leads-db.json`
+- **Output del día:** `clientes-potenciales/{YYYY-MM-DD}-leads.md`
 
 ---
 
@@ -142,13 +142,13 @@ Comparar los leads obtenidos de las 3 fuentes. Eliminar duplicados por nombre (n
 Para mantener estado entre sesiones, leer `leads-db.json` al inicio y cruzar contra nuevos leads. Los que ya existen se saltan.
 
 Además, cruzar contra el historial central del proyecto:
-`/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`
+`estado/historial.json`
 (categoría `clientes`, clave: dominio o nombre normalizado), usando el helper:
 
 ```bash
 python3 - <<'EOF'
 import sys
-sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+sys.path.insert(0, "estado")
 from tracker import Historial
 h = Historial()
 # consultar: h.is_known("clientes", dominio_o_nombre)
@@ -389,7 +389,11 @@ Cuando el usuario invoque la skill, ejecutar TODO el flujo en orden:
 2. FASE 2 → Visitar websites de leads nuevos
 3. FASE 3 → Scorer cada lead
 4. FASE 4 → Actualizar DB + generar markdown
-5. Mostrar el markdown al usuario
+5. Registrar la fase en la ronda del día (para el informe consolidado):
+   ```bash
+   python3 estado/orquestador.py registrar prospectar-clientes clientes-potenciales/{YYYY-MM-DD}-leads.md --nuevas N --omitidas M
+   ```
+6. Mostrar el markdown al usuario
 
 ### Notas por fuente:
 

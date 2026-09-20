@@ -15,20 +15,29 @@ Uso desde otros scripts:
     h = Historial()
     h.add("vacantes", key, meta={"empresa": ..., "titulo": ...})
     h.is_known("vacantes", key)
+    h.set_state("vacantes", key, "applied")
+
+Ciclo de vida del estado: nuevo → revisado → en_proceso → aplicado/enviado
+→ respuesta/descartado. `h.vencidos(dias)` devuelve items con estado
+(enviado/applied/contactado) cuya última actualización supera `dias`
+(usado para generar follow-ups automáticos).
 
 Uso standalone (CLI):
-    python3 tracker.py purge                # limpia categorías vacías
-    python3 tracker.py stats                # cuenta items por categoría
+    python3 tracker.py stats                 # conteo por categoría
+    python3 tracker.py estado                # tablero (pendientes + vencidos)
+    python3 tracker.py vencidos [dias]       # seguimientos vencidos
+    python3 tracker.py estados <cat>         # items con su estado
+    python3 tracker.py buscar <cat> <texto>  # búsqueda en claves
+    python3 tracker.py purge                 # limpia categorías vacías
 """
 
 import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HISTORIAL_PATH = os.path.join(PROJECT_DIR, "estado", "historial.json")
+from config import HISTORIAL_PATH, PROJECT_DIR
 
 CATEGORIES = {
     "vacantes": "clave: empresa::titulo normalizados",
@@ -155,7 +164,7 @@ class Historial:
         return result
 
     def set_state(self, category, key, state):
-        """Actualiza el estado de un item: nuevo|aplicado|descartado|contactado."""
+        """Actualiza el estado de un item: nuevo|aplicado|descartado|contactado..."""
         for item in self.data.get(category, []):
             if item.get("key") == key:
                 item["estado"] = state
@@ -163,6 +172,35 @@ class Historial:
                 self.save()
                 return True
         return False
+
+    def by_state(self, category, states=None):
+        """Devuelve items de una categoría filtrados por su `estado`."""
+        items = self.data.get(category, [])
+        if states is None:
+            return [dict(i) for i in items]
+        states = set(states)
+        return [dict(i) for i in items if i.get("estado") in states]
+
+    def pendientes(self, estados=("nuevo", "en_proceso")):
+        """Resumen de items que requieren acción, agrupados por categoría."""
+        return {cat: self.by_state(cat, estados) for cat in CATEGORIES}
+
+    def vencidos(self, dias, estados=("enviado", "applied", "contactado")):
+        """Items con estado dado cuya última actualización supera `dias` (para seguimiento)."""
+        cutoff = datetime.now(timezone.utc) - timedelta(days=dias)
+        out = []
+        for cat in CATEGORIES:
+            for i in self.data.get(cat, []):
+                if i.get("estado") not in estados:
+                    continue
+                ts = i.get("fecha_actualizado") or i.get("fecha_visto") or ""
+                try:
+                    d = datetime.fromisoformat(ts)
+                except Exception:
+                    continue
+                if d < cutoff:
+                    out.append({**i, "categoria": cat})
+        return out
 
     def stats(self):
         return {cat: len(self.data.get(cat, [])) for cat in CATEGORIES}
@@ -175,6 +213,35 @@ def main():
         print(f"Historial: {h.path}")
         for cat, n in h.stats().items():
             print(f"  {cat}: {n}")
+    elif cmd == "estado":
+        print(f"Historial: {h.path}\n")
+        print("=== Tablero del asistente ===")
+        for cat, n in h.stats().items():
+            print(f"  {cat:<18} {n}")
+        pen = h.pendientes()
+        total_pen = sum(len(v) for v in pen.values())
+        print(f"\nPendientes de acción (nuevo/en_proceso): {total_pen}")
+        for cat, items in pen.items():
+            if items:
+                print(f"  {cat}: {len(items)}")
+        vencidos = h.vencidos(3)
+        print(f"\nSeguimientos vencidos (3+ días): {len(vencidos)}")
+        for it in vencidos:
+            print(f"  [{it['categoria']}] {it.get('key')} ({it.get('estado')})")
+    elif cmd == "vencidos":
+        dias = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+        for it in h.vencidos(dias):
+            print(f"[{it['categoria']}] {it.get('key')} ({it.get('estado')})")
+    elif cmd == "estados":
+        cat = sys.argv[2] if len(sys.argv) > 2 else "vacantes"
+        for it in h.data.get(cat, []):
+            print(f"  {it.get('estado', '-'):<12} {it.get('fecha_visto', '')[:10]} {it['key']}")
+    elif cmd == "buscar":
+        cat = sys.argv[2] if len(sys.argv) > 2 else "vacantes"
+        sub = sys.argv[3] if len(sys.argv) > 3 else ""
+        for it in h.data.get(cat, []):
+            if sub in it["key"].lower():
+                print(f"  {it.get('estado', '-'):<12} {it['key']}")
     elif cmd == "purge":
         empty = [c for c, n in h.stats().items() if n == 0]
         for cat in list(h.data):
@@ -184,6 +251,7 @@ def main():
         print(f"Categorías vacías: {empty or 'ninguna'}. Historial limpio.")
     else:
         print(f"Comando desconocido: {cmd}")
+        print("Uso: stats | estado | vencidos [dias] | estados <cat> | buscar <cat> <substr> | purge")
         sys.exit(1)
 
 

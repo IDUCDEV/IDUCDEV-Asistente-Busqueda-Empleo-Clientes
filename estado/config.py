@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""config.py — Fuente única de rutas y configuración del proyecto IDUCDEV.
+
+Ningún script ni skill debe hardcodear la ruta absoluta del proyecto.
+Aquí se resuelve la raíz con esta prioridad:
+
+1. Env var ``IDUCDEV_PROJECT_DIR`` (override explícito, p. ej. en otros SO).
+2. El marcador ``.iducdev-root`` en la raíz del proyecto (caminando hacia arriba).
+3. La presencia de la carpeta ``estado/``.
+
+Esto hace que el proyecto funcione igual aunque cambie de carpeta o máquina.
+
+Uso desde cualquier script (dentro o fuera de la raíz):
+
+    import sys, os
+    sys.path.insert(0, <ruta a la carpeta estado resuelta>)
+    from config import PROJECT_DIR, OUTPUT_DIRS, HISTORIAL_PATH
+"""
+
+import os
+
+_MARKER = ".iducdev-root"
+
+
+def project_root(start=None):
+    env = os.environ.get("IDUCDEV_PROJECT_DIR")
+    if env and os.path.isdir(env):
+        return os.path.abspath(env)
+    start = os.path.abspath(start or __file__)
+    d = os.path.dirname(start) if os.path.isfile(start) else start
+    for _ in range(8):
+        if os.path.exists(os.path.join(d, _MARKER)) or os.path.isdir(os.path.join(d, "estado")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return start
+
+
+def skills_bootstrap(paths_dirs):
+    """Inserta en sys.path las carpetas `estado` y `tracker` dadas, devolviendo PROJECT_DIR.
+
+    `paths_dirs` es una lista de directorios candidatos a contener `estado/`.
+    Pensado para scripts dentro de `.opencode/skills/<skill>/`.
+    """
+    import sys  # noqa: PLC0415
+    root = None
+    for d in paths_dirs:
+        r = project_root(d)
+        if os.path.isdir(os.path.join(r, "estado")):
+            root = r
+            break
+    if root is None:
+        env = os.environ.get("IDUCDEV_PROJECT_DIR")
+        root = os.path.abspath(env) if env else None
+    if root is None:
+        sys.exit("No se localizó el proyecto IDUCDEV. Define IDUCDEV_PROJECT_DIR.")
+    sys.path.insert(0, os.path.join(root, "estado"))
+    return root
+
+
+PROJECT_DIR = project_root()
+ESTADO_DIR = os.path.join(PROJECT_DIR, "estado")
+SKILLS_DIR = os.path.join(PROJECT_DIR, ".opencode", "skills")
+
+HISTORIAL_PATH = os.path.join(ESTADO_DIR, "historial.json")
+TAREAS_PATH = os.path.join(ESTADO_DIR, "tareas.json")
+RONDAS_PATH = os.path.join(ESTADO_DIR, "rondas.json")
+
+OUTPUT_DIRS = {
+    "vacantes": os.path.join(PROJECT_DIR, "vacantes"),
+    "vacantes-workana": os.path.join(PROJECT_DIR, "vacantes-workana"),
+    "vacantes-ocultas": os.path.join(PROJECT_DIR, "vacantes-ocultas"),
+    "clientes-potenciales": os.path.join(PROJECT_DIR, "clientes-potenciales"),
+    "empresas-target": os.path.join(PROJECT_DIR, "empresas-target"),
+    "mensajes-outreach": os.path.join(PROJECT_DIR, "mensajes-outreach"),
+    "informes": os.path.join(PROJECT_DIR, "informes"),
+}
+
+SKILL_SCRIPTS = {
+    "job-search": os.path.join(SKILLS_DIR, "job-search", "job_search.py"),
+    "workana-search": os.path.join(SKILLS_DIR, "workana-search", "workana_search.py"),
+}
+
+# Seguimientos automáticos: cuántos días después se crea una tarea de revisión.
+SEGUIMIENTO_DIAS = {
+    "outreach": 3,      # contacto enviado → revisar respuesta en 3 días
+    "vacantes": 7,      # aplicación enviada → revisar status en 7 días
+    "proyectos_workana": 7,
+}
+
+
+def ensure_dir(path):
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+if __name__ == "__main__":
+    print(f"PROJECT_DIR      : {PROJECT_DIR}")
+    print(f"ESTADO_DIR       : {ESTADO_DIR}")
+    print(f"SKILLS_DIR       : {SKILLS_DIR}")
+    print(f"HISTORIAL_PATH   : {HISTORIAL_PATH}")
+    print(f"TAREAS_PATH      : {TAREAS_PATH}")
+    print(f"RONDAS_PATH      : {RONDAS_PATH}")
+    for key, path in OUTPUT_DIRS.items():
+        print(f"OUTPUT {key:<18}: {path}")

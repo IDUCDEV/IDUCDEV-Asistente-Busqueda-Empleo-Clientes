@@ -1,16 +1,16 @@
 ---
 name: cv-apply
-description: Use when the user pastes a job description and wants to evaluate it or generate an ATS-optimized CV and cover letter. Reads isaac-urdaneta-base.md and cv-ats-prompt.md from the IDUCDEV -- Asistente de busqueda de empleo y clientes project. Generates .md, .pdf and cover letter.
+description: Use when the user pastes a job description and wants to evaluate it or generate an ATS-optimized CV and cover letter. Reads isaac-urdaneta-base.md and cv-ats-prompt.md from the project root. Generates .md, .pdf and cover letter.
 ---
 
 # cv-apply — Aplicación automática a vacantes
 
 Cuando el usuario pegue la descripción de una vacante y pida evaluarla o aplicar, ejecuta este workflow completo usando sus archivos de CV base y reglas ATS.
 
-## Referencias del proyecto
-- **CV Base:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/isaac-urdaneta-base.md`
-- **Reglas ATS:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/cv-ats-prompt.md`
-- **Output dir:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/`
+## Referencias del proyecto (rutas relativas a la raíz)
+- **CV Base:** `isaac-urdaneta-base.md`
+- **Reglas ATS:** `cv-ats-prompt.md`
+- **Output dir:** raíz del proyecto (`.`) — junto al CV base
 
 ## Workflow
 
@@ -96,8 +96,17 @@ Informa al usuario:
 - Cover letter en texto (para copiar)
 - Resumen breve de por qué
 
+## Integración con el estado del asistente
+
+Después de generar el CV y aplicar, marcar la vacante en el historial para
+que el orquestador cree el seguimiento automático (D+7):
+
+```bash
+python3 estado/orquestador.py marcar vacantes "<empresa::titulo>" applied
+```
+
 ## Notas
 - Siempre leer `isaac-urdaneta-base.md` y `cv-ats-prompt.md` frescos antes de empezar
 - No modificar nunca los archivos base
-- Los outputs se guardan en `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/`
+- Los outputs se guardan en la raíz del proyecto (junto al CV base)
 - Verificar que pandoc está disponible antes de convertir

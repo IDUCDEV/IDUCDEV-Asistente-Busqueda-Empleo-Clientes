@@ -1,0 +1,14 @@
+{
+  "tareas": [],
+  "esquema": {
+    "id": "t-YYYYMMDDHHMMSS-N",
+    "tipo": "aplicar | seguimiento_outreach | seguimiento_aplicacion | revisar",
+    "categoria": "categoría del historial (vacantes|outreach|clientes|...)",
+    "key": "clave del item en historial.json",
+    "titulo": "descripción corta de la acción",
+    "url": "enlace opcional",
+    "creado": "fecha ISO",
+    "vencimiento": "fecha ISO (día límite para la acción)",
+    "estado": "pendiente | hecho | descartado"
+  }
+}

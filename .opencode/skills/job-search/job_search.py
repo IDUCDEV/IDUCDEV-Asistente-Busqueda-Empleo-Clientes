@@ -25,7 +25,27 @@ LATAM_COUNTRIES = {
     "honduras", "mexico", "nicaragua", "panama", "paraguay", "peru",
     "uruguay", "venezuela",
 }
-OUTPUT_DIR = "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes"
+# ── Proyecto: ruta resuelta sin hardcodear (config.py + .iducdev-root / env) ──
+def _find_project_root():
+    env = os.environ.get("IDUCDEV_PROJECT_DIR")
+    if env:
+        return env
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "estado")) or os.path.exists(os.path.join(d, ".iducdev-root")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return None
+
+
+PROJECT_DIR = _find_project_root()
+if not PROJECT_DIR:
+    sys.exit("No se localizó el proyecto IDUCDEV. Define IDUCDEV_PROJECT_DIR.")
+sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
+OUTPUT_DIR = os.path.join(PROJECT_DIR, "vacantes")
 
 
 # ── helpers ──────────────────────────────────────────────────────────
@@ -873,7 +893,6 @@ def main():
     # ── Cross-session dedup vs estado/historial.json ──
     # No repetir vacantes ya listadas en ejecuciones anteriores.
     skipped = 0
-    sys.path.insert(0, os.path.join(os.path.dirname(OUTPUT_DIR), "estado"))
     try:
         from tracker import Historial, vacancy_key
         hist = Historial()

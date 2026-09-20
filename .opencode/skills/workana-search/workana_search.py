@@ -21,7 +21,27 @@ from html.parser import HTMLParser
 
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
 TIMEOUT = 25
-OUTPUT_DIR = "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/vacantes-workana"
+# ── Proyecto: ruta resuelta sin hardcodear (config.py + .iducdev-root / env) ──
+def _find_project_root():
+    env = os.environ.get("IDUCDEV_PROJECT_DIR")
+    if env:
+        return env
+    d = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "estado")) or os.path.exists(os.path.join(d, ".iducdev-root")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return None
+
+
+PROJECT_DIR = _find_project_root()
+if not PROJECT_DIR:
+    sys.exit("No se localizó el proyecto IDUCDEV. Define IDUCDEV_PROJECT_DIR.")
+sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
+OUTPUT_DIR = os.path.join(PROJECT_DIR, "vacantes-workana")
 
 BASE_URL = "https://www.workana.com/jobs?category=it-programming&subcategory=mobile-development&page={page}"
 
@@ -172,7 +192,6 @@ def main():
     # ── Cross-session dedup vs estado/historial.json ──
     # No repetir proyectos ya listados en ejecuciones anteriores.
     skipped = 0
-    sys.path.insert(0, os.path.join(os.path.dirname(OUTPUT_DIR), "estado"))
     try:
         from tracker import Historial
         hist = Historial()
@@ -249,11 +268,14 @@ def main():
     if not all_jobs and os.path.exists(out_path):
         # Nada nuevo hoy y ya existe informe del día: no sobrescribir la lista que ya tiene.
         print(out_path + " (sin cambios, informe del día ya existe)")
-        print("---WORKANA---")
+        print("---JOBCOUNT---")
+        print(len(all_jobs))
+        print("---SKIPPED---")
+        print(skipped)
+        print("---SOURCES---")
         print(f"Total: {len(all_jobs)}")
         print(f"Flutter/Dart: {flutter_count}")
         print(f"Páginas: {pages_fetched}")
-        print(f"Skipped (ya vistos): {skipped}")
         print("---ERRORS---")
         for e in errors:
             print(e)
@@ -263,11 +285,14 @@ def main():
         f.write(markdown)
 
     print(out_path)
-    print("---WORKANA---")
+    print("---JOBCOUNT---")
+    print(len(all_jobs))
+    print("---SKIPPED---")
+    print(skipped)
+    print("---SOURCES---")
     print(f"Total: {len(all_jobs)}")
     print(f"Flutter/Dart: {flutter_count}")
     print(f"Páginas: {pages_fetched}")
-    print(f"Skipped (ya vistos): {skipped}")
     print("---ERRORS---")
     for e in errors:
         print(e)

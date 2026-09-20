@@ -1,15 +1,19 @@
-# Guía de Skills para Búsqueda de Empleo y Clientes
+# Guía técnica de las Skills
 
-**Léeme primero: [GUIA.md](GUIA.md)** — guía sencilla para el usuario final.
-Este documento es el detalle técnico de las skills instaladas.
+**Léeme primero: [GUIA.md](../GUIA.md)** — guía sencilla para el usuario final.
+Este documento es el detalle técnico de las skills del asistente.
+
+Las skills viven **dentro del proyecto** en `.opencode/skills/` (no en
+`~/.opencode/skills/`). La raíz se resuelve con `estado/config.py`
+(vía `.iducdev-root` o `IDUCDEV_PROJECT_DIR`), nunca con rutas absolutas.
 
 ## Skills disponibles
 
 | # | Skill | Propósito | Tipo | Invocación |
 |---|-------|-----------|------|------------|
 | 0 | **asistente-empleo-clientes** | Orquestador central. Punto único de entrada para buscar empleo + clientes, con dedup central | AI guiada | Cargar la skill → delegar cualquier petición |
-| 1 | **job-search** | Busca vacantes Flutter/Dart en 7 fuentes (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo) | Script Python | `python3 $OPENCODE_SKILLS/job-search/job_search.py` |
-| 2 | **workana-search** | Busca proyectos freelance en Workana (Mobile Development), marca Flutter/Dart ✅ | Script Python | `python3 $OPENCODE_SKILLS/workana-search/workana_search.py` |
+| 1 | **job-search** | Busca vacantes Flutter/Dart en 7 fuentes (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo) | Script Python | `python3 .opencode/skills/job-search/job_search.py` |
+| 2 | **workana-search** | Busca proyectos freelance en Workana (Mobile Development), marca Flutter/Dart ✅ | Script Python | `python3 .opencode/skills/workana-search/workana_search.py` |
 | 3 | **linkedin-hidden-jobs** | "Hidden job market": posts de LinkedIn con vacantes, no avisos oficiales | AI guiada + navegador | Cargar la skill → ejecuta el workflow |
 | 4 | **cv-apply** | CV optimizado ATS + carta + PDF a partir de una descripción de vacante | AI guiada | Cargar la skill → pegar descripción |
 | 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
@@ -25,7 +29,14 @@ hoy"*, *"solo empleos"*, *"solo clientes"*, *"aplica a X"*, *"contacta a Y"*
 y decide qué sub-skills ejecutar. **Garantiza que nada se repita** usando
 `estado/historial.json`.
 
-**Archivos:** `~/.opencode/skills/asistente-empleo-clientes/SKILL.md`
+Las fases del navegador (3-5) y el marcado de seguimientos se delegan al CLI:
+
+```bash
+python3 estado/orquestador.py ronda --empleos     # fases 1-2 (script)
+python3 estado/orquestador.py registrar <fase> <archivo> --nuevas N
+python3 estado/orquestador.py marcar <cat> <key> <estado>
+python3 estado/orquestador.py estado | tareas | seguimientos | informe
+```
 
 ### Fases de la "ronda diaria"
 
@@ -48,6 +59,8 @@ Todas las skills consultan y actualizan la misma base:
 ```
 estado/historial.json   ← "memoria" del asistente
 estado/tracker.py       ← helper (Historial, normalize_*, vacancy_key)
+estado/rondas.json      ← bitácora de la ronda (fases + conteos)
+estado/tareas.json      ← bandeja de entrada (seguimientos automáticos)
 ```
 
 | Categoría | Clave |
@@ -61,7 +74,7 @@ estado/tracker.py       ← helper (Historial, normalize_*, vacancy_key)
 
 Ver estado:
 ```bash
-python3 "estado/tracker.py" stats
+python3 estado/orquestador.py estado
 ```
 
 `job_search.py` y `workana_search.py` ya deduplican solos contra el
@@ -73,7 +86,7 @@ guiadas por IA deben consultar/actualizar el historial al iniciar/terminar.
 ## 1. job-search — Buscador de vacantes
 
 ```bash
-python3 ~/.opencode/skills/job-search/job_search.py
+python3 .opencode/skills/job-search/job_search.py
 ```
 
 - 7 fuentes con paginación (LinkedIn, GetOnBoard, Himalayas, RemoteJobs,
@@ -86,7 +99,7 @@ python3 ~/.opencode/skills/job-search/job_search.py
 ## 2. workana-search — Proyectos freelance
 
 ```bash
-python3 ~/.opencode/skills/workana-search/workana_search.py
+python3 .opencode/skills/workana-search/workana_search.py
 ```
 
 - Scrapea Workana (IT & Programming > Mobile Development, hasta 20 págs).
@@ -99,6 +112,7 @@ python3 ~/.opencode/skills/workana-search/workana_search.py
 - Navega LinkedIn Search (sesión del usuario) con queries mixtas
   es/EN para posts que publican vacantes (no avisos).
 - Filtros: URL `linkedin.com/posts`, oferta real, remoto/LATAM, últimos 3 días.
+- Extrae URL del post vía el menú de 3 puntos (obligatorio por post).
 - Registra posts vistos en `estado/historial.json`.
 - Output: `vacantes-ocultas/{YYYY-MM-DD}-hidden.md`
 
@@ -107,12 +121,19 @@ python3 ~/.opencode/skills/workana-search/workana_search.py
 - Análisis de vacante → decisión con pesos (Flutter core 40%, match ≥ 60%).
 - Genera CV optimizado + carta + PDF (`pandoc`, Liberation Sans).
 - Archivos base: `isaac-urdaneta-base.md`, `cv-ats-prompt.md`.
-- Al aplicar, actualizar estado de la vacante a `applied` en el historial.
+- Al aplicar, actualizar estado de la vacante a `applied`:
+  ```bash
+  python3 estado/orquestador.py marcar vacantes "empresa::titulo" applied
+  ```
 
 ## 5. linkedin-outreach — Mensajes para LinkedIn
 
 - Lee CV base → busca info del perfil → pregunta tono → genera mensaje.
-- Registra el perfil contactado en `estado/historial.json`.
+- Registra el perfil contactado en `estado/historial.json` (y el
+  orquestador genera el seguimiento D+3 automáticamente):
+  ```bash
+  python3 estado/orquestador.py marcar outreach "<url-perfil>" enviado
+  ```
 - Output: `mensajes-outreach/{nombre}-{YYYY-MM-DD}.md`
 
 ## 6. flutter-employers — Discovery de empresas target
@@ -136,7 +157,7 @@ python3 ~/.opencode/skills/workana-search/workana_search.py
 ## Flujo recomendado
 
 ```
-Diario:  "Haz la ronda de hoy"  → orquestador: empleos + clientes
+Diario:  "Haz la ronda de hoy" → orquestador: empleos + clientes
 Semanal: flutter-employers + prospectar-clientes (descubrir más)
 A demanda: cv-apply (aplicar) · linkedin-outreach (contactar)
 ```
@@ -148,14 +169,18 @@ que la deduplicación central funcione.
 
 ## Respaldo y restauración
 
-Las skills están respaldadas en `skills-backup/` (incluye el orquestador).
+Las skills viven en el repo (`.opencode/skills/`), así que **el propio
+repo es el respaldo**. No hay `skills-backup/`.
 
 ```bash
-# Restaurar después de formatear
-git clone <repo> "~/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes"
-cp -r skills-backup/* ~/.opencode/skills/
-ls ~/.opencode/skills/
+# Restaurar en otra máquina
+git clone <repo> ~/Escritorio/iducdev-asistente
+cd ~/Escritorio/iducdev-asistente
+python3 estado/orquestador.py estado   # verifica que resuelve la raíz
 ```
+
+La raíz se resuelve sola (`.iducdev-root`); si se usa desde otra ubicación,
+definir `IDUCDEV_PROJECT_DIR`.
 
 Dependencias externas: `pandoc`, `fonts-liberation`, `python3`, Chrome.
 
@@ -169,3 +194,5 @@ Dependencias externas: `pandoc`, `fonts-liberation`, `python3`, Chrome.
 - **"Quiero ver todo otra vez."** → Pide explícitamente "muéstrame todo,
   ignora el historial" y el asistente consultará las fuentes sin filtrar.
 - **"¿Dónde está mi historial?"** → `estado/historial.json`
+- **"¿Dónde está mi bandeja?"** → `estado/tareas.json`
+- **"¿Dónde está la bitácora de hoy?"** → `estado/rondas.json`

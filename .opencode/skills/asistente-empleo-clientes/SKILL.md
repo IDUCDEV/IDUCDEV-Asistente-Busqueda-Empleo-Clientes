@@ -11,14 +11,21 @@ puerta de entrada**. No invocas solo una skill: decides qué sub-skills
 necesita su petición, las ejecutas en orden y todo pasa por la
 **base de datos central de deduplicación**.
 
+Todas las rutas de este documento son **relativas a la raíz del proyecto**
+(openCode se ejecuta desde ahí). Los scripts de las skills viven en
+`.opencode/skills/<skill>/`.
+
 ## Archivos de referencia
 
-- **Proyecto:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/`
-- **Historial central (dedup):** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`
-- **Helper del historial:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/tracker.py`
-- **Informes diarios:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/informes/{YYYY-MM-DD}-resumen.md`
-- **Guía de uso (para el usuario):** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/GUIA.md`
-- **CV base:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/isaac-urdaneta-base.md`
+- **Raíz del proyecto:** `.` (marcada con `.iducdev-root`; ser resuelve también vía `IDUCDEV_PROJECT_DIR`)
+- **Config de rutas:** `estado/config.py` (fuente única, no hardcodear rutas)
+- **Orquestador CLI:** `estado/orquestador.py` (ronda, marcar, tareas, seguimientos, informe)
+- **Historial central (dedup):** `estado/historial.json` (helper: `estado/tracker.py`)
+- **Bandeja de tareas:** `estado/tareas.json`
+- **Bitácora de rondas:** `estado/rondas.json`
+- **Informes diarios:** `informes/{YYYY-MM-DD}-resumen.md`
+- **Guía de uso (para el usuario):** `GUIA.md`
+- **CV base:** `isaac-urdaneta-base.md` | **Reglas ATS:** `cv-ats-prompt.md`
 
 ## Principio de oro: NUNCA repetir
 
@@ -31,7 +38,7 @@ registra todo lo nuevo en el historial.
 ```bash
 python3 - <<'EOF'
 import sys
-sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+sys.path.insert(0, "estado")
 from tracker import Historial
 h = Historial()
 print("vacantes:", h.stats()["vacantes"])
@@ -58,48 +65,73 @@ EOF
 ### 1. "Haz la ronda de hoy" (empleos + clientes)
 Ejecuta el pipeline completo en este orden, SIN repetir nada:
 
-1. `job-search` → vacantes (`python3 /home/iducdev/.opencode/skills/job-search/job_search.py`)
-2. `workana-search` → proyectos freelance (`python3 /home/iducdev/.opencode/skills/workana-search/workana_search.py`)
+1. `job-search` → vacantes (`python3 .opencode/skills/job-search/job_search.py`)
+2. `workana-search` → proyectos freelance (`python3 .opencode/skills/workana-search/workana_search.py`)
 3. `linkedin-hidden-jobs` → mercado oculto de LinkedIn (navegador)
 4. `prospectar-clientes` → leads de negocio VE
 5. `flutter-employers` → empresas target (descubrimiento semanal)
 
-Al terminar cada skill, leer su output (`.md` generado) y **construir
-`informes/{YYYY-MM-DD}-resumen.md`** que consolide: cuántas vacantes
-nuevas, cuántos clientes nuevos, cuántos omitidos por repetidos, y el
-top 5 de cada categoría con sus links.
+**Si es una ronda sin navegador**, ejecuta:
+```bash
+python3 estado/orquestador.py ronda --empleos
+```
+Esto lanza los scripts 1 y 2, registra las fases en `estado/rondas.json`
+y genera `informes/{YYYY-MM-DD}-resumen.md`.
+
+Después de cada fase de **navegador** ejecutada manualmente (pasos 3-5),
+regístrala para que el informe la consolide:
+```bash
+python3 estado/orquestador.py registrar linkedin-hidden-jobs vacantes-ocultas/{fecha}-hidden.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar prospectar-clientes clientes-potenciales/{fecha}-leads.md --nuevas N --omitidas M
+python3 estado/orquestador.py registrar flutter-employers empresas-target/{fecha}-empresas.md --nuevas N --omitidas M
+```
+
+Al terminar todas las fases, regenera/consolida el resumen:
+```bash
+python3 estado/orquestador.py informe
+```
 
 ### 2. "Solo empleos" / "solo clientes"
-- Empleos → pasos 1, 2, 3
+- Empleos → pasos 1, 2, 3 (`python3 estado/orquestador.py ronda --empleos`)
 - Clientes → pasos 4, 5
-Genera el informe parcial igualmente.
+Genera el informe parcial igualmente con `registrar` + `informe`.
 
 ### 3. "¿Qué hay nuevo?" / "estado"
-Lee `estado/historial.json` y muestra resumen por categoría con fechas.
+```bash
+python3 estado/orquestador.py estado
+```
+Muestra historial por categoría + bandeja de tareas + seguimientos vencidos.
 No ejecuta búsquedas nuevas.
 
 ### 4. "Aplica a {vacante/empresa}"
 Carga `cv-apply` (pégame la descripción o URL si no la tengo) → genera
 CV optimizado ATS + carta + PDF. Al generar, actualiza `estado` de esa
-vacante a `applied` en el historial.
+vacante a `applied` en el historial:
+```bash
+python3 estado/orquestador.py marcar vacantes "empresa::titulo" applied
+```
 
 ### 5. "Contacta a {perfil/empresa}"
 Carga `linkedin-outreach` → genera mensaje personalizado. Al generar,
-registra el perfil en categoría `outreach` con estado `enviado`.
-
-### 6. "Marca X como aplicado/descartado/contactado"
-Actualiza `estado` en el historial:
+registra el perfil en categoría `outreach` con estado `enviado` y el
+orquestador creará **automáticamente** la tarea de seguimiento (D+3):
 ```bash
-python3 - <<'EOF'
-import sys
-sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
-from tracker import Historial
-h = Historial()
-h.set_state("vacantes", "empresa::titulo", "applied")
-EOF
+python3 estado/orquestador.py marcar outreach "<url-del-perfil>" enviado
 ```
 
-### 7. "Guía" / "cómo se usa esto"
+### 6. "Marca X como aplicado/descartado/contactado"
+```bash
+python3 estado/orquestador.py marcar vacantes "empresa::titulo" applied
+```
+
+### 7. "¿Qué tengo pendiente?" / "tareas" / "seguimientos"
+```bash
+python3 estado/orquestador.py tareas        # bandeja de entrada
+python3 estado/orquestador.py seguimientos  # vencidos + bandeja
+python3 estado/orquestador.py tarea-done t-YYYYMMDDHHMMSS-N
+```
+
+### 8. "Guía" / "cómo se usa esto"
 Lee y muestra el contenido de `GUIA.md` de forma resumida.
 
 ---
@@ -137,5 +169,6 @@ contra el historial; verifica su salida `---SKIPPED---`.
 ## Verificación rápida tras la ronda
 
 ```bash
-python3 /home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/tracker.py stats
+python3 estado/tracker.py stats
+python3 estado/orquestador.py estado
 ```

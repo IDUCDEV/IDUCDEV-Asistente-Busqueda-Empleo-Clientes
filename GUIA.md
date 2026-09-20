@@ -17,10 +17,11 @@ asistente como con una persona. Frases que entiende:
 | **"Haz la ronda de hoy"** | Busca vacantes nuevas (7 fuentes) + proyectos Workana + posts ocultos de LinkedIn + leads de clientes + empresas target. **Omite todo lo que ya viste** y te deja un resumen. |
 | **"Solo empleos"** | Solo la parte de búsqueda de trabajo. |
 | **"Solo clientes"** | Solo descubrir potenciales clientes. |
-| **"¿Qué hay nuevo?"** | Te dice lo pendiente de revisar sin volver a buscar. |
+| **"¿Qué hay nuevo?"** | Te dice lo pendiente de revisar y las tareas sin volver a buscar. |
+| **"¿Qué tengo pendiente?"** | Te muestra la bandeja de tareas (seguimientos de contactos y aplicaciones). |
 | **"Aplica a {x}"** | Genera CV optimizado ATS + carta + PDF para esa vacante, con el link pegado. |
 | **"Contacta a {perfil}"** | Genera el mensaje personalizado para ese reclutador/empresa en LinkedIn. |
-| **"Marca {x} como aplicado"** | Lo registra como hecho para no repetirlo. |
+| **"Marca {x} como aplicado"** | Lo registra como hecho y agenda un seguimiento automático. |
 | **"Guía"** | Vuelve a mostrarte este documento resumido. |
 
 ### Ejemplos reales
@@ -33,6 +34,7 @@ asistente como con una persona. Frases que entiende:
 "contacta a https://www.linkedin.com/in/xxx"
 "marca Flutter Developer en GetOnBoard como aplicado"
 "¿algún cliente nuevo esta semana?"
+"¿qué tengo pendiente?"
 ```
 
 ---
@@ -49,7 +51,10 @@ asistente como con una persona. Frases que entiende:
    se omite (te dice cuántos omitió).
 4. **Te prepara para actuar**: CV optimizado por vacante, carta, PDF, y
    mensaje de outreach listo para copiar/pegar en LinkedIn.
-5. **Te deja un resumen diario** en `informes/`.
+5. **No te deja colgados**: cuando marcas algo como *aplicado* o
+   *contactado*, agenda un seguimiento automático (a los 3 días para
+   contactos, a los 7 para aplicaciones) y te lo recuerda.
+6. **Te deja un resumen diario** en `informes/`.
 
 ---
 
@@ -67,7 +72,7 @@ Todo queda guardado en carpetas ordenadas, listas para ti:
 | `mensajes-outreach/` | Mensajes de contacto generados |
 | `CV_*.md` / `*.pdf` | CVs y PDFs listos para enviar |
 | `informes/` | Resumen diario de la ronda |
-| `estado/historial.json` | El "no repitas esto" del asistente |
+| `estado/` | La "memoria" del asistente (historial, tareas, rondas) |
 
 ---
 
@@ -76,6 +81,8 @@ Todo queda guardado en carpetas ordenadas, listas para ti:
 - **Diario (ideal):** `"Haz la ronda de hoy"` → busca y te deja el resumen.
 - **Semanal:** clientes y empresas target (descubrir cosas nuevas).
 - **Cuando decidas:** aplicar a una vacante o contactar a alguien.
+- **De vez en cuando:** `"¿qué tengo pendiente?"` para no dejar
+  seguimientos olvidados.
 
 El asistente pide autorización antes de abrir el navegador (necesario
 para LinkedIn y para visitar websites). El resto lo hace solo.
@@ -85,14 +92,15 @@ para LinkedIn y para visitar websites). El resto lo hace solo.
 ## Restaurar en una computadora nueva
 
 1. Clona el repo y ábrelo con opencode.
-2. Restaura las skills:
+2. Las skills ya están dentro del repo (`.opencode/skills/`), no hay que
+   restaurar nada.
+3. Verifica la raíz del proyecto:
    ```bash
-   cp -r skills-backup/* ~/.opencode/skills/
+   python3 estado/orquestador.py estado
    ```
-3. Verifica que exista `estado/historial.json` (si no, se crea solo).
 4. Instala dependencias: `pandoc`, `fonts-liberation`, `python3`.
 
 ---
 
-> 📂 Este proyecto vive en:
-> `~/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes`
+> 📂 Este proyecto vive en `~/Escritorio/iducdev-asistente` (la raíz se
+> detecta sola mediante el marcador `.iducdev-root`).

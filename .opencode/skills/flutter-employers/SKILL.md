@@ -8,10 +8,10 @@ description: Descubre empresas (startups + establecidas) en LATAM y globales rem
 Busca empresas donde aplicar como desarrollador Flutter en LATAM y remoto 100%.
 Enfocado en empresas **producto** (no agencias/consultoras): startups LATAM, empresas LATAM establecidas, y globales remote-first.
 
-## Archivos de referencia
+## Archivos de referencia (rutas relativas a la raíz del proyecto)
 
-- **DB de empresas (historial):** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/empresas-target/leads-db.json`
-- **Output del día:** `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/empresas-target/{YYYY-MM-DD}-empresas.md`
+- **DB de empresas (historial):** `empresas-target/leads-db.json`
+- **Output del día:** `empresas-target/{YYYY-MM-DD}-empresas.md`
 
 ---
 
@@ -189,7 +189,7 @@ Al terminar las 4 fuentes, tendrás un array de empresas (posiblemente con dupli
 
 ### 2.1 — Cargar DB existente
 
-Leer `/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/empresas-target/leads-db.json`.
+Leer `empresas-target/leads-db.json`.
 
 Si no existe, inicializar como:
 ```json
@@ -251,13 +251,13 @@ Toda empresa nueva debe tener esta estructura:
 ### 2.5 — Dedup central (historial del proyecto)
 
 Además de `leads-db.json`, registra cada empresa nueva en
-`/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado/historial.json`
+`estado/historial.json`
 (categoría `empresas`, clave = dominio o nombre normalizado) usando el helper:
 
 ```bash
 python3 - <<'EOF'
 import sys
-sys.path.insert(0, "/home/iducdev/Escritorio/IDUCDEV -- Asistente de busqueda de empleo y clientes/estado")
+sys.path.insert(0, "estado")
 from tracker import Historial
 h = Historial()
 # consultar: h.is_known("empresas", dominio)
@@ -430,6 +430,8 @@ Cuando el usuario invoque la skill (ej: "busca empresas flutter", "flutter-emplo
 # FASE 2 → Dedup + normalización
 # FASE 3 → Enriquecimiento (top 5-8)
 # FASE 4 → Scoring + output markdown + guardar DB
+# Luego registrar la fase en la ronda del día (informe consolidado):
+python3 estado/orquestador.py registrar flutter-employers empresas-target/{YYYY-MM-DD}-empresas.md --nuevas N --omitidas M
 ```
 
 ### Límites por ejecución
