@@ -7,7 +7,7 @@
 - **LinkedIn:** [linkedin.com/in/isaac-urdaneta](https://linkedin.com/in/isaac-urdaneta)
 - **GitHub:** [github.com/IducDev](https://github.com/IducDev)
 - **TikTok:** [@iducdev](https://www.tiktok.com/@iducdev)
-- **Portafolio:** [www.iducdev.com](https://www.iducdev.com)
+- **Portafolio:** [www.iducdev.org](https://www.iducdev.org)
 - **Zona horaria:** Venezuela (UTC-4) | Disponibilidad para solapamiento horario con EST/PST
 
 ---
@@ -86,7 +86,7 @@ enero 2023 - actualidad
 
 ## Proyectos Destacados
 
-**Rifáme — [rifame.vercel.app](https://rifame.vercel.app)**
+**Rifáme — [rifame.org](https://rifame.org)**
 *Plataforma de gestión de rifas con sorteo transparente*
 - **Stack:** Flutter (mobile), Next.js (web), Supabase, PostgreSQL.
 - **Logro:** MVP completo con gestión de rifas, reserva de números en tiempo real y sorteo verificable. Los pagos se coordinan por fuera de la app. Próximo a lanzamiento en Play Store.
