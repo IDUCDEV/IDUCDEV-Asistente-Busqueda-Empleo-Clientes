@@ -1,3 +1,71 @@
 {
-  "rondas": []
+  "rondas": [
+    {
+      "fecha": "2026-09-20",
+      "inicio": "2026-09-20T16:30:18+00:00",
+      "tipo": "ronda_completa",
+      "fases": [
+        {
+          "fase": "job-search",
+          "archivo": "resultados/vacantes/2026-09-20.md",
+          "nuevas": 18,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "Computrabajo CL: 1; Computrabajo CO: 4; Computrabajo MX: 5; GetOnBoard: 1; Himalayas: 2; RemoteJobs.org: 5",
+          "fin": "2026-09-20T16:30:43+00:00"
+        },
+        {
+          "fase": "workana-search",
+          "archivo": "resultados/vacantes-workana/2026-09-20.md",
+          "nuevas": 119,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "Total: 119; Flutter/Dart: 22; Páginas: 17",
+          "fin": "2026-09-20T16:30:54+00:00"
+        },
+        {
+          "fase": "linkedin-hidden-jobs",
+          "archivo": "resultados/vacantes-ocultas/2026-09-20-hidden.md",
+          "nuevas": 3,
+          "omitidas": 12,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-20T16:40:25+00:00"
+        },
+        {
+          "fase": "prospectar-clientes",
+          "archivo": "resultados/clientes-potenciales/2026-09-20-leads.md",
+          "nuevas": 12,
+          "omitidas": 76,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-20T16:55:14+00:00"
+        },
+        {
+          "fase": "flutter-employers",
+          "archivo": "resultados/empresas-target/2026-09-20-empresas.md",
+          "nuevas": 12,
+          "omitidas": 4,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-20T16:58:33+00:00"
+        },
+        {
+          "fase": "linkedin-vacantes",
+          "archivo": "resultados/vacantes-ocultas/2026-09-20-linkedin-jobs.md",
+          "nuevas": 19,
+          "omitidas": 2,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-20T17:23:05+00:00"
+        }
+      ]
+    }
+  ]
 }

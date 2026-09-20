@@ -157,6 +157,23 @@ def parse_salary_text(text):
 
 # ── Source parsers ───────────────────────────────────────────────────
 
+# LinkedIn devuelve matches difusos (keyword=Flutter) cuyo título NO menciona
+# Flutter/Dart. Se mantienen los roles mobile/software marcándolos para
+# revisión ("⚠ verificar"); se descarta ruido claramente ajeno.
+LI_NOISE = re.compile(
+    r"\b(delphi|cto|chief|socio|sócio|low[- ]?code|data analyst|data engineer|"
+    r"devops|designer|wordpress|salesforce|recruiter|java( developer)?|nodejs|"
+    r"\.net|python|machine learning|analytics|\bai\b|\bhr\b|react( native)?|"
+    r"on-site|onsite|\bbanco\b|banking|back office|administra|tesorero)\b",
+    re.I,
+)
+LI_MOBILE = re.compile(
+    r"(mobile|móvil|movil|flutter|dart|android|ios|\bapp\b|desenvolvimento|"
+    r"develop|\bdeveloper\b|engineer|fullstack|full-stack|frontend|front-end|"
+    r"backend|software|programador|dev\b)", re.I,
+)
+
+
 def parse_linkedin(html_text):
     jobs = []
     cards = re.findall(
@@ -173,8 +190,14 @@ def parse_linkedin(html_text):
         company = company.strip()
         loc = loc.strip()
         time_text = (date1 or date2 or "").strip()
-        if not has_flutter_dart(title):
+        if has_flutter_dart(title):
+            review = False
+        elif LI_NOISE.search(title):
             continue
+        elif not LI_MOBILE.search(title):
+            continue
+        else:
+            review = True
         if "hour" not in time_text.lower() and "day" not in time_text.lower():
             if "23" not in time_text and "17" not in time_text and "19" not in time_text:
                 continue
@@ -186,6 +209,7 @@ def parse_linkedin(html_text):
             "url": url.split("?")[0],
             "time": time_text,
             "modality": "Remoto",
+            "review": review,
             "salary_min": None, "salary_max": None, "salary_currency": None,
             "description": "",
         })
@@ -643,7 +667,11 @@ def salary_str(job):
 # ── Main ─────────────────────────────────────────────────────────────
 
 SOURCES_LINKEDIN = [  # noqa: N816
-    ("LinkedIn", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Flutter&f_WT=2&f_TPR=r86400&location=Latin%20America&start={page}",
+    ("Flutter", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Flutter&f_WT=2&f_TPR=r86400&location=Latin%20America&start={page}",
+     "html", parse_linkedin, 1),
+    ("Flutter Developer (exacto)", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=%22Flutter%20Developer%22&f_WT=2&f_TPR=r86400&location=Latin%20America&start={page}",
+     "html", parse_linkedin, 1),
+    ("Dart", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Dart&f_WT=2&f_TPR=r86400&location=Latin%20America&start={page}",
      "html", parse_linkedin, 1),
 ]
 SOURCES_GETONBOARD = [
@@ -715,6 +743,8 @@ def fmt_section(name, jobs, extra=""):
         url = j.get("url", "")
         if url:
             lines.append(f"**🔗** [{j.get('source', 'Link')}]({url})")
+        if j.get("review"):
+            lines.append("> ⚠ **verificar:** el título no menciona Flutter/Dart (match difuso de LinkedIn); revisa el aviso antes de aplicar.")
         lines.append("`[Aplicar con cv-apply]`\n")
     return "\n".join(lines)
 
@@ -794,18 +824,19 @@ def main():
     source_counts = {}
     total_sources = 7
 
-    # 1. LinkedIn (3 pages)
+    # 1. LinkedIn (3 queries precisas, hasta 2 páginas por query)
     li_jobs_raw = []
-    for p in range(3):
-        url = SOURCES_LINKEDIN[0][1].format(page=p * 10)
-        raw = fetch(url)
-        if raw.startswith("__FETCH_ERR__"):
-            source_errors.append(f"LinkedIn (page {p}): {raw.split(':',1)[1] if ':' in raw else raw}")
-            break
-        j = parse_linkedin(raw)
-        li_jobs_raw.extend(j)
-        if len(j) < 10:
-            break
+    for li_name, li_url, _fmt, _parser, _pages in SOURCES_LINKEDIN:
+        for p in range(2):
+            url = li_url.format(page=p * 10)
+            raw = fetch(url)
+            if raw.startswith("__FETCH_ERR__"):
+                source_errors.append(f"LinkedIn ({li_name} page {p}): {raw.split(':',1)[1] if ':' in raw else raw}")
+                break
+            j = _parser(raw)
+            li_jobs_raw.extend(j)
+            if len(j) < 10:
+                break
     all_jobs.extend(li_jobs_raw)
     source_counts["LinkedIn"] = len(li_jobs_raw)
 
@@ -900,14 +931,18 @@ def main():
         skipped = 0
         for j in deduped:
             key = vacancy_key(j.get("company", ""), j.get("title", ""))
-            is_new = hist.add("vacantes", key, meta={
+            prev = hist.get("vacantes", key)
+            # Solo omite lo listado en días anteriores; lo del mismo día se re-lista
+            # (la ejecución del día regenera el archivo con la vista completa).
+            seen_today = bool(prev) and (prev.get("fecha_visto") or "").startswith(date_str)
+            hist.add("vacantes", key, meta={
                 "empresa": j.get("company", ""),
                 "titulo": j.get("title", ""),
                 "url": j.get("url", ""),
                 "fuente": j.get("source", ""),
                 "salario": j.get("salary_min"),
             })
-            if is_new:
+            if not prev or seen_today:
                 fresh.append(j)
             else:
                 skipped += 1

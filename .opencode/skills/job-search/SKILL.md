@@ -37,6 +37,20 @@ https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=
 **Filtro de modalidad:** `f_WT=2` (remoto)
 **Ubicación:** Latin America
 
+**Queries (3, para subir precisión):**
+1. `keywords=Flutter`
+2. `keywords="Flutter Developer"` (frase exacta)
+3. `keywords=Dart`
+
+**Nota importante (matching difuso de LinkedIn):** desde 2026 la guest API devuelve
+roles cuyo título NO contiene "Flutter/Dart" (ej. "Mobile Engineer", "Desenvolvedor
+Mobile") y requiere el keyword de búsqueda. Por eso el parser:
+- Mantiene el rol si el título contiene Flutter/Dart → `✅ Confirmado`.
+- Lo mantiene marcado **`⚠ verificar`** si es un rol mobile/software sin Flutter/Dart
+  en el título (revisar el aviso antes de aplicar).
+- Descarta ruido claro (`delphi`, `cto`, `socio`, `lowcode`, `analytics`, `react`,
+  `on-site`, `designer`, `devops`, entre otros; ver regex `LI_NOISE` en el script).
+
 **Extraer por cada job card:**
 - Título del puesto (dentro de `.base-search-card__title` o `h3`)
 - Nombre de empresa (dentro de `.base-search-card__subtitle` o `h4`)
