@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """job_search.py — Flutter/LATAM remote job aggregator.
 
-Orquestra 7+ fuentes, filtra, deduplica, normaliza salarios
+Orquestra 9 fuentes, filtra, deduplica, normaliza salarios
 y genera markdown en resultados/vacantes/{YYYY-MM-DD}.md
 """
 
@@ -633,6 +633,149 @@ def parse_computrabajo_ld(html_text, country):
     return jobs
 
 
+def parse_remotico(html_text):
+    """Remotico.io listing (/jobs/skill/flutter|dart): tarjetas SSR."""
+    jobs = []
+    pat = re.compile(
+        r'<a href="(/jobs/[a-z0-9\-]+)" class="block".*?'
+        r'<span class="relative">([^<]*)</span></h3></a>'
+        r'<p class="text-xs[^"]*">([^<]*)</p>.*?'
+        r'<span class="shrink-0[^"]*"[^>]*>([^<]*)</span>',
+        re.DOTALL,
+    )
+    for m in pat.finditer(html_text):
+        slug, title, company, time_text = m.groups()
+        title = html.unescape(title.strip())
+        company = html.unescape(company.strip())
+        time_text = html.unescape(time_text.strip())
+        if not title:
+            continue
+        jobs.append({
+            "source": "Remotico",
+            "title": title,
+            "company": company or "No especificada",
+            "location": "Remoto",
+            "url": "https://remotico.io" + slug,
+            "time": time_text,
+            "modality": "Remoto",
+            "salary_min": None, "salary_max": None, "salary_currency": None,
+            "description": "",
+        })
+    return jobs
+
+
+def enrich_remotico(jobs, max_fetch=12):
+    """Enrich Remotico jobs with JSON-LD JobPosting (company, países, fecha)."""
+    enriched = 0
+    for j in jobs:
+        if enriched >= max_fetch:
+            break
+        raw = fetch(j.get("url", ""))
+        if raw.startswith("__FETCH_ERR__"):
+            continue
+        for s in re.findall(
+            r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>',
+            raw, re.DOTALL
+        ):
+            try:
+                data = json.loads(s)
+            except Exception:
+                continue
+            if not (isinstance(data, dict) and data.get("@type") == "JobPosting"):
+                continue
+            org = data.get("hiringOrganization") or {}
+            if isinstance(org, dict) and org.get("name"):
+                j["company"] = org["name"].strip()
+            posted = data.get("datePosted", "")
+            if posted:
+                try:
+                    d = datetime.fromisoformat(posted.replace("Z", "+00:00"))
+                    days = int((datetime.now(timezone.utc) - d).total_seconds() // 86400)
+                    j["time"] = f"hace {days} días" if days > 0 else "hoy"
+                except Exception:
+                    pass
+            countries = []
+            for c in data.get("applicantLocationRequirements", []) or []:
+                if isinstance(c, dict) and c.get("name"):
+                    countries.append(c["name"])
+            if countries:
+                j["location"] = "Remoto · " + ", ".join(countries)
+            salary = data.get("baseSalary") or {}
+            if isinstance(salary, dict):
+                val = salary.get("value")
+                if isinstance(val, dict):
+                    smin = val.get("minValue") or val.get("value")
+                    smax = val.get("maxValue")
+                    cur = salary.get("currency") or val.get("currency")
+                    if smin:
+                        j["salary_min"] = smin
+                        j["salary_max"] = smax
+                        j["salary_currency"] = (cur or "USD").upper()
+            enriched += 1
+            break
+    return jobs
+
+
+def _rss_text(value):
+    return re.sub(r"<[^>]+>", "", html.unescape(value or "")).strip()
+
+
+def _workremoto_reltime(pubdate):
+    try:
+        d = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S %z")
+    except Exception:
+        return ""
+    delta = datetime.now(timezone.utc) - d
+    days = delta.days
+    if days <= 0:
+        return f"hace {max(int(delta.total_seconds() // 3600), 0)} h"
+    return f"hace {days} días"
+
+
+WR_COUNTRY = re.compile(
+    r"\b(argentina|bolivia|chile|colombia|costa rica|ecuador|el salvador|"
+    r"españ[ao]|espana|guatemala|honduras|méxico|mexico|nicaragua|panamá|"
+    r"paraguay|perú|peru|uruguay|venezuela|brasil|república dominicana|"
+    r"dominican)\b", re.I,
+)
+
+
+def parse_workremoto(xml_text):
+    """Workremoto.com RSS de categoría (desarrollo): título, link, fecha, desc."""
+    jobs = []
+    items = re.findall(r"<item>(.*?)</item>", xml_text, re.DOTALL)
+    for it in items:
+        m_title = re.search(r"<title>(.*?)</title>", it, re.DOTALL)
+        m_link = re.search(r"<link>(.*?)</link>", it, re.DOTALL)
+        m_pub = re.search(r"<pubDate>(.*?)</pubDate>", it, re.DOTALL)
+        m_desc = re.search(r"<description>(.*?)</description>", it, re.DOTALL)
+        title = _rss_text(m_title.group(1) if m_title else "")
+        desc = _rss_text(m_desc.group(1) if m_desc else "")
+        link = (m_link.group(1) if m_link else "").strip()
+        if not title or not has_flutter_dart(title, desc):
+            continue
+        company = "No especificada"
+        found = re.search(r"([A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑ.\- ]{2,40}) busca", desc)
+        if found:
+            company = found.group(1).strip()
+        loc = "Remoto"
+        m = WR_COUNTRY.search(link)
+        if m:
+            loc = f"Remoto ({m.group(1).title()})"
+        jobs.append({
+            "source": "Workremoto",
+            "title": re.sub(r"[\s]*–[\s]*Remoto$", "", title, flags=re.I),
+            "company": company,
+            "location": loc,
+            "url": link,
+            "time": _workremoto_reltime(m_pub.group(1) if m_pub else ""),
+            "modality": "Remoto",
+            "salary_min": None, "salary_max": None, "salary_currency": None,
+            "description": desc[:300],
+        })
+    return jobs
+
+
 def _normalize_salary_period(smin, smax, source=""):
     """Detect if salary values are annual and convert to monthly."""
     if source == "RemoteJobs.org":
@@ -702,6 +845,13 @@ SOURCES_COMPUTRABAJO = [
     ("CL", "https://cl.computrabajo.com/trabajo-de-flutter", parse_computrabajo_ld),
     ("PE", "https://pe.computrabajo.com/trabajo-de-flutter", parse_computrabajo_ld),
     ("EC", "https://ec.computrabajo.com/trabajo-de-flutter", parse_computrabajo_ld),
+]
+SOURCES_REMOTICO = [
+    ("Remotico (flutter)", "https://remotico.io/jobs/skill/flutter", "html", parse_remotico),
+    ("Remotico (dart)", "https://remotico.io/jobs/skill/dart", "html", parse_remotico),
+]
+SOURCES_WORKREMOTO = [
+    ("Workremoto (desarrollo)", "https://workremoto.com/categoria-empleo/desarrollo/feed/", "text", parse_workremoto),
 ]
 
 
@@ -822,7 +972,7 @@ def main():
     all_jobs = []
     source_errors = []
     source_counts = {}
-    total_sources = 7
+    total_sources = 9
 
     # 1. LinkedIn (3 queries precisas, hasta 2 páginas por query)
     li_jobs_raw = []
@@ -909,6 +1059,29 @@ def main():
             all_jobs.append(j)
         ct_by_country[country].extend(jobs)
     source_counts["Computrabajo"] = sum(len(v) for v in ct_by_country.values())
+
+    # 8. Remotico (HTML SSR + enrich JSON-LD JobPosting)
+    re_jobs = []
+    for _name, url, _fmt, parser in SOURCES_REMOTICO:
+        raw = fetch(url)
+        if raw.startswith("__FETCH_ERR__"):
+            source_errors.append(f"{_name}: {raw.split(':',1)[1] if ':' in raw else raw}")
+            continue
+        re_jobs.extend(parser(raw))
+    re_jobs = enrich_remotico(re_jobs, max_fetch=12)
+    all_jobs.extend(re_jobs)
+    source_counts["Remotico"] = len(re_jobs)
+
+    # 9. Workremoto (RSS)
+    wr_jobs = []
+    for _name, url, _fmt, parser in SOURCES_WORKREMOTO:
+        raw = fetch(url)
+        if raw.startswith("__FETCH_ERR__"):
+            source_errors.append(f"{_name}: {raw.split(':',1)[1] if ':' in raw else raw}")
+            continue
+        wr_jobs.extend(parser(raw))
+    all_jobs.extend(wr_jobs)
+    source_counts["Workremoto"] = len(wr_jobs)
 
     # ── Deduplicate ──
     seen = {}
@@ -1022,6 +1195,16 @@ def main():
             sections.append(fmt_computrabajo_section(f"{cname}{extra}", ct_jobs[ccode]))
         else:
             sections.append(f"### {cname} (0 vacantes)\n> Sin resultados\n")
+
+    # Remotico
+    re_jobs_f = [j for j in deduped if j.get("source") == "Remotico"]
+    sections.append(f"---\n")
+    sections.append(fmt_section("Remotico", re_jobs_f))
+
+    # Workremoto
+    wr_jobs_f = [j for j in deduped if j.get("source") == "Workremoto"]
+    sections.append(f"---\n")
+    sections.append(fmt_section("Workremoto", wr_jobs_f))
 
     if source_errors:
         sections.append(f"---\n")

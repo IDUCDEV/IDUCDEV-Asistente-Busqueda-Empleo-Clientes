@@ -397,6 +397,116 @@
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4459604905/",
       "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+    },
+    {
+      "key": "routed labs::web app developer python flutter",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Routed Labs, Inc",
+      "titulo": "Web & App Developer (Python/Flutter)",
+      "url": "https://remotico.io/jobs/web-and-app-developer-pythonflutter-web-app-",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "grupo mariposa::tech lead full stack",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Grupo Mariposa",
+      "titulo": "Tech Lead Full-Stack",
+      "url": "https://remotico.io/jobs/tech-lead-full-stack-tech-lea-1",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "codeable::full stack developer",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Codeable",
+      "titulo": "Full-Stack Developer",
+      "url": "https://remotico.io/jobs/full-stack-developer-full-sta-14",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "forest::flutter mobile developer",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Forest",
+      "titulo": "Flutter Mobile Developer",
+      "url": "https://remotico.io/jobs/flutter-engineer-flutter--1",
+      "fuente": "Remotico",
+      "salario": 3500
+    },
+    {
+      "key": "grupo mariposa::team lead consumer martech solutions",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Grupo Mariposa",
+      "titulo": "Team Lead – Consumer & Martech Solutions",
+      "url": "https://remotico.io/jobs/team-lead-mobile-solutions-team-lea",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "bc tecnología::desarrollador a full stack node js flutter",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "BC Tecnología",
+      "titulo": "Desarrollador/a Full-Stack Node.js/Flutter",
+      "url": "https://remotico.io/jobs/desarrolladora-full-stack-nodejsflutter-desarrol",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "grupo mariposa::tech lead",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Grupo Mariposa",
+      "titulo": "Tech Lead",
+      "url": "https://remotico.io/jobs/tech-lead-tech-lea-7",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "hf solutions::desarrollador mobile flutter",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "HF Solutions",
+      "titulo": "Desarrollador Mobile Flutter",
+      "url": "https://remotico.io/jobs/desarrollador-mobile-flutter-desarrol",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "hf solutions::mobile development specialist flutter",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "HF Solutions",
+      "titulo": "Mobile Development Specialist (Flutter)",
+      "url": "https://remotico.io/jobs/mobile-development-specialist-flutter-mobile-d",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "codegroup::desenvolvedor frontend react pleno",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Codegroup",
+      "titulo": "Desenvolvedor Frontend React Pleno",
+      "url": "https://remotico.io/jobs/desenvolvedor-frontend-react-pleno-vagaumde",
+      "fuente": "Remotico"
+    },
+    {
+      "key": "coodesh::flutter developer",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "Coodesh",
+      "titulo": "Flutter Developer",
+      "url": "https://remotico.io/jobs/flutter-developer-phpbrasi",
+      "fuente": "Remotico",
+      "salario": 900
+    },
+    {
+      "key": "iteam::flutter mobile developer",
+      "fecha_visto": "2026-09-20T17:55:56+00:00",
+      "estado": "nuevo",
+      "empresa": "ITEAM",
+      "titulo": "Flutter Mobile Developer",
+      "url": "https://remotico.io/jobs/flutter-mobile-developer-backendb",
+      "fuente": "Remotico"
     }
   ],
   "empresas": [

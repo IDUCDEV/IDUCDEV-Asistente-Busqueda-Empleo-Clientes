@@ -1,6 +1,6 @@
 ---
 name: job-search
-description: Use when the user asks to search for Flutter/remote/LATAM job vacancies. Queries 7 sources (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo), filters, deduplicates, and generates a markdown listing.
+description: Use when the user asks to search for Flutter/remote/LATAM job vacancies. Queries 9 sources (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto), filters, deduplicates, and generates a markdown listing.
 ---
 
 # Skill: job-search
@@ -209,6 +209,55 @@ https://ec.computrabajo.com/trabajo-de-flutter   (Ecuador)
 
 ---
 
+### 8. Remotico.io (HTML SSR + JSON-LD)
+
+**URLs:**
+```
+https://remotico.io/jobs/skill/flutter
+https://remotico.io/jobs/skill/dart
+```
+
+**Formato:** `html` (Nuxt con SSR; sin JS necesario)
+**Nota:** Remoto worldwide con fuerte presencia LATAM y BR/pt-BR.
+
+**Tarjeta (para extraer):**
+- Título: `<span class="relative">TÍTULO</span>` dentro del `h3` del `<a href="/jobs/<slug>">`
+- Empresa: `<p class="text-xs ... truncate">EMPRESA</p>`
+- Tiempo: texto "hace X días" (span `shrink-0`)
+
+**Enriquecimiento (`enrich_remotico`):** fetchea la página del empleo
+`https://remotico.io/jobs/<slug>` (tope 12) y lee el bloque `application/ld+json`
+tipo `JobPosting`: `hiringOrganization.name`, `datePosted`, 
+`applicantLocationRequirements[]` (países donde aplica), `baseSalary` (si existe).
+
+**Filtrar:** el endpoint `skill/flutter|dart` ya viene acotado por tag; mantener
+todo lo que liste la página.
+
+---
+
+### 9. Workremoto.com (RSS WordPress)
+
+**URL:**
+```
+https://workremoto.com/categoria-empleo/desarrollo/feed/
+```
+
+**Formato:** `text` (RSS XML)
+**Nota:** Empleos 100% remotos en español (AR, CL, CO, MX y otros LATAM). El feed
+de IT (`/categoria-empleo/it/feed/`) existe pero hoy está vacío; se mantiene solo
+`desarrollo`.
+
+**Extraer por cada `<item>`:**
+- `<title>` (quitar el sufijo "– Remoto")
+- `<link>` (URL del empleo `/empleos/<slug>`)
+- `<pubDate>` → "hace X días/h"
+- `<description>` (texto plano; detecta Flutter/Dart y empresa con el patrón
+  "«Empresa» busca...")
+
+**Filtrar:** `has_flutter_dart(title, description)`.
+
+---
+
 ## Filtros globales (aplicar DESPUÉS de parsear cada fuente)
 
 | Filtro | Regla |
@@ -248,8 +297,8 @@ https://ec.computrabajo.com/trabajo-de-flutter   (Ecuador)
 ### {ID}. {Título}
 ...
 
-(se repite el mismo bloque para Himalayas, RemoteJobs.org, Jobicy, Career Nest
- y Computrabajo por país)
+(se repite el mismo bloque para Himalayas, RemoteJobs.org, Jobicy, Career Nest,
+ Computrabajo por país, Remotico y Workremoto)
 
 > 📝 Para aplicar: copia el `🔗 link` y dímelo con "aplica a esta vacante" para generar CV personalizado con `cv-apply`.
 ```
