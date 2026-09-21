@@ -12,11 +12,12 @@
     {
       "key": "fcamara::pessoa desenvolvedora flutter sênior",
       "fecha_visto": "2026-09-20T16:30:43+00:00",
-      "estado": "nuevo",
+      "estado": "applied",
       "empresa": "FCamara",
       "titulo": "Pessoa Desenvolvedora Flutter - Sênior",
       "url": "https://himalayas.app/companies/fcamara/jobs/pessoa-desenvolvedora-flutter-senior",
-      "fuente": "Himalayas"
+      "fuente": "Himalayas",
+      "fecha_actualizado": "2026-09-21T13:58:00+00:00"
     },
     {
       "key": "canonical::web frontend engineer js css react flutter",
@@ -257,10 +258,11 @@
     {
       "key": "ntt data europe latam::desarrollador a mobile flutter junior semi senior",
       "fecha_visto": "2026-09-20",
-      "estado": "nuevo",
+      "estado": "applied",
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4466596539/",
-      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)",
+      "fecha_actualizado": "2026-09-21T14:05:45+00:00"
     },
     {
       "key": "ntt data europe latam::desarrollador a mobile flutter junior",
@@ -281,42 +283,47 @@
     {
       "key": "softtek::desarrollador flutter senior",
       "fecha_visto": "2026-09-20",
-      "estado": "nuevo",
+      "estado": "descartado",
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4464248343/",
-      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)",
+      "fecha_actualizado": "2026-09-21T14:14:16+00:00"
     },
     {
       "key": "avenue code::senior mobile engineer flutter",
       "fecha_visto": "2026-09-20",
-      "estado": "nuevo",
+      "estado": "descartado",
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4396317818/",
-      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)",
+      "fecha_actualizado": "2026-09-21T14:17:29+00:00"
     },
     {
       "key": "bolder apps ai native agentcy::mobile app developer flutter react native mexico",
       "fecha_visto": "2026-09-20",
-      "estado": "nuevo",
+      "estado": "descartado",
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4459387955/",
-      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)",
+      "fecha_actualizado": "2026-09-21T14:21:04+00:00"
     },
     {
       "key": "ed::desenvolvedor a mobile sênior flutter",
       "fecha_visto": "2026-09-20",
-      "estado": "nuevo",
+      "estado": "applied",
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4459443502/",
-      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)",
+      "fecha_actualizado": "2026-09-21T14:30:33+00:00"
     },
     {
       "key": "modus create::principal mobile engineer flutter react native ai",
       "fecha_visto": "2026-09-20",
-      "estado": "nuevo",
+      "estado": "descartado",
       "fuente": "linkedin-navegador",
       "url": "https://www.linkedin.com/jobs/view/4459849214/",
-      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)"
+      "notas": "vacante oficial LinkedIn (Flutter remoto LATAM)",
+      "fecha_actualizado": "2026-09-21T14:39:18+00:00"
     },
     {
       "key": "expandia::ios flutter developer",
@@ -1853,20 +1860,22 @@
     {
       "key": "https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
       "fecha_visto": "2026-09-20T16:40:23+00:00",
-      "estado": "nuevo",
+      "estado": "applied",
       "autor": "Georgina Brizio",
       "empresa": "Proyecto internacional",
       "url": "https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
-      "snippet": "Senior Flutter Developer | 100% Remote | LATAM | contractor USD"
+      "snippet": "Senior Flutter Developer | 100% Remote | LATAM | contractor USD",
+      "fecha_actualizado": "2026-09-21T13:34:59+00:00"
     },
     {
       "key": "https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
       "fecha_visto": "2026-09-20T16:40:23+00:00",
-      "estado": "nuevo",
+      "estado": "applied",
       "autor": "Maria Gabriela Arias Contreras",
       "empresa": "TeamUp",
       "url": "https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
-      "snippet": "Senior Fullstack (Flutter/Dart) | 100% Remote | LATAM Only"
+      "snippet": "Senior Fullstack (Flutter/Dart) | 100% Remote | LATAM Only",
+      "fecha_actualizado": "2026-09-21T13:46:44+00:00"
     },
     {
       "key": "https://www.linkedin.com/posts/internship-hiring-freshers-share-7506578822842986498-ccjv/",

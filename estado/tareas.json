@@ -1,3 +1,59 @@
 {
-  "tareas": []
+  "tareas": [
+    {
+      "id": "t-20260921093459-1",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
+      "titulo": "Seguimiento: https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
+      "url": "",
+      "creado": "2026-09-21T13:34:59+00:00",
+      "vencimiento": "2026-09-24T13:34:59+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260921094644-2",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
+      "titulo": "Seguimiento: https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
+      "url": "",
+      "creado": "2026-09-21T13:46:44+00:00",
+      "vencimiento": "2026-09-24T13:46:44+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260921095800-3",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "fcamara::pessoa desenvolvedora flutter sênior",
+      "titulo": "Seguimiento: fcamara::pessoa desenvolvedora flutter sênior",
+      "url": "",
+      "creado": "2026-09-21T13:58:00+00:00",
+      "vencimiento": "2026-09-28T13:58:00+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260921100545-4",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "ntt data europe latam::desarrollador a mobile flutter junior semi senior",
+      "titulo": "Seguimiento: ntt data europe latam::desarrollador a mobile flutter junior semi senior",
+      "url": "",
+      "creado": "2026-09-21T14:05:45+00:00",
+      "vencimiento": "2026-09-28T14:05:45+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260921103033-5",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "ed::desenvolvedor a mobile sênior flutter",
+      "titulo": "Seguimiento: ed::desenvolvedor a mobile sênior flutter",
+      "url": "",
+      "creado": "2026-09-21T14:30:33+00:00",
+      "vencimiento": "2026-09-28T14:30:33+00:00",
+      "estado": "pendiente"
+    }
+  ]
 }
