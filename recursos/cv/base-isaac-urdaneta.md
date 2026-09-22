@@ -14,7 +14,7 @@
 
 ## Resumen Profesional
 
-Flutter Engineer con **1 año de experiencia especializada en Flutter y 3+ años en desarrollo de software**, iniciando en frontend web (React/Next.js) y migrando al ecosistema **Dart/Flutter** en 2025. Experto en **Arquitectura Limpia (Clean Architecture)**, **Programación Funcional (FPdart)** y patrones de diseño reactivos (BLoC/RxDart). Destaco por diseñar sistemas desacoplados de infraestructura que permiten migraciones transparentes entre backends (Supabase/REST API). Integro cultura **DevOps** en el desarrollo móvil (Docker, Makefiles, CI/CD) para reducir tiempos de configuración y entrega. Actualmente expandiendo hacia infraestructura autogestionada con Docker, Dokploy y n8n para despliegue de servicios y automatización de flujos de trabajo.
+Flutter Engineer con **1 año de experiencia especializada en Flutter y 3+ años en desarrollo de software**, iniciando en frontend web (React/Next.js) y migrando al ecosistema **Dart/Flutter** en 2025. Experto en **Arquitectura Limpia (Clean Architecture)**, **Programación Funcional (FPdart)** y patrones de diseño reactivos (BLoC/RxDart). Destaco por diseñar sistemas desacoplados de infraestructura que permiten migraciones transparentes entre backends (Supabase/REST API). Integro cultura **DevOps** en el desarrollo móvil (Docker, Makefiles, CI/CD) para reducir tiempos de configuración y entrega. Actualmente expandiendo hacia infraestructura autogestionada con Docker y Dokploy para despliegue de servicios.
 
 ---
 
@@ -37,7 +37,6 @@ Flutter Engineer con **1 año de experiencia especializada en Flutter y 3+ años
 - **Automatización:** Makefile Scripting (build, deploy y tareas de infraestructura), Git Hooks (Pre-commit checks).
 - **Infraestructura:** Docker y Docker Compose (desarrollo, producción y orquestación de servicios), Dokploy (PaaS autogestionado para deploy con dominio personalizado y SSL).
 - **CI/CD:** GitHub Actions.
-- **Automatización de flujos:** n8n (workflow automation self-hosted, integración de APIs, triggers y automatización de procesos).
 - **Servidores:** Gestión vía SSH, scripting avanzado en Bash, monitoreo y administración de servidores Linux.
 - **Versionamiento:** Git / GitHub Flow.
 - **Diseño:** Figma (colaboración técnica).
@@ -55,7 +54,7 @@ Flutter Engineer con **1 año de experiencia especializada en Flutter y 3+ años
 
 - Diseñé una arquitectura limpia modular desacoplada mediante interfaces, permitiendo el intercambio de backend en tiempo real mediante configuración.
 - Implementé un sistema de mapeo emocional de alta precisión (**94% de exactitud**) con análisis de tendencias longitudinales y visualización de datos compleja.
-- Desarrollé una suite de automatización con **Makefiles y Docker** que redujo el tiempo de configuración de entornos de desarrollo en un 50%.
+- Desarrollé una suite de herramientas con **Makefiles y Docker** que redujo el tiempo de configuración de entornos de desarrollo en un 50%.
 - Lancé más de 3 aplicaciones listas para producción utilizando Flutter y Dart, garantizando soluciones escalables con arquitecturas BLoC.
 - Integré estándares de seguridad avanzados incluyendo autenticación Supabase y sincronización en tiempo real con optimización de carga.
 - Desarrollé **Rifáme**, plataforma de gestión de rifas con Flutter, Supabase y Next.js, donde los pagos se coordinan por fuera de la app y sistema de sorteo verificable. MVP en desarrollo, próximo a lanzamiento en Play Store.
@@ -110,11 +109,6 @@ enero 2023 - actualidad
 *Descargador de videos online*
 - **Stack:** Next.js, TypeScript, Tailwind CSS.
 - **Logro:** Descarga de videos desde múltiples plataformas con interfaz rápida y responsive.
-
-**Servidor de Automatizaciones — infraestructura autogestionada**
-*Plataforma de automatización self-hosted con n8n*
-- **Stack:** n8n, Docker, Dokploy, PostgreSQL, Bash.
-- **Logro:** Infraestructura completa de automatización con workflows, despliegue automatizado y monitoreo de servicios.
 
 ---
 

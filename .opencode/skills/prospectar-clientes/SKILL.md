@@ -1,11 +1,11 @@
 ---
 name: prospectar-clientes
-description: Genera leads de negocios venezolanos que necesiten desarrollo web, apps Flutter o automatizaciones n8n. Busca en Overpass API, infoguia y web search. Visita websites, analiza con IA y genera markdown con scoring. Sin APIs de pago, sin n8n.
+description: Genera leads de negocios venezolanos que necesiten desarrollo web o apps Flutter. Busca en Overpass API, infoguia y web search. Visita websites, analiza con IA y genera markdown con scoring. Sin APIs de pago.
 ---
 
 # prospectar-clientes — Pipeline de prospección de leads (VE)
 
-Reemplaza el flujo de n8n. Busca negocios en Venezuela, analiza si necesitan servicios digitales y genera un markdown listo para usar.
+Busca negocios en Venezuela, analiza si necesitan servicios digitales y genera un markdown listo para usar.
 
 ## Archivos de referencia (rutas relativas a la raíz del proyecto)
 
@@ -209,7 +209,7 @@ Por cada lead que tenga `website` y esté en estado `new` (o que no se haya anal
 | Sitio anticuado, no responsive | Necesita web moderna → `web_app` |
 | No tiene sitio web (solo redes) | Necesita web → `web_app` |
 | Sitio ok pero sin app móvil | Necesita app → `flutter_app` |
-| Procesos manuales visibles (pedidos por WhatsApp, reservas por tlf) | Necesita automatización → `automation` |
+| Procesos manuales visibles (pedidos por WhatsApp, reservas por tlf) | Necesita digitalizar procesos → `web_app` |
 | Sitio ok pero sin e-commerce vendiendo presencial | Necesita tienda online → `web_app` |
 | Todo bien, difícil de mejorar | Score bajo, seguir adelante |
 
@@ -229,8 +229,7 @@ Eres un asistente de prospeccion para IDUCDEV, un desarrollador freelance venezo
 SERVICIOS QUE OFRECE:
 1. Desarrollo web (sitios, plataformas, e-commerce)
 2. Apps moviles con Flutter (iOS + Android)
-3. Automatizaciones con n8n
-4. Diseño UI/UX
+3. Diseño UI/UX
 
 DATOS DEL LEAD:
 - Nombre: {name}
@@ -246,7 +245,7 @@ CRITERIOS DE SCORING:
 Responde SOLO este JSON sin ningun otro texto:
 {
   "score": 0-100,
-  "service": "flutter_app" | "web_app" | "automation" | "multiple" | "none",
+  "service": "flutter_app" | "web_app" | "multiple" | "none",
   "pain_points": ["punto"],
   "icebreaker": "Frase personalizada en espanol, natural, que demuestre que viste su negocio",
   "channel": "whatsapp" | "email" | "linkedin"
@@ -315,7 +314,7 @@ Estructura del JSON:
 - **Rubro:** {industria}
 - **Contacto:** {teléfono} | [{website}]({website})
 - **Score:** {n}/100 🔥
-- **Servicio:** {flutter_app | web_app | automation | multiple}
+- **Servicio:** {flutter_app | web_app | multiple}
 - **Pain points:** {detectados}
 - **Icebreaker:** "{frase personalizada}"
 - **Canal recomendado:** {whatsapp | email | linkedin}

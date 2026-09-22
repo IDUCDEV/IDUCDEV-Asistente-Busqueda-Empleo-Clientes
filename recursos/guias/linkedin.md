@@ -56,12 +56,12 @@ Menciona búsqueda activa, experiencia en Flutter, Clean Architecture, pruebas y
 >
 > **Logros destacados:**
 > • Motor de mapeo emocional con **94% de precisión** — SereniFlu
-> • Automatización con Makefiles + Docker → **50% menos tiempo** de setup
+> • Suite de herramientas Makefiles + Docker → **50% menos tiempo** de setup
 > • **98% en accesibilidad Lighthouse** en proyectos móviles
 > • Migración transparente entre backends (Supabase ↔ REST API) gracias a arquitectura desacoplada
 > • **3+ aplicaciones Flutter** publicadas a producción
 >
-> Actualmente expandiéndome hacia infraestructura autogestionada (Docker, Dokploy, n8n) para automatización de flujos y despliegue de servicios.
+> Actualmente expandiéndome hacia infraestructura autogestionada (Docker, Dokploy) para despliegue de servicios.
 >
 > 📱 Stack principal: Flutter, Dart, Clean Architecture, FPdart, BLoC, Supabase, PostgreSQL
 > 🛠 DevOps: Docker, Makefiles, GitHub Actions, CI/CD, Git Hooks, Bash
@@ -75,12 +75,12 @@ Menciona búsqueda activa, experiencia en Flutter, Clean Architecture, pruebas y
 >
 > **Key achievements:**
 > • Emotional mapping engine with **94% accuracy** — SereniFlu
-> • Automation via Makefiles + Docker → **50% faster** environment setup
+> • Tooling suite via Makefiles + Docker → **50% faster** environment setup
 > • **98% Lighthouse Accessibility** score on mobile projects
 > • Seamless backend swapping (Supabase ↔ REST API) through decoupled architecture
 > • **3+ Flutter applications** shipped to production
 >
-> Currently expanding into self-managed infrastructure (Docker, Dokploy, n8n) for service deployment and workflow automation.
+> Currently expanding into self-managed infrastructure (Docker, Dokploy) for service deployment.
 >
 > 📱 Core stack: Flutter, Dart, Clean Architecture, FPdart, BLoC, Supabase, PostgreSQL
 > 🛠 DevOps: Docker, Makefiles, GitHub Actions, CI/CD, Git Hooks, Bash
@@ -102,7 +102,7 @@ Las descripciones actuales suenan a **lista de servicios**, no a **logros con im
 
 **Propuesta:**
 > • Arquitecté y desarrollé **SereniFlu**, app de bienestar emocional con motor de mapeo emocional al **94% de precisión**, usando Clean Architecture y FPdart.
-> • Implementé suite de automatización (Makefiles + Docker) que **redujo el tiempo de setup de entornos en un 50%**.
+> • Desarrollé suite de herramientas (Makefiles + Docker) que **redujo el tiempo de setup de entornos en un 50%**.
 > • Diseñé arquitectura modular desacoplada mediante interfaces, permitiendo intercambio de backend en tiempo real (Supabase ↔ REST API).
 > • Integré autenticación Supabase, sincronización Realtime y estándares de seguridad avanzados.
 > • Desarrollé y publiqué **3+ aplicaciones Flutter** listas para producción.
@@ -168,12 +168,11 @@ Las descripciones actuales suenan a **lista de servicios**, no a **logros con im
 16. RxDart
 17. Provider
 18. GoRouter
-19. n8n
-20. DevOps
-21. SOLID Principles
-22. Next.js
-23. TypeScript
-24. React.js
+19. DevOps
+20. SOLID Principles
+21. Next.js
+22. TypeScript
+23. React.js
 
 ---
 
@@ -201,7 +200,7 @@ Posicionarte como referente técnico en Flutter + Clean Architecture + FPdart, a
 |-----|------|------|
 | Lun | Post | "De Frontend Web a Mobile Engineer: mi transición a Flutter" |
 | Mié | Video | Tutorial: "Clean Architecture + BLoC desde cero en Flutter" |
-| Vie | Post | "Lo que aprendí automatizando mi infraestructura con n8n y Dokploy" |
+| Vie | Post | "Lo que aprendí desplegando mi infraestructura con Docker y Dokploy" |
 
 ### Semana 4 — Networking y comunidad
 | Día | Tipo | Tema |

@@ -527,20 +527,22 @@
     {
       "key": "jobgether::pessoa desenvolvedora flutter sênior",
       "fecha_visto": "2026-09-21T14:50:16+00:00",
-      "estado": "nuevo",
+      "estado": "applied",
       "empresa": "Jobgether",
       "titulo": "Pessoa Desenvolvedora Flutter - Sênior",
       "url": "https://br.linkedin.com/jobs/view/pessoa-desenvolvedora-flutter-s%C3%AAnior-at-jobgether-4468482686",
-      "fuente": "LinkedIn"
+      "fuente": "LinkedIn",
+      "fecha_actualizado": "2026-09-22T01:50:33+00:00"
     },
     {
       "key": "dualentry::lead mobile engineer",
       "fecha_visto": "2026-09-21T14:50:16+00:00",
-      "estado": "nuevo",
+      "estado": "descartado",
       "empresa": "DualEntry",
       "titulo": "Lead Mobile Engineer",
       "url": "https://www.linkedin.com/jobs/view/lead-mobile-engineer-at-dualentry-4442469466",
-      "fuente": "LinkedIn"
+      "fuente": "LinkedIn",
+      "fecha_actualizado": "2026-09-22T01:53:52+00:00"
     },
     {
       "key": "google::mobile software engineer multiplatform early careers",

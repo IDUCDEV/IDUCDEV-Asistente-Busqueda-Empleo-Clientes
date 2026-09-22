@@ -54,7 +54,7 @@ Si vale la pena, sigue las reglas de `recursos/guias/cv-reglas-ats.md` al pie de
 4. **Proyectos:** seleccionar los más relevantes, reescribir énfasis
 
 **Adaptación DevOps según el rol:**
-- **Solo mobile** → reducir DevOps a (Docker, Makefile, CI/CD), omitir Dokploy/n8n/SSH
+- **Solo mobile** → reducir DevOps a (Docker, Makefile, CI/CD), omitir Dokploy/SSH
 - **Mobile + DevOps/infra** → mantener y alinear descripciones
 - **Solo infra/DevOps** → pivotar: infraestructura como skill principal
 

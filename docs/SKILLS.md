@@ -18,7 +18,7 @@ Las skills viven **dentro del proyecto** en `.opencode/skills/` (no en
 | 4 | **cv-apply** | CV optimizado ATS + carta + PDF a partir de una descripción de vacante | AI guiada | Cargar la skill → pegar descripción |
 | 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
 | 6 | **flutter-employers** | Descubre empresas target (startups + establecidas) en LATAM y globales remote-first que usan Flutter | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
-| 7 | **prospectar-clientes** | Genera leads de negocios venezolanos que necesiten web/apps/n8n | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
+| 7 | **prospectar-clientes** | Genera leads de negocios venezolanos que necesiten web o apps | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
 
 ---
 

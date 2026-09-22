@@ -54,6 +54,17 @@
       "creado": "2026-09-21T14:30:33+00:00",
       "vencimiento": "2026-09-28T14:30:33+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20260921215033-6",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "jobgether::pessoa desenvolvedora flutter sênior",
+      "titulo": "Seguimiento: jobgether::pessoa desenvolvedora flutter sênior",
+      "url": "",
+      "creado": "2026-09-22T01:50:33+00:00",
+      "vencimiento": "2026-09-29T01:50:33+00:00",
+      "estado": "pendiente"
     }
   ]
 }

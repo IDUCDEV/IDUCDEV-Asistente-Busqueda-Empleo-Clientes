@@ -16,7 +16,7 @@ Extrae y categoriza:
 **Requisitos Técnicos:**
 - Frameworks y lenguajes mencionados
 - Herramientas y tecnologías requeridas
-- Infraestructura y DevOps (Docker, CI/CD, despliegue, orquestación, automatización)
+- Infraestructura y DevOps (Docker, CI/CD, despliegue, orquestación)
 - Experiencia mínima (años)
 - Certificaciones necesarias
 
@@ -40,7 +40,7 @@ Para cada requisito de la vacante:
 - ✗ No aplica → omitir
 
 **Mapeo específico de DevOps/Infraestructura:**
-- Si la vacante es **solo mobile** → reducir DevOps a lo esencial (Docker, Makefile), omitir Dokploy/n8n/SSH
+- Si la vacante es **solo mobile** → reducir DevOps a lo esencial (Docker, Makefile), omitir Dokploy/SSH
 - Si la vacante es **mobile + DevOps/infra** → mantener y alinear descripciones
 - Si la vacante es **solo infra/DevOps** → pivotar: infraestructura como skill principal, mobile como background complementario
 
@@ -149,15 +149,15 @@ En markdown limpio, optimizado para parseo ATS.
 **Input Vacante:**
 - Platform Engineer / DevOps
 - Remoto
-- Docker, CI/CD, automatización de flujos
+- Docker, CI/CD, despliegue de servicios
 - Experiencia con servidores Linux
 
 **Output Generado:**
 - Título: "Platform Engineer & Mobile Architect"
-- Resumen: Destacar automatización, Docker, infraestructura autogestionada; mobile como background complementario
-- Skills: DevOps/Infraestructura primero (Docker, Dokploy, n8n, SSH, Bash), luego Core mobile
-- Experiencia: Enfatizar suite de automatización Makefiles/Docker, gestión de servidores
-- Proyectos: Priorizar Servidor de Automatizaciones sobre SereniFlu/Temporus
+- Resumen: Destacar Docker, infraestructura autogestionada; mobile como background complementario
+- Skills: DevOps/Infraestructura primero (Docker, Dokploy, SSH, Bash), luego Core mobile
+- Experiencia: Enfatizar suite de herramientas Makefiles/Docker, gestión de servidores
+- Proyectos: Priorizar los alineados con la vacante (Rifáme, SereniFlu, Temporus)
 
 ---
 
