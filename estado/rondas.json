@@ -1,6 +1,63 @@
 {
   "rondas": [
     {
+      "fecha": "2026-09-21",
+      "inicio": "2026-09-21T14:49:20+00:00",
+      "tipo": "empleos",
+      "fases": [
+        {
+          "fase": "job-search",
+          "archivo": "resultados/vacantes/2026-09-21.md",
+          "nuevas": 6,
+          "omitidas": 31,
+          "errores": [],
+          "ok": true,
+          "notas": "LinkedIn: 6",
+          "fin": "2026-09-21T14:50:16+00:00"
+        },
+        {
+          "fase": "workana-search",
+          "archivo": "resultados/vacantes-workana/2026-09-21.md",
+          "nuevas": 27,
+          "omitidas": 92,
+          "errores": [],
+          "ok": true,
+          "notas": "Total: 27; Flutter/Dart: 5; Páginas: 17",
+          "fin": "2026-09-21T14:50:38+00:00"
+        },
+        {
+          "fase": "linkedin-hidden-jobs",
+          "archivo": "resultados/vacantes-ocultas/2026-09-21-hidden.md",
+          "nuevas": 4,
+          "omitidas": 3,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-21T15:17:12+00:00"
+        },
+        {
+          "fase": "prospectar-clientes",
+          "archivo": "resultados/clientes-potenciales/2026-09-21-leads.md",
+          "nuevas": 12,
+          "omitidas": 2,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-21T15:42:31+00:00"
+        },
+        {
+          "fase": "flutter-employers",
+          "archivo": "resultados/empresas-target/2026-09-21-empresas.md",
+          "nuevas": 5,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "Flutter confirmado en 5/5; Hot: QuintoAndar, iFood, Rows, Sua Música; Warm: Skandia",
+          "fin": "2026-09-21T16:03:49+00:00"
+        }
+      ]
+    },
+    {
       "fecha": "2026-09-20",
       "inicio": "2026-09-20T16:30:18+00:00",
       "tipo": "ronda_completa",

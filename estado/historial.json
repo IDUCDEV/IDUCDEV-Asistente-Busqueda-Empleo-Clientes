@@ -514,6 +514,60 @@
       "titulo": "Flutter Mobile Developer",
       "url": "https://remotico.io/jobs/flutter-mobile-developer-backendb",
       "fuente": "Remotico"
+    },
+    {
+      "key": "storyy::full stack software engineer",
+      "fecha_visto": "2026-09-21T14:50:16+00:00",
+      "estado": "nuevo",
+      "empresa": "Storyy",
+      "titulo": "Full-Stack Software Engineer",
+      "url": "https://br.linkedin.com/jobs/view/full-stack-software-engineer-at-storyy-4468715089",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "jobgether::pessoa desenvolvedora flutter sênior",
+      "fecha_visto": "2026-09-21T14:50:16+00:00",
+      "estado": "nuevo",
+      "empresa": "Jobgether",
+      "titulo": "Pessoa Desenvolvedora Flutter - Sênior",
+      "url": "https://br.linkedin.com/jobs/view/pessoa-desenvolvedora-flutter-s%C3%AAnior-at-jobgether-4468482686",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "dualentry::lead mobile engineer",
+      "fecha_visto": "2026-09-21T14:50:16+00:00",
+      "estado": "nuevo",
+      "empresa": "DualEntry",
+      "titulo": "Lead Mobile Engineer",
+      "url": "https://www.linkedin.com/jobs/view/lead-mobile-engineer-at-dualentry-4442469466",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "google::mobile software engineer multiplatform early careers",
+      "fecha_visto": "2026-09-21T14:50:16+00:00",
+      "estado": "nuevo",
+      "empresa": "Google",
+      "titulo": "Mobile Software Engineer, Multiplatform, Early Careers",
+      "url": "https://mx.linkedin.com/jobs/view/mobile-software-engineer-multiplatform-early-careers-at-google-4365590108",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "ambra::desenvolvedor a full stack jr",
+      "fecha_visto": "2026-09-21T14:50:16+00:00",
+      "estado": "nuevo",
+      "empresa": "Ambra",
+      "titulo": "Desenvolvedor(a) Full-Stack Jr",
+      "url": "https://br.linkedin.com/jobs/view/desenvolvedor-a-full-stack-jr-at-ambra-4467604131",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "jobgether::mid data developer azure databricks",
+      "fecha_visto": "2026-09-21T14:50:16+00:00",
+      "estado": "nuevo",
+      "empresa": "Jobgether",
+      "titulo": "Mid Data Developer ( Azure + Databricks )",
+      "url": "https://br.linkedin.com/jobs/view/mid-data-developer-azure-%2B-databricks-at-jobgether-4468491019",
+      "fuente": "LinkedIn"
     }
   ],
   "empresas": [
@@ -588,6 +642,46 @@
       "fecha_visto": "2026-09-20T16:59:33+00:00",
       "estado": "nuevo",
       "nombre": "Grupo Boticário"
+    },
+    {
+      "key": "quintoandar.com.br",
+      "fecha_visto": "2026-09-21T16:03:25+00:00",
+      "estado": "nuevo",
+      "nombre": "QuintoAndar",
+      "url": "https://www.quintoandar.com.br/",
+      "score": 83
+    },
+    {
+      "key": "ifood.com.br",
+      "fecha_visto": "2026-09-21T16:03:25+00:00",
+      "estado": "nuevo",
+      "nombre": "iFood",
+      "url": "https://www.ifood.com.br/",
+      "score": 83
+    },
+    {
+      "key": "suamusica.com.br",
+      "fecha_visto": "2026-09-21T16:03:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Sua Música",
+      "url": "https://www.suamusica.com.br/",
+      "score": 70
+    },
+    {
+      "key": "rows.com",
+      "fecha_visto": "2026-09-21T16:03:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Rows",
+      "url": "https://rows.com/",
+      "score": 75
+    },
+    {
+      "key": "skandia.co",
+      "fecha_visto": "2026-09-21T16:03:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Skandia (Colombia)",
+      "url": "https://www.skandia.co/",
+      "score": 65
     }
   ],
   "clientes": [
@@ -662,6 +756,78 @@
       "fecha_visto": "2026-09-20T16:59:08+00:00",
       "estado": "nuevo",
       "nombre": "Alfredito Burguer"
+    },
+    {
+      "key": "alfresko",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Alfresko"
+    },
+    {
+      "key": "altos munchies",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Altos Munchies"
+    },
+    {
+      "key": "ambar cafe restaurante",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Ámbar Café & Restaurante"
+    },
+    {
+      "key": "aprile restaurant",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Aprile Restaurant"
+    },
+    {
+      "key": "araxi burger grill gourmet",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Araxi Burger Grill & Gourmet"
+    },
+    {
+      "key": "arepa factory",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Arepa Factory"
+    },
+    {
+      "key": "ananda fit fat",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Ananda Fit & Fat"
+    },
+    {
+      "key": "amelie cafe pasteleria",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Amelie Café & Pastelería"
+    },
+    {
+      "key": "anonimo restaurante",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Anónimo Restaurante"
+    },
+    {
+      "key": "amici cafe",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Amici Café"
+    },
+    {
+      "key": "antigua restaurante",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Antigua Restaurante"
+    },
+    {
+      "key": "arroces lozano",
+      "fecha_visto": "2026-09-21T15:42:26+00:00",
+      "estado": "nuevo",
+      "nombre": "Arroces Lozano"
     }
   ],
   "proyectos_workana": [
@@ -1854,6 +2020,276 @@
       "author": "M. A.",
       "budget": "USD 50 - 100",
       "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-automatizacion-voz-a-texto-para-whatsapp",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Automatización Voz a Texto para Whatsapp",
+      "url": "https://www.workana.com/job/desarrollo-de-automatizacion-voz-a-texto-para-whatsapp",
+      "author": "C. M.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-interactiva",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil Interactiva",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-interactiva",
+      "author": "Mora S.",
+      "budget": "USD 100 - 250",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-sistema-de-respuestas-automaticas-con-ia-para-whatsapp-23",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Respuestas Automáticas con Ia para Whatsapp",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-respuestas-automaticas-con-ia-para-whatsapp-23",
+      "author": "Araceli M.",
+      "budget": "Menos de USD 15 / hora",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-de-perfumes-para-ios-y-android-con-asistente-de-eleccion-personalizad",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil de Perfumes para Ios y Android con A...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-de-perfumes-para-ios-y-android-con-asistente-de-eleccion-personalizad",
+      "author": "P. D. L.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-de-mensajeria-con-funcionalidades-de-video-y-contenido-corto",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación de Mensajería con Funcionalidades de Video...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-de-mensajeria-con-funcionalidades-de-video-y-contenido-corto",
+      "author": "B. G.",
+      "budget": "Más de USD 45 / hora",
+      "is_flutter": false
+    },
+    {
+      "key": "buscamos-senior-full-stack-developer-para-finalizar-y-lanzar-aplicacion-movil-de-jardineria-con-ia",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Buscamos Senior Full-Stack Developer para Finalizar y Lanzar Aplica...",
+      "url": "https://www.workana.com/job/buscamos-senior-full-stack-developer-para-finalizar-y-lanzar-aplicacion-movil-de-jardineria-con-ia",
+      "author": "P.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-crm-movil-para-agentes-inmobiliarios-con-flutter-y-firebase",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Crm Móvil para Agentes Inmobiliarios con Flutter y Fi...",
+      "url": "https://www.workana.com/job/desarrollo-de-crm-movil-para-agentes-inmobiliarios-con-flutter-y-firebase",
+      "author": "Andres G. A.",
+      "budget": "USD 1.000 - 3.000",
+      "is_flutter": true
+    },
+    {
+      "key": "desarrollo-de-mvp-de-aplicacion-movil-de-turismo-para-peru-con-foco-en-destinos-poco-conocidos",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Mvp de Aplicación Móvil de Turismo para Perú con Foco...",
+      "url": "https://www.workana.com/job/desarrollo-de-mvp-de-aplicacion-movil-de-turismo-para-peru-con-foco-en-destinos-poco-conocidos",
+      "author": "N. Y. M.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-flutter-para-tienda-de-ropa-bella-moda",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil Flutter para Tienda de Ropa &#039;Bella M...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-flutter-para-tienda-de-ropa-bella-moda",
+      "author": "G. R.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": true
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-para-diagnostico-de-red-local-y-test-de-velocidad",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil para Diagnóstico de Red Local y Test...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-para-diagnostico-de-red-local-y-test-de-velocidad",
+      "author": "Raul H.",
+      "budget": "Menos de USD 50",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-para-gestion-de-edificios-con-roles-de-cliente-dueno-y-empleado",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil para Gestión de Edificios con Roles ...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-para-gestion-de-edificios-con-roles-de-cliente-dueno-y-empleado",
+      "author": "J. M.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": true
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-y-pc-para-calculo-de-materiales-de-construccion-presupuestos",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil y pc para Cálculo de Materiales de c...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-y-pc-para-calculo-de-materiales-de-construccion-presupuestos",
+      "author": "T. C.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-para-gestion-y-conteo-de-inventario-con-escaneo-de-codigos-de-barras",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil para Gestión y Conteo de Inventario ...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-para-gestion-y-conteo-de-inventario-con-escaneo-de-codigos-de-barras",
+      "author": "K. V.",
+      "budget": "USD 50 - 100",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-obd2-para-android-e-ios-con-branding-propio-y-modelo-freemium",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil Obd2 para Android e Ios con Branding...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-obd2-para-android-e-ios-con-branding-propio-y-modelo-freemium",
+      "author": "W. M.",
+      "budget": "USD 1.000 - 3.000",
+      "is_flutter": true
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-de-videollamadas-sociales-con-funciones-avanzadas",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil de Videollamadas Sociales con Funcio...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-de-videollamadas-sociales-con-funciones-avanzadas",
+      "author": "R. R.",
+      "budget": "Más de USD 3.000",
+      "is_flutter": true
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-completa-para-plataforma-de-transporte-multi-ciudad",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil Completa para Plataforma de Transpor...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-completa-para-plataforma-de-transporte-multi-ciudad",
+      "author": "P. L.",
+      "budget": "USD 50 - 100",
+      "is_flutter": false
+    },
+    {
+      "key": "minijuego-personalizado",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Minijuego personalizado",
+      "url": "https://www.workana.com/job/minijuego-personalizado",
+      "author": "Jose M.",
+      "budget": "Menos de USD 50",
+      "is_flutter": false
+    },
+    {
+      "key": "programacion-de-una-app-de-registro-de-asistencia-georeferenciada-y-centralizada",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Programación de una App de registro de asistencia georeferenciada y...",
+      "url": "https://www.workana.com/job/programacion-de-una-app-de-registro-de-asistencia-georeferenciada-y-centralizada",
+      "author": "Jaime N.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "plataforma-multinivel-o-post-afiliacion-para-vender-productos-de-nicho-especifico",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Plataforma multinivel o post afiliación para vender productos de ni...",
+      "url": "https://www.workana.com/job/plataforma-multinivel-o-post-afiliacion-para-vender-productos-de-nicho-especifico",
+      "author": "Upower S.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
+    },
+    {
+      "key": "diseno-de-sitio-web-de-paqueteria-y-mantenimiento-a-app-de-paqueteria",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Diseño de sitio web  de paquetería  y mantenimiento a app de paquet...",
+      "url": "https://www.workana.com/job/diseno-de-sitio-web-de-paqueteria-y-mantenimiento-a-app-de-paqueteria",
+      "author": "Alexis H.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
+    },
+    {
+      "key": "necesito-hacer-una-aplicacion-para-el-calculo-de-bombas",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Necesito hacer una aplicación para el calculo de bombas",
+      "url": "https://www.workana.com/job/necesito-hacer-una-aplicacion-para-el-calculo-de-bombas",
+      "author": "Jaime N.",
+      "budget": "USD 100 - 250",
+      "is_flutter": false
+    },
+    {
+      "key": "se-requiere-programador-para-dar-soporte-y-mantenimiento-a-aplicacion-movil-existente-andoid-ios-esta-desarrollada-en-nativescri",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Se requiere programador para dar soporte y mantenimiento a aplicaci...",
+      "url": "https://www.workana.com/job/se-requiere-programador-para-dar-soporte-y-mantenimiento-a-aplicacion-movil-existente-andoid-ios-esta-desarrollada-en-nativescri",
+      "author": "J. H. F.",
+      "budget": "USD 15 - 45 / hora",
+      "is_flutter": false
+    },
+    {
+      "key": "una-app-de-ofertas-y-cupones",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Una app de ofertas y cupones",
+      "url": "https://www.workana.com/job/una-app-de-ofertas-y-cupones",
+      "author": "Juan J. B.",
+      "budget": "USD 100 - 250",
+      "is_flutter": false
+    },
+    {
+      "key": "programador-android-5022",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Programador Android",
+      "url": "https://www.workana.com/job/programador-android-5022",
+      "author": "Héctor H.",
+      "budget": "USD 1.000 - 3.000",
+      "is_flutter": false
+    },
+    {
+      "key": "aplicacion-hibrida-cordoba-que-se-conecte-con-mi-aplicacion-web",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Aplicación híbrida Córdoba que se conecte con mi aplicación web",
+      "url": "https://www.workana.com/job/aplicacion-hibrida-cordoba-que-se-conecte-con-mi-aplicacion-web",
+      "author": "Carlos G.",
+      "budget": "Menos de USD 50",
+      "is_flutter": false
+    },
+    {
+      "key": "programador-android-1876",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Programador Android",
+      "url": "https://www.workana.com/job/programador-android-1876",
+      "author": "H. C.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "programacion-app-movil-53",
+      "fecha_visto": "2026-09-21T14:50:38+00:00",
+      "estado": "nuevo",
+      "titulo": "Programacion App movil",
+      "url": "https://www.workana.com/job/programacion-app-movil-53",
+      "author": "H. C.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
     }
   ],
   "posts_linkedin": [
@@ -1885,6 +2321,42 @@
       "empresa": "Tech Nexa Solution",
       "url": "https://www.linkedin.com/posts/internship-hiring-freshers-share-7506578822842986498-ccjv/",
       "snippet": "Flutter Developer Intern | Remote | 0-1 year"
+    },
+    {
+      "key": "https://lnkd.in/p/ePetZWsM",
+      "fecha_visto": "2026-09-21T15:17:09+00:00",
+      "estado": "nuevo",
+      "autor": "Maria Gabriela Arias Contreras",
+      "empresa": "TeamUp",
+      "url": "https://lnkd.in/p/ePetZWsM",
+      "snippet": "Senior Fullstack Developer (Flutter/Dart) | 100% Remote | LATAM Only"
+    },
+    {
+      "key": "https://lnkd.in/p/eyRe3p5c",
+      "fecha_visto": "2026-09-21T15:17:09+00:00",
+      "estado": "nuevo",
+      "autor": "Sumbel Javed",
+      "empresa": "Technical Recruiter",
+      "url": "https://lnkd.in/p/eyRe3p5c",
+      "snippet": "Full-Stack Engineer | Node.js + Flutter/RN | Remote Part-Time Contractual"
+    },
+    {
+      "key": "https://lnkd.in/p/ePKbt-tB",
+      "fecha_visto": "2026-09-21T15:17:09+00:00",
+      "estado": "nuevo",
+      "autor": "Ocean IT Service",
+      "empresa": "Ocean IT Service",
+      "url": "https://lnkd.in/p/ePKbt-tB",
+      "snippet": "Flutter Developer | 1-4 years | Remote India"
+    },
+    {
+      "key": "https://lnkd.in/p/em2Gvv26",
+      "fecha_visto": "2026-09-21T15:17:09+00:00",
+      "estado": "nuevo",
+      "autor": "Workremoto - Trabajo Remoto con o sin experiencia",
+      "empresa": "BC Tecnologia (Chile)",
+      "url": "https://lnkd.in/p/em2Gvv26",
+      "snippet": "Desarrollador/a Full Stack Node.js - Flutter | Remoto"
     }
   ],
   "outreach": []
