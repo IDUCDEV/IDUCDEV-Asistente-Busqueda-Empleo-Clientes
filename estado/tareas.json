@@ -65,6 +65,28 @@
       "creado": "2026-09-22T01:50:33+00:00",
       "vencimiento": "2026-09-29T01:50:33+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20260922094747-7",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "clinicaccct.com",
+      "titulo": "Seguimiento: clinicaccct.com",
+      "url": "",
+      "creado": "2026-09-22T13:47:47+00:00",
+      "vencimiento": "2026-09-25T13:47:47+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260922100341-8",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "posadaelbotuto.com/reservations",
+      "titulo": "Seguimiento: posadaelbotuto.com/reservations",
+      "url": "",
+      "creado": "2026-09-22T14:03:41+00:00",
+      "vencimiento": "2026-09-25T14:03:41+00:00",
+      "estado": "pendiente"
     }
   ]
 }

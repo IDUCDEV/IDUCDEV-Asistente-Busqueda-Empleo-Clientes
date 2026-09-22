@@ -690,14 +690,16 @@
     {
       "key": "clinicaccct.com",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Clínica CCCT"
+      "estado": "contactado",
+      "nombre": "Clínica CCCT",
+      "fecha_actualizado": "2026-09-22T13:47:47+00:00"
     },
     {
       "key": "posadaelbotuto.com/reservations",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Posada El Botuto"
+      "estado": "contactado",
+      "nombre": "Posada El Botuto",
+      "fecha_actualizado": "2026-09-22T14:03:41+00:00"
     },
     {
       "key": "o2fz.com",
