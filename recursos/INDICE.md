@@ -34,6 +34,7 @@ Todo resultado generado por una skill vive bajo `resultados/`.
 | `linkedin-hidden-jobs` | `resultados/vacantes-ocultas/{YYYY-MM-DD}-hidden.md` |
 | `cv-apply` | `resultados/cv/{cv-base}-{rol}-{empresa}.md` + carta + `.pdf` |
 | `linkedin-outreach` | `resultados/mensajes-outreach/{nombre}-{YYYY-MM-DD}.md` |
+| `contactar-clientes` | `resultados/mensajes-clientes/{nombre}-{YYYY-MM-DD}.md` |
 | `flutter-employers` | `resultados/empresas-target/{YYYY-MM-DD}-empresas.md` + `leads-db.json` |
 | `prospectar-clientes` | `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md` + `leads-db.json` |
 | Orquestador (informe) | `resultados/informes/{YYYY-MM-DD}-resumen.md` |

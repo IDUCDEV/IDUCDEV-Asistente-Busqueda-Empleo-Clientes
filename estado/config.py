@@ -77,6 +77,7 @@ OUTPUT_DIRS = {
     "clientes-potenciales": os.path.join(RESULTADOS_DIR, "clientes-potenciales"),
     "empresas-target": os.path.join(RESULTADOS_DIR, "empresas-target"),
     "mensajes-outreach": os.path.join(RESULTADOS_DIR, "mensajes-outreach"),
+    "mensajes-clientes": os.path.join(RESULTADOS_DIR, "mensajes-clientes"),
     "cv": os.path.join(RESULTADOS_DIR, "cv"),
     "informes": os.path.join(RESULTADOS_DIR, "informes"),
 }
@@ -89,6 +90,7 @@ SKILL_SCRIPTS = {
 # Seguimientos automáticos: cuántos días después se crea una tarea de revisión.
 SEGUIMIENTO_DIAS = {
     "outreach": 3,      # contacto enviado → revisar respuesta en 3 días
+    "clientes": 3,      # lead contactado → revisar respuesta en 3 días
     "vacantes": 7,      # aplicación enviada → revisar status en 7 días
     "proyectos_workana": 7,
 }

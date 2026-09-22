@@ -415,11 +415,13 @@ Cuando el usuario vea la lista y quiera actuar sobre un lead:
 
 1. Usuario dice "contactar {nombre}" o "aplicar a {nombre}"
 2. Copiar el **icebreaker** y el **canal recomendado** del markdown
-3. Si el usuario quiere generar un outreach message completo, cargar `cv-apply` skill adaptado para prospección
-4. El usuario contacta manualmente y actualiza el estado en `leads-db.json` (o el skill lo hace)
+3. Cargar la skill **`contactar-clientes`** → genera el mensaje de venta
+   personalizado en `resultados/mensajes-clientes/{nombre}-{YYYY-MM-DD}.md`
+4. El skill actualiza `status: contacted` en `leads-db.json` y marca el
+   lead `contactado` en el historial (seguimiento D+3 automático)
 
 ### Comandos rápidos (vía opencode):
-- `"contactar {lead_name}"` → mostrar icebreaker + canal + sugerir outreach
+- `"contactar {lead_name}"` → carga `contactar-clientes` (mensaje listo)
 - `"marcar contactado {lead_name}"` → actualizar DB a `status: contacted`
 - `"ver historial"` → mostrar leads-db.json resumido
 - `"analizar {url}"` → analizar un website específico como lead manual

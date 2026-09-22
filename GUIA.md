@@ -36,6 +36,7 @@ Frases que entiende:
 | **"¿Qué tengo pendiente?"** | Muestra la bandeja de tareas (seguimientos de contactos y aplicaciones). |
 | **"Aplica a {x}"** | Genera CV optimizado ATS + carta + PDF para esa vacante, con el link pegado. |
 | **"Contacta a {perfil}"** | Genera el mensaje personalizado para ese reclutador/empresa en LinkedIn. |
+| **"Contacta a {cliente}"** | Genera el mensaje de venta personalizado para un lead (WhatsApp/email/LinkedIn). |
 | **"Marca {x} como aplicado"** | Lo registra como hecho y agenda un seguimiento automático. |
 | **"Guía"** | Muestra este documento resumido. |
 
@@ -47,6 +48,7 @@ Frases que entiende:
 "Solo empleos"
 "aplica a esta vacante: <pega el texto o link>"
 "contacta a https://www.linkedin.com/in/xxx"
+"contacta a Clínica CCCT"
 "marca Flutter Developer en GetOnBoard como aplicado"
 "¿algún cliente nuevo esta semana?"
 "¿qué tengo pendiente?"
@@ -94,7 +96,8 @@ Todo lo que las skills producen cae en una carpeta por skill:
 | Freelance (Workana) | `resultados/vacantes-workana/{fecha}.md` |
 | Mercado oculto de LinkedIn | `resultados/vacantes-ocultas/{fecha}-hidden.md` |
 | CVs optimizados (`cv-apply`) | `resultados/cv/{cv-base}-{rol}-{empresa}.md` + carta + PDF |
-| Mensajes de contacto | `resultados/mensajes-outreach/{nombre}-{fecha}.md` |
+| Mensajes de contacto (empleo) | `resultados/mensajes-outreach/{nombre}-{fecha}.md` |
+| Mensajes a clientes | `resultados/mensajes-clientes/{nombre}-{fecha}.md` |
 | Empresas target | `resultados/empresas-target/{fecha}-empresas.md` + `leads-db.json` |
 | Leads de clientes | `resultados/clientes-potenciales/{fecha}-leads.md` + `leads-db.json` |
 | Resumen diario | `resultados/informes/{fecha}-resumen.md` |
@@ -118,7 +121,7 @@ no ensucian el repo.
 **Cómo funciona el ciclo de estado:** `nuevo → revisado → en_proceso →
 aplicado/enviado → respuesta/descartado`. Cuando marcas algo como aplicado o
 contactado, el asistente agenda un **seguimiento automático** (D+3 para
-contactos, D+7 para aplicaciones) y te lo recuerda en *"¿qué tengo
+contactos y clientes, D+7 para aplicaciones) y te lo recuerda en *"¿qué tengo
 pendiente?"*.
 
 ---
@@ -136,9 +139,9 @@ pendiente?"*.
 ├── resultados/                   # RESULTADOS por skill (se regeneran)
 │   ├── vacantes/  vacantes-workana/  vacantes-ocultas/
 │   ├── clientes-potenciales/  empresas-target/
-│   ├── mensajes-outreach/  cv/  informes/
+│   ├── mensajes-outreach/  mensajes-clientes/  cv/  informes/
 ├── .opencode/
-│   ├── skills/                   # Las 8 skills (proyecto-only)
+│   ├── skills/                   # Las 9 skills (proyecto-only)
 │   └── command/                  # /ronda /estado /nuevo
 ├── .opencode/skills/...          # skills
 ├── docs/SKILLS.md                # Detalle técnico de las skills

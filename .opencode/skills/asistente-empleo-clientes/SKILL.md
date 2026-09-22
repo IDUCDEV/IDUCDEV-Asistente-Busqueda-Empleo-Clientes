@@ -112,12 +112,22 @@ vacante a `applied` en el historial:
 python3 estado/orquestador.py marcar vacantes "empresa::titulo" applied
 ```
 
-### 5. "Contacta a {perfil/empresa}"
+### 5. "Contacta a {perfil/empresa}" (empleo)
 Carga `linkedin-outreach` → genera mensaje personalizado. Al generar,
 registra el perfil en categoría `outreach` con estado `enviado` y el
 orquestador creará **automáticamente** la tarea de seguimiento (D+3):
 ```bash
 python3 estado/orquestador.py marcar outreach "<url-del-perfil>" enviado
+```
+
+### 5b. "Contacta a {cliente}/{lead}" (ventas)
+Carga `contactar-clientes` → genera mensaje de venta personalizado
+(whatsapp/email/linkedin) desde `leads-db.json`. Al generar, actualiza el
+lead en `resultados/clientes-potenciales/leads-db.json` (`status:
+contacted`) y marca el lead `contactado` en el historial (el orquestador
+crea la tarea de seguimiento D+3):
+```bash
+python3 estado/orquestador.py marcar clientes "<clave>" contactado
 ```
 
 ### 6. "Marca X como aplicado/descartado/contactado"
@@ -147,6 +157,7 @@ falta, añade) las claves en `historial.json`:
 - clientes prospección → categoría `clientes`
 - posts de LinkedIn procesados → categoría `posts_linkedin`
 - outreach generado → categoría `outreach`
+- cliente contactado → categoría `clientes` (estado `contactado`)
 
 Los scripts de `job-search` y `workana-search` ya deduplican solos
 contra el historial; verifica su salida `---SKIPPED---`.

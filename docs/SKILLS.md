@@ -19,6 +19,7 @@ Las skills viven **dentro del proyecto** en `.opencode/skills/` (no en
 | 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
 | 6 | **flutter-employers** | Descubre empresas target (startups + establecidas) en LATAM y globales remote-first que usan Flutter | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
 | 7 | **prospectar-clientes** | Genera leads de negocios venezolanos que necesiten web o apps | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
+| 8 | **contactar-clientes** | Mensaje de venta personalizado para contactar un lead (WhatsApp/email/LinkedIn) | AI guiada | Cargar la skill → "contacta a {nombre}" |
 
 ---
 
@@ -155,6 +156,22 @@ python3 .opencode/skills/workana-search/workana_search.py
 - FASE 4: output + DB.
 - Output: `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md`, `leads-db.json`
 
+## 8. contactar-clientes — Mensajes de venta a leads
+
+- Lee el lead desde `resultados/clientes-potenciales/leads-db.json` (o
+  datos manuales) + CV base para la firma.
+- Canal según el lead (`whatsapp` por defecto, `email`, `linkedin`) × tono
+  (directo/profesional/casual).
+- Servicios ofertados: web, apps Flutter, UI/UX (sin automatizaciones).
+- Guarda el mensaje listo para copiar/pegar; el envío es manual:
+  ```bash
+  python3 estado/orquestador.py marcar clientes "<clave>" contactado
+  ```
+  → seguimiento automático D+3 (cron vía `crear_seguimientos` para
+  clientes contactados).
+- Output: `resultados/mensajes-clientes/{nombre}-{YYYY-MM-DD}.md` + update
+  de `status` en `leads-db.json`
+
 ---
 
 ## Flujo recomendado
@@ -162,7 +179,7 @@ python3 .opencode/skills/workana-search/workana_search.py
 ```
 Diario:  "Haz la ronda de hoy" → orquestador: empleos + clientes
 Semanal: flutter-employers + prospectar-clientes (descubrir más)
-A demanda: cv-apply (aplicar) · linkedin-outreach (contactar)
+A demanda: cv-apply (aplicar) · linkedin-outreach (contactar empleo) · contactar-clientes (contactar leads)
 ```
 
 Siempre delegar vía el orquestador (`asistente-empleo-clientes`) para

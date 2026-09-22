@@ -356,6 +356,19 @@ def crear_seguimientos(auto=True):
                         f"Revisar respuesta de outreach: {it['key']}",
                         url=it.get("url", ""), dias=1)
             creados += 1
+    # Clientes: contactados hace >= 3 días sin respuesta registrada
+    for it in h.by_state("clientes", ("enviado", "contactado")):
+        ts = it.get("fecha_actualizado") or it.get("fecha_visto") or ""
+        try:
+            d = datetime.fromisoformat(ts)
+        except Exception:
+            d = datetime.now(timezone.utc)
+        dias = (datetime.now(timezone.utc) - d).days
+        if dias >= SEGUIMIENTO_DIAS.get("clientes", 3) and not _tarea_existe("seguimiento_outreach", it["key"]):
+            tarea_nueva("seguimiento_outreach", "clientes", it["key"],
+                        f"Revisar respuesta del cliente: {it['key']}",
+                        url=it.get("url", ""), dias=1)
+            creados += 1
     # Vacantes/workana: aplicados hace >= 7 días sin respuesta
     for cat in ("vacantes", "proyectos_workana"):
         for it in h.by_state(cat, ("applied", "enviado")):

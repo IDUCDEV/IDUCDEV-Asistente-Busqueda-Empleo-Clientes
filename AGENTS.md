@@ -36,7 +36,8 @@ resultados/           # SALIDAS de las skills (se regeneran, ignoradas por git)
   vacantes-ocultas/   #   ← linkedin-hidden-jobs
   clientes-potenciales/#  ← prospectar-clientes
   empresas-target/    #   ← flutter-employers
-  mensajes-outreach/  #   ← linkedin-outreach
+  mensajes-outreach/  #   ← linkedin-outreach (empleo)
+  mensajes-clientes/  #   ← contactar-clientes (ventas a leads)
   cv/                 #   ← cv-apply (CV + carta + PDF)
   informes/           #   ← orquestador (resumen diario)
 estado/
@@ -47,7 +48,7 @@ estado/
   rondas.json         # bitácora de rondas (fases + conteos)
   orquestador.py      # CLI: ronda, registrar, estado, marcar, tareas, informe, reset
 .opencode/
-  skills/             # las 8 skills del asistente (proyecto-only)
+  skills/             # las 9 skills del asistente (proyecto-only)
   command/            # comandos /ronda /estado /nuevo
 informes/  (ya no — ahora resultados/informes/)
 ```
@@ -60,8 +61,8 @@ informes/  (ya no — ahora resultados/informes/)
   (hidden-jobs, prospectar, empresas) se registran con
   `orquestador.py registrar <fase> <archivo> --nuevas N`.
 - `orquestador.py estado` expone historial + bandeja + vencidos (pendientes
-  y seguimientos). `seguimientos` crea tareas automáticas D+3 (outreach) y
-  D+7 (aplicaciones) desde el historial.
+  y seguimientos). `seguimientos` crea tareas automáticas D+3 (outreach y
+  clientes) y D+7 (aplicaciones) desde el historial.
 - `marcar <cat> <key> <estado>` actualiza el historial y crea la tarea de
   seguimiento correspondiente.
 - `reset [--yes]` vacía el estado para reempezar desde cero: historial,
