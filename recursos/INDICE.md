@@ -5,6 +5,8 @@
 > donde **vuelca** sus resultados (`resultados/`). Nunca improvises rutas.
 
 El documento único de uso de este proyecto es **`GUIA.md`** (en la raíz).
+Los flujos en diagramas viven en **`docs/DIAGRAMAS.md`** (vista HTML:
+`docs/diagramas.html`).
 
 ---
 

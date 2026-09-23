@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente IDUCDEV — Diagramas de flujo</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 24px; }
+  h1 { font-size: 22px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+  h2 { font-size: 17px; margin-top: 40px; color: #7dd3fc; }
+  .mermaid { background: #ffffff; border-radius: 12px; padding: 16px; overflow-x: auto; margin: 12px 0 8px; }
+  .nota { color: #94a3b8; font-size: 13px; margin-bottom: 8px; }
+  a { color: #7dd3fc; }
+</style>
+</head>
+<body>
+  <h1>📊 Asistente IDUCDEV — Flujos completos</h1>
+  <p class="nota">Fuente Mermaid: <code>docs/DIAGRAMAS.md</code> · Necesita internet para cargar la librería de render.</p>
+
+  <h2>0. Arquitectura general</h2>
+  <div class="mermaid">
+flowchart LR
+    USUARIO["👤 Tú <br/>hablas en lenguaje natural"]
+
+    PUERTA["asistente-empleo-clientes<br/>puerta de entrada única"]
+
+    subgraph CEREBRO["🧠 Cerebro · estado/"]
+        HISTORIAL["historial.json <br/>dedup central"]
+        TAREAS["tareas.json <br/>bandeja + D+3 / D+7"]
+        RONDAS["rondas.json <br/>bitácora"]
+        COLA["cola_envios.json <br/>mensajes de venta en cola"]
+        ORQ["orquestador / tracker / cola_envios / enviar_email"]
+    end
+
+    subgraph RECURSOS["📂 recursos/ (humano)"]
+        INDICE["INDICE.md · CV base · reglas ATS · guías"]
+    end
+
+    subgraph RESULTADOS["📤 resultados/ (se regeneran)"]
+        VACANTES["vacantes · workana · ocultas"]
+        CLIENTES["clientes-potenciales · empresas-target"]
+        MSG["mensajes-outreach · mensajes-clientes"]
+        CV["cv (CV + carta + PDF)"]
+        INF["informes (resumen diario)"]
+    end
+
+    USUARIO --> PUERTA
+    PUERTA -->|consulta| INDICE
+    PUERTA -->|dedup antes| HISTORIAL
+    PUERTA -->|registra después| HISTORIAL
+    CEREBRO --> RESULTADOS
+    RESULTADOS --> PUERTA
+  </div>
+
+  <h2>1. Ronda de hoy — descubrimiento</h2>
+  <div class="mermaid">
+flowchart TD
+    INICIO([¡Haz la ronda de hoy!]) --> PASO1
+
+    PASO1["1 job-search<br/><i>scripts · sin navegador</i>"]
+    PASO2["2 workana-search<br/><i>scripts · sin navegador</i>"]
+
+    PASO1 & PASO2 --> ORQ["orquestador.py ronda --empleos"]
+
+    ORQ --> PREGUNTA{¿Autorizas<br/>navegador?}
+
+    PREGUNTA -- "No" --> ORACULO["⚠️ solo fases 1-2"]
+    PREGUNTA -- "Sí" --> NAV["🧭 Navegador"]
+
+    NAV --> H3["3 linkedin-hidden-jobs"]
+    NAV --> H4["4 prospectar-clientes"]
+    NAV --> H5["5 flutter-employers (semanal)"]
+
+    H3 --> REG3["registrar … --nuevas N"]
+    H4 --> REG4["registrar … --nuevas N"]
+    H5 --> REG5["registrar … --nuevas N"]
+
+    REG3 & REG4 & REG5 & ORACULO --> INFORME["informe → resumen diario"]
+    INFORME --> DEDUP["🧠 historial.json (omite lo ya visto)"]
+  </div>
+
+  <h2>2. Empleo — aplicar / contactar</h2>
+  <div class="mermaid">
+flowchart TD
+    RONDA["ronda → vacantes listadas"] --> ELIGE
+
+    ELIGE{¿Qué hago con la vacante?}
+
+    ELIGE -->|"Aplica a {vacante}"| APPLY[("cv-apply")]
+    APPLY --> CVGEN["CV optimizado + carta + PDF"]
+    CVGEN --> MARKAPP["marcar vacantes … applied"]
+    MARKAPP --> T7["🗓️ Seguimiento D+7"]
+    T7 --> BANDEJA["bandeja (¿qué tengo pendiente?)"]
+
+    ELIGE -->|"Contacta a {perfil}"| OUT[("linkedin-outreach")]
+    OUT --> MSGO["mensaje personalizado"]
+    MSGO --> MARKOUT["marcar outreach … enviado"]
+    MARKOUT --> T3["🗓️ Seguimiento D+3"]
+    T3 --> BANDEJA
+  </div>
+
+  <h2>3. Clientes — prospectar → generar → enviar (uno por uno)</h2>
+  <div class="mermaid">
+flowchart TD
+    A["prospectar-clientes (semanal)"] --> B["leads-db.json + leads.md"]
+    B --> C[("🧾 contactar-clientes<br/>'contacta a {cliente}'")]
+
+    C --> D["mensaje .md → mensajes-clientes/"]
+    D --> E[("📥 ENCOLA: cola_envios.py add<br/>lead: en_cola")]
+
+    E --> F[("📤 enviar-clientes /enviar<br/>'envía los pendientes'")]
+
+    F --> G{"Lead uno a uno<br/>¿qué hago?"}
+
+    G -->|"OK"| ENVIAR["enviar por canal"]
+    G -->|"modificar"| MOD["editar .md + cola<br/>cola_envios.py editar"]
+    MOD --> VER["ver &lt;id&gt; (versión final)"] --> G
+    G -->|"saltar"| SALTAR["queda pendiente<br/>próxima ronda"] --> SIG
+    G -->|"parar"| PARAR["termina ronda"] --> REG
+
+    ENVIAR --> EMAIL["✉️ email SMTP (auto)"]
+    ENVIAR --> WA["💬 WhatsApp Web + Enter<br/>pausa 15-35s"]
+    ENVIAR --> LI["💼 LinkedIn semi<br/>(tú pulsas Enter)"]
+
+    EMAIL --> OKOK{"¿Envió bien?"}
+    WA --> OKOK
+    LI --> OKOK
+
+    OKOK -- "✅" --> MARK["enviado + contactado (D+3)<br/>leads-db: contacted"]
+    MARK --> SIG["siguiente lead (cupo 12/día)"]
+    SIG -->|"¿cola y cupo?"| G
+
+    OKOK -- "❌ error" --> ERR["cola: error (reintentable)<br/>sin D+3"] --> SIG
+
+    REG["registrar + informe"]
+  </div>
+
+  <h2>4. Ciclo de vida del estado y de la cola</h2>
+  <div class="mermaid">
+stateDiagram-v2
+    [*] --> nuevo : descubierto
+    nuevo --> revisado : lo ves
+    revisado --> en_proceso : accionas
+    en_proceso --> aplicado : cv-apply (D+7)
+    en_proceso --> enviado : outreach/contacto (D+3)
+    aplicado --> respuesta
+    enviado --> respuesta
+    aplicado --> descartado
+    enviado --> descartado
+    respuesta --> [*]
+    descartado --> [*]
+  </div>
+
+  <div class="mermaid">
+stateDiagram-v2
+    direction LR
+    [*] --> pendiente : contactar encola
+    pendiente --> enviado : envío efectivo (D+3)
+    pendiente --> error : falla SMTP / nº no registrado
+    pendiente --> pendiente : "saltar" (próxima ronda)
+    error --> pendiente : reintento
+    enviado --> [*]
+  </div>
+
+  <h2>5. Seguimientos automáticos (D+3 / D+7)</h2>
+  <div class="mermaid">
+sequenceDiagram
+    participant U as Tú
+    participant A as Asistente
+    participant O as orquestador.py
+    participant T as tareas.json
+
+    A->>O: marcar &lt;cat&gt; &lt;key&gt; enviado/contactado/applied
+    O->>O: registrar estado + fecha
+    O->>T: crear seguimiento (D+3 clientes · D+7 aplicaciones)
+    U->>A: ¿qué tengo pendiente?
+    A->>O: tareas / seguimientos
+    O-->>A: lista con vencimientos
+    A-->>U: ⚠️ vence hoy: seguimiento de {cliente}
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: true, htmlLabels: true } });
+  </script>
+</body>
+</html>

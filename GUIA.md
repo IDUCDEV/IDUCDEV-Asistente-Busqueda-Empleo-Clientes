@@ -4,6 +4,9 @@
 del asistente, está aquí: qué hace, cómo se usa, dónde están tus recursos,
 dónde quedan los resultados y cómo se restaura.
 
+> 📊 ¿Quieres ver los flujos en diagramas? → `docs/DIAGRAMAS.md`
+> (o abre `docs/diagramas.html` en tu navegador).
+
 ---
 
 ## 1. ¿Qué es esto?
