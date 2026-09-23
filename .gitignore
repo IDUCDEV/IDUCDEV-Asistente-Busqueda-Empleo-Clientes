@@ -4,5 +4,8 @@ __pycache__/
 .DS_Store
 *.tmp
 
+# Credenciales (SMTP, límites de envío) — NUNCA commitear
+.env
+
 # Outputs generados por las skills (se regeneran solos)
 resultados/

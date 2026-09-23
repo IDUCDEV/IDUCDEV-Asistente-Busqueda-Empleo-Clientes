@@ -1,6 +1,6 @@
 ---
 name: contactar-clientes
-description: Genera un mensaje de venta personalizado para contactar a un lead de clientes (resultado de prospectar-clientes). Lee el lead desde resultados/clientes-potenciales/leads-db.json o datos manuales, adapta el mensaje al canal (whatsapp/email/linkedin) y tono, y lo guarda en resultados/mensajes-clientes/. Registra el contacto en leads-db.json y en estado/historial.json (seguimiento D+3 automático).
+description: Genera un mensaje de venta personalizado para contactar a un lead de clientes (resultado de prospectar-clientes). Lee el lead desde resultados/clientes-potenciales/leads-db.json o datos manuales, adapta el mensaje al canal (whatsapp/email/linkedin) y tono, lo guarda en resultados/mensajes-clientes/ y LO ENCOLA en estado/cola_envios.json para que enviar-clientes lo envíe uno por uno (validación del usuario en cada mensaje). El estado contactado (y seguimiento D+3) solo se marca tras el envío efectivo.
 ---
 
 # Skill: contactar-clientes
@@ -26,6 +26,7 @@ El usuario te pide algo como:
 - **Indice de recursos (consultar siempre):** `recursos/INDICE.md`
 - **DB de leads (entrada):** `resultados/clientes-potenciales/leads-db.json`
 - **CV base (firma y datos de Isaac):** `recursos/cv/base-isaac-urdaneta.md`
+- **Cola de envíos (salida):** `estado/cola_envios.json` (CLI: `estado/cola_envios.py`)
 - **Output dir:** `resultados/mensajes-clientes/`
 
 ## Workflow
@@ -49,6 +50,9 @@ EOF
 
 - Si el lead ya está `contactado`/`enviado` y tiene un mensaje generado,
   avísale al usuario y ofrécele regenerarlo (no lo regeneres sin preguntar).
+- Si su estado es `en_proceso` y ya hay algo pendiente en
+  `python3 estado/cola_envios.py pendientes` para ese lead, avisa que ya
+  está en cola (no lo dupliques).
 
 ### Fase 2: Localizar el lead
 
@@ -175,7 +179,7 @@ contracciones y con cierre "Saludos cordiales".
 > IDUCDEV haciendo [servicio]; si necesitan [pain point], con gusto les
 > doy una mano.
 
-### Fase 6: Guardar y mostrar
+### Fase 6: Guardar, encolar y mostrar
 
 1. Guarda el mensaje en:
 
@@ -207,26 +211,42 @@ contracciones y con cierre "Saludos cordiales".
    ## Notas
    - Pain points: ...
    - Contexto del lead: ...
-   - Siguiente paso: enviar y marcar `contactado` en leads-db.json
+   - Siguiente paso: decir "envía los pendientes" (o enviarlo a mano y marcar contactado)
    ```
 
-2. Actualiza el lead en `resultados/clientes-potenciales/leads-db.json`:
+2. **Encola el envío** con `estado/cola_envios.py` (el envío lo hará la
+   skill `enviar-clientes` uno por uno, con validación del usuario en cada
+   mensaje y límite diario):
+
+   ```bash
+   python3 estado/cola_envios.py add \
+     --key "<clave-del-lead>" \
+     --nombre "<nombre del negocio>" \
+     --canal whatsapp|email|linkedin \
+     --destino "<teléfono | email | url linkedin>" \
+     --mensaje-path "resultados/mensajes-clientes/{nombre}-{fecha}.md" \
+     [--asunto "<asunto del email>"]
+   ```
+
+   - `--destino`: `phone` del lead (whatsapp), `email`/website-derived
+     (email) o URL del perfil (linkedin). Si el lead no tiene destino
+     válido para su canal, avísalo y deja solo el `.md` (envío manual).
+   - El `--asunto` es obligatorio solo para canal `email`.
+   - Dedup: si el lead ya estaba `pendiente` en la cola, no se duplica.
+
+3. Actualiza el lead en `resultados/clientes-potenciales/leads-db.json`:
 
    ```json
-   "status": "contacted",
-   "fecha_contacto": "{YYYY-MM-DD}",
+   "status": "en_cola",
    "mensaje": "resultados/mensajes-clientes/{nombre}-{fecha}.md"
    ```
 
-3. Registra el contacto en el historial. Si el lead ya tiene clave en la
-   categoría `clientes`, márcala contactado (crea la tarea de seguimiento
-   D+3 automáticamente):
+   **NO marques todavía `contacted` ni `contactado` en el historial:** eso
+   ocurre solo tras el envío efectivo (lo hace `enviar-clientes`), para que
+   el seguimiento D+3 cuente desde que el lead realmente recibió el mensaje.
 
-   ```bash
-   python3 estado/orquestador.py marcar clientes "<clave>" contactado
-   ```
-
-   Si no tiene clave aún (lead manual o nuevo), regístrala primero:
+4. Registra/asegura la clave en el historial en estado `en_proceso`
+   (dedup sin disparar seguimiento):
 
    ```bash
    python3 - <<'EOF'
@@ -235,18 +255,31 @@ contracciones y con cierre "Saludos cordiales".
    from tracker import Historial, domain_key
    h = Historial()
    clave = domain_key("<website>") or "<nombre normalizado>"
-   h.add("clientes", clave, meta={"nombre": "...", "rubro": "...", "web": ...})
+   if not h.is_known("clientes", clave):
+       h.add("clientes", clave, meta={"nombre": "...", "rubro": "...", "web": ...})
+   h.set_state("clientes", clave, "en_proceso")
    EOF
-   python3 estado/orquestador.py marcar clientes "<clave>" contactado
    ```
 
-4. Muestra el mensaje al usuario **listo para copiar y pegar** en el canal
-   correspondiente, e indica la ruta del archivo guardado.
+5. Muestra el mensaje al usuario y dile que el siguiente paso es:
+
+   > **"envía los pendientes"** (o `/enviar`) → `enviar-clientes` arranca
+   > la ronda uno por uno: muestra cada mensaje, lo validas y lo envía por
+   > WhatsApp/email/LinkedIn con límite diario. También puede
+   > copiarlo/pegarlo a mano; si lo hace a mano, ahí sí marca `contactado`:
+   >
+   > ```bash
+   > python3 estado/orquestador.py marcar clientes "<clave>" contactado
+   > ```
 
 ## Reglas de interacción
 
-- No abras el navegador: el mensaje es para que **el usuario lo envíe
-  manualmente** (WhatsApp Web, correo o LinkedIn).
-- Si el lead ya fue contactado, pregunta antes de regenerar.
+- Esta skill **genera y encola**; **no envía**. El envío es de
+  `enviar-clientes` (validación del usuario en cada mensaje) o manual por
+  el usuario.
+- No abras el navegador en esta skill: el mensaje queda en cola o en el
+  `.md` para envío manual.
+- Si el lead ya está `contactado`/`enviado` y tiene un mensaje generado,
+  avísale al usuario y ofrécele regenerarlo (no lo regeneres sin preguntar).
 - Mantén el mensaje conciso; los detalles van en el `.md`.
 - Nunca menciones n8n, automatizaciones ni flujos de trabajo.

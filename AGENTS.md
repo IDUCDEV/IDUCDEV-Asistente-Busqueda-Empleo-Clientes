@@ -37,7 +37,7 @@ resultados/           # SALIDAS de las skills (se regeneran, ignoradas por git)
   clientes-potenciales/#  ← prospectar-clientes
   empresas-target/    #   ← flutter-employers
   mensajes-outreach/  #   ← linkedin-outreach (empleo)
-  mensajes-clientes/  #   ← contactar-clientes (ventas a leads)
+  mensajes-clientes/  #   ← contactar-clientes (genera) → enviar-clientes (envía)
   cv/                 #   ← cv-apply (CV + carta + PDF)
   informes/           #   ← orquestador (resumen diario)
 estado/
@@ -46,10 +46,14 @@ estado/
   historial.json      # dedup central ("no repitas esto")
   tareas.json         # bandeja de entrada (acción + vencimiento)
   rondas.json         # bitácora de rondas (fases + conteos)
+  cola_envios.json    # cola de envíos a clientes (contactar → enviar)
+  cola_envios.py      # CLI cola: add, pendientes, enviados-hoy, marcar
+  enviar_email.py     # envío SMTP (Gmail app password, desde .env)
   orquestador.py      # CLI: ronda, registrar, estado, marcar, tareas, informe, reset
+.env                  # credenciales SMTP + límites (NO commitear; ver .env.example)
 .opencode/
-  skills/             # las 9 skills del asistente (proyecto-only)
-  command/            # comandos /ronda /estado /nuevo
+  skills/             # las skills del asistente (proyecto-only)
+  command/            # comandos /ronda /estado /nuevo /enviar
 informes/  (ya no — ahora resultados/informes/)
 ```
 
@@ -67,6 +71,13 @@ informes/  (ya no — ahora resultados/informes/)
   seguimiento correspondiente.
 - `reset [--yes]` vacía el estado para reempezar desde cero: historial,
   tareas y rondas. Pide confirmación salvo `--yes` (no toca `resultados/`).
+- **Flujo de contacto a clientes (2 skills):** `contactar-clientes` genera
+  el mensaje y lo **encola** (`cola_envios.py add`, lead `en_cola`);
+  `enviar-clientes` envía **uno por uno** (muestra cada mensaje, lo valida
+  con el usuario: ok/modificar/saltar/parar; email SMTP automático, WhatsApp
+  Web con navegador, LinkedIn semi) y **solo tras envío efectivo** marca
+  `orquestador.py marcar clientes <clave> contactado` (crea el D+3).
+  Límite diario `ENVIO_MAX_DIA` (default 12) y pausa 15-35s entre WhatsApp.
 
 ## Ciclo de vida del estado (historial.json)
 
@@ -81,11 +92,16 @@ actualizar hace > N días (para no dejar contacts sin follow-up).
 python3 -m py_compile estado/*.py .opencode/skills/*/*.py
 python3 estado/tracker.py stats
 python3 estado/orquestador.py estado
+python3 estado/cola_envios.py pendientes
 ```
 
 ## Otras notas
 
-- Abrir el navegador siempre con autorización previa del usuario.
+- Abrir el navegador siempre con autorización previa del usuario
+  (WhatsApp Web y LinkedIn de `enviar-clientes` incluidos).
+- Credenciales SMTP y límites de envío viven en `.env` (gitignored);
+  la plantilla es `.env.example`. Nunca mencionar las credenciales al
+  usuario, ni commitear `.env`.
 - Los scripts `job-search` y `workana-search` resuelven la raíz caminando
   hacia arriba y volcando `estado/` en `sys.path`; no dependen de variables
   de entorno ni del cwd.

@@ -20,6 +20,7 @@ Todas las rutas de este documento son **relativas a la raíz del proyecto**
 - **Raíz del proyecto:** `.` (marcada con `.iducdev-root`; ser resuelve también vía `IDUCDEV_PROJECT_DIR`)
 - **Config de rutas:** `estado/config.py` (fuente única, no hardcodear rutas)
 - **Orquestador CLI:** `estado/orquestador.py` (ronda, marcar, tareas, seguimientos, informe)
+- **Cola de envíos:** `estado/cola_envios.json` (CLI: `estado/cola_envios.py`)
 - **Historial central (dedup):** `estado/historial.json` (helper: `estado/tracker.py`)
 - **Bandeja de tareas:** `estado/tareas.json`
 - **Bitácora de rondas:** `estado/rondas.json`
@@ -27,6 +28,7 @@ Todas las rutas de este documento son **relativas a la raíz del proyecto**
 - **Centro de recursos (consultar antes):** `recursos/INDICE.md`
 - **Guía de uso (único documento, para el usuario):** `GUIA.md`
 - **CV base:** `recursos/cv/base-isaac-urdaneta.md` | **Reglas ATS:** `recursos/guias/cv-reglas-ats.md`
+- **Guía de uso (único documento, para el usuario):** `GUIA.md`
 
 ## Principio de oro: NUNCA repetir
 
@@ -122,13 +124,20 @@ python3 estado/orquestador.py marcar outreach "<url-del-perfil>" enviado
 
 ### 5b. "Contacta a {cliente}/{lead}" (ventas)
 Carga `contactar-clientes` → genera mensaje de venta personalizado
-(whatsapp/email/linkedin) desde `leads-db.json`. Al generar, actualiza el
-lead en `resultados/clientes-potenciales/leads-db.json` (`status:
-contacted`) y marca el lead `contactado` en el historial (el orquestador
-crea la tarea de seguimiento D+3):
+(whatsapp/email/linkedin) desde `leads-db.json` y **lo encola** en
+`estado/cola_envios.json` (status del lead: `en_cola`). NO marques
+todavía `contactado`: eso ocurre al enviar.
+
+### 5c. "Envía los pendientes" / `/enviar`
+Carga `enviar-clientes` → ronda **uno por uno**: muestra cada mensaje de
+la cola, el usuario lo valida (ok/modificar/saltar/parar) y se envía por
+canal (email automático, WhatsApp Web con navegador autorizado, LinkedIn
+semi) respetando límite diario y pausas. Tras cada envío efectivo:
 ```bash
+python3 estado/cola_envios.py marcar <id> enviado
 python3 estado/orquestador.py marcar clientes "<clave>" contactado
 ```
+(el `contactado` crea la tarea de seguimiento D+3).
 
 ### 6. "Marca X como aplicado/descartado/contactado"
 ```bash
@@ -161,14 +170,16 @@ falta, añade) las claves en `historial.json`:
 
 Los scripts de `job-search` y `workana-search` ya deduplican solos
 contra el historial; verifica su salida `---SKIPPED---`.
+Cliente encolado → estado `en_proceso`; solo `contactado` (y su D+3)
+tras el envío efectivo de `enviar-clientes`.
 
 ---
 
 ## Reglas de interacción
 
 1. **Siempre confirma con el usuario antes de invadir su navegador**
-   (linkedin-hidden-jobs, flutter-employers y prospectar-clientes abren
-   chrome). Pregunta: "¿Abro el navegador para X?".
+   (linkedin-hidden-jobs, flutter-employers, prospectar-clientes y
+   enviar-clientes abren chrome). Pregunta: "¿Abro el navegador para X?".
 2. Para `cv-apply` y `linkedin-outreach`, pide autorización y datos
    mínimos que falten (URL de la vacante / perfil).
 3. Mantén las respuestas concisas en el chat; los detalles van en los

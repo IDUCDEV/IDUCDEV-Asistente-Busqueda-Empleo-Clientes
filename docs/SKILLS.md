@@ -19,7 +19,8 @@ Las skills viven **dentro del proyecto** en `.opencode/skills/` (no en
 | 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
 | 6 | **flutter-employers** | Descubre empresas target (startups + establecidas) en LATAM y globales remote-first que usan Flutter | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
 | 7 | **prospectar-clientes** | Genera leads de negocios venezolanos que necesiten web o apps | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
-| 8 | **contactar-clientes** | Mensaje de venta personalizado para contactar un lead (WhatsApp/email/LinkedIn) | AI guiada | Cargar la skill → "contacta a {nombre}" |
+| 8 | **contactar-clientes** | Genera y ENCOLA el mensaje de venta para un lead (WhatsApp/email/LinkedIn) | AI guiada | Cargar la skill → "contacta a {nombre}" |
+| 9 | **enviar-clientes** | Envía los mensajes encolados UNO POR UNO: muestra cada mensaje, valida (ok/modificar/saltar/parar), envía (email auto, WhatsApp Web, LinkedIn semi), respeta límite diario | AI guiada + navegador | "envía los pendientes" / `/enviar` |
 
 ---
 
@@ -63,6 +64,7 @@ estado/historial.json   ← "memoria" del asistente
 estado/tracker.py       ← helper (Historial, normalize_*, vacancy_key)
 estado/rondas.json      ← bitácora de la ronda (fases + conteos)
 estado/tareas.json      ← bandeja de entrada (seguimientos automáticos)
+estado/cola_envios.json ← cola de envíos a clientes (contactar → enviar)
 ```
 
 | Categoría | Clave |
@@ -156,21 +158,44 @@ python3 .opencode/skills/workana-search/workana_search.py
 - FASE 4: output + DB.
 - Output: `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md`, `leads-db.json`
 
-## 8. contactar-clientes — Mensajes de venta a leads
+## 8. contactar-clientes — Mensajes de venta a leads (GENERA + ENCOLA)
 
 - Lee el lead desde `resultados/clientes-potenciales/leads-db.json` (o
   datos manuales) + CV base para la firma.
 - Canal según el lead (`whatsapp` por defecto, `email`, `linkedin`) × tono
   (directo/profesional/casual).
 - Servicios ofertados: web, apps Flutter, UI/UX (sin automatizaciones).
-- Guarda el mensaje listo para copiar/pegar; el envío es manual:
+- Guarda el `.md` y **encola** el envío:
   ```bash
-  python3 estado/orquestador.py marcar clientes "<clave>" contactado
+  python3 estado/cola_envios.py add --key <clave> --nombre <n> --canal <c> \
+    --destino <tel|email|url> --mensaje-path <ruta.md> [--asunto ...]
   ```
-  → seguimiento automático D+3 (cron vía `crear_seguimientos` para
-  clientes contactados).
-- Output: `resultados/mensajes-clientes/{nombre}-{YYYY-MM-DD}.md` + update
-  de `status` en `leads-db.json`
+- Lead queda `en_cola`; el **contactado real (y su D+3) ocurre al enviar**,
+  no al generar.
+- Output: `resultados/mensajes-clientes/{nombre}-{YYYY-MM-DD}.md` + cola.
+
+## 9. enviar-clientes — Envío de mensajes UNO POR UNO
+
+- FASE 1: `cola_envios.py pendientes` + `enviados-hoy` (cupo diario).
+- FASE 2: tabla de la cola + confirmación de empezar la ronda +
+  autorización de navegador si hay WhatsApp/LinkedIn.
+- FASE 3 (loop, mientras quede cupo): por cada lead, en orden de la cola:
+  `ver <id>` (mensaje completo) → preguntar **OK / modificar / saltar /
+  parar**:
+  - OK → enviar:
+    - email → `python3 estado/enviar_email.py --id <id>` (SMTP automático)
+    - whatsapp → WhatsApp Web `?phone=&text=` + Enter (pausa 15-35s,
+      sobre aviso de número no registrado → error)
+    - linkedin → pega el texto, el usuario pulsa enviar (semi)
+  - modificar → editar `.md` + `editar <id> --cuerpo-file/--asunto/...` →
+    mostrar de nuevo → reconfirmar → enviar
+  - saltar → queda pendiente para la próxima ronda (sin marcar nada)
+  - parar → cierre de ronda
+- FASE 4: por cada envío OK → cola `enviado` + `orquestador.py marcar
+  clientes <clave> contactado` (crea seguimiento D+3) + `leads-db.json`
+  `status: contacted`.
+- FASE 5: `registrar enviar-clientes` + `informe`.
+- Límite: `ENVIO_MAX_DIA` (default 12) desde `.env`. No hay modo lote.
 
 ---
 
@@ -179,7 +204,7 @@ python3 .opencode/skills/workana-search/workana_search.py
 ```
 Diario:  "Haz la ronda de hoy" → orquestador: empleos + clientes
 Semanal: flutter-employers + prospectar-clientes (descubrir más)
-A demanda: cv-apply (aplicar) · linkedin-outreach (contactar empleo) · contactar-clientes (contactar leads)
+A demanda: cv-apply (aplicar) · linkedin-outreach (contactar empleo) · contactar-clientes (generar) → enviar-clientes (enviar leads)
 ```
 
 Siempre delegar vía el orquestador (`asistente-empleo-clientes`) para

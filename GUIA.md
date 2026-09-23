@@ -36,7 +36,8 @@ Frases que entiende:
 | **"¿Qué tengo pendiente?"** | Muestra la bandeja de tareas (seguimientos de contactos y aplicaciones). |
 | **"Aplica a {x}"** | Genera CV optimizado ATS + carta + PDF para esa vacante, con el link pegado. |
 | **"Contacta a {perfil}"** | Genera el mensaje personalizado para ese reclutador/empresa en LinkedIn. |
-| **"Contacta a {cliente}"** | Genera el mensaje de venta personalizado para un lead (WhatsApp/email/LinkedIn). |
+| **"Contacta a {cliente}"** | Genera el mensaje de venta personalizado para un lead (WhatsApp/email/LinkedIn) y lo deja **en cola** de envío. |
+| **"Envía los pendientes"** | Envía los mensajes en cola **uno por uno**: te muestra cada mensaje, lo validas o lo corregimos, se envía y pasamos al siguiente. Máx 12/día. |
 | **"Marca {x} como aplicado"** | Lo registra como hecho y agenda un seguimiento automático. |
 | **"Guía"** | Muestra este documento resumido. |
 
@@ -49,6 +50,7 @@ Frases que entiende:
 "aplica a esta vacante: <pega el texto o link>"
 "contacta a https://www.linkedin.com/in/xxx"
 "contacta a Clínica CCCT"
+"envía los pendientes"
 "marca Flutter Developer en GetOnBoard como aplicado"
 "¿algún cliente nuevo esta semana?"
 "¿qué tengo pendiente?"
@@ -97,7 +99,8 @@ Todo lo que las skills producen cae en una carpeta por skill:
 | Mercado oculto de LinkedIn | `resultados/vacantes-ocultas/{fecha}-hidden.md` |
 | CVs optimizados (`cv-apply`) | `resultados/cv/{cv-base}-{rol}-{empresa}.md` + carta + PDF |
 | Mensajes de contacto (empleo) | `resultados/mensajes-outreach/{nombre}-{fecha}.md` |
-| Mensajes a clientes | `resultados/mensajes-clientes/{nombre}-{fecha}.md` |
+| Mensajes a clientes | `resultados/mensajes-clientes/{nombre}-{fecha}.md` + cola `estado/cola_envios.json` |
+| Envío de mensajes a clientes | `enviar-clientes`: email SMTP automático, WhatsApp Web (navegador), LinkedIn semi |
 | Empresas target | `resultados/empresas-target/{fecha}-empresas.md` + `leads-db.json` |
 | Leads de clientes | `resultados/clientes-potenciales/{fecha}-leads.md` + `leads-db.json` |
 | Resumen diario | `resultados/informes/{fecha}-resumen.md` |
@@ -115,6 +118,7 @@ no ensucian el repo.
 | `historial.json` | Base central "no repitas esto" (dedup) |
 | `tareas.json` | Bandeja de entrada (acciones + vencimientos) |
 | `rondas.json` | Bitácora de rondas (fases + conteos) |
+| `cola_envios.json` | Cola de mensajes a clientes listos para enviar |
 | `tracker.py` | Helper del historial (consulta/registro/estado) |
 | `orquestador.py` | CLI: `ronda`, `registrar`, `estado`, `marcar`, `tareas`, `informe`, `reset` |
 
@@ -123,6 +127,14 @@ aplicado/enviado → respuesta/descartado`. Cuando marcas algo como aplicado o
 contactado, el asistente agenda un **seguimiento automático** (D+3 para
 contactos y clientes, D+7 para aplicaciones) y te lo recuerda en *"¿qué tengo
 pendiente?"*.
+
+**Contactar a un cliente es ahora 2 pasos:** "contacta a {cliente}" deja el
+mensaje **en cola**; luego "envía los pendientes" arranca la ronda uno por
+uno: te muestra cada mensaje completo, lo validas (ok / modificar /
+saltar), se envía (email automatico; WhatsApp Web pide que estes logueado
+y autorizacion del navegador; LinkedIn te deja el mensaje pegado para que
+tu pulses enviar) y pasamos al siguiente. Te avisa cuando llegas al limite
+diario.
 
 ---
 
@@ -158,6 +170,8 @@ python3 estado/orquestador.py tareas          # bandeja de entrada
 python3 estado/orquestador.py seguimientos    # seguimientos vencidos/próximos
 python3 estado/orquestador.py ronda --empleos # fases 1-2 + informe
 python3 estado/orquestador.py informe         # regenera el resumen del día
+python3 estado/cola_envios.py pendientes      # mensajes a clientes en cola
+python3 estado/cola_envios.py enviados-hoy    # cupo usado del día
 python3 estado/orquestador.py reset --yes     # ¡CUIDADO! vacía historial/tareas/rondas (reempezar)
 ```
 

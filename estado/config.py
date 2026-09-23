@@ -66,9 +66,38 @@ SKILLS_DIR = os.path.join(PROJECT_DIR, ".opencode", "skills")
 RESOURCES_DIR = os.path.join(PROJECT_DIR, "recursos")
 RESULTADOS_DIR = os.path.join(PROJECT_DIR, "resultados")
 
+
+def _load_dotenv(path):
+    """Carga un .env simple (KEY=VALUE) sin dependencias. No pisa env existentes."""
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, _, v = line.partition("=")
+                k, v = k.strip(), v.strip().strip('"').strip("'")
+                if k and k not in os.environ:
+                    os.environ[k] = v
+    except OSError:
+        pass
+
+
+_load_dotenv(os.path.join(PROJECT_DIR, ".env"))
+
 HISTORIAL_PATH = os.path.join(ESTADO_DIR, "historial.json")
 TAREAS_PATH = os.path.join(ESTADO_DIR, "tareas.json")
 RONDAS_PATH = os.path.join(ESTADO_DIR, "rondas.json")
+COLA_ENVIOS_PATH = os.path.join(ESTADO_DIR, "cola_envios.json")
+
+# Envío de mensajes a clientes (cola + rate limit)
+ENVIO_MAX_DIA = int(os.environ.get("ENVIO_MAX_DIA", "12"))
+ENVIO_PAUSA_WA_MIN = int(os.environ.get("ENVIO_PAUSA_WA_MIN", "15"))
+ENVIO_PAUSA_WA_MAX = int(os.environ.get("ENVIO_PAUSA_WA_MAX", "35"))
+EMAIL_USER = os.environ.get("EMAIL_USER", "")
+EMAIL_APP_PASSWORD = os.environ.get("EMAIL_APP_PASSWORD", "")
 
 OUTPUT_DIRS = {
     "vacantes": os.path.join(RESULTADOS_DIR, "vacantes"),
