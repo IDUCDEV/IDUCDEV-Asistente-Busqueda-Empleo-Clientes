@@ -704,26 +704,30 @@
     {
       "key": "o2fz.com",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Oxygen Fitness Zone"
+      "estado": "en_proceso",
+      "nombre": "Oxygen Fitness Zone",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "grupofastmed.com",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Grupo Fastmed"
+      "estado": "descartado",
+      "nombre": "Grupo Fastmed",
+      "fecha_actualizado": "2026-09-24T13:31:02+00:00"
     },
     {
       "key": "fit club caracas",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Fit Club Caracas"
+      "estado": "contactado",
+      "nombre": "Fit Club Caracas",
+      "fecha_actualizado": "2026-09-24T13:36:40+00:00"
     },
     {
       "key": "silverbackvzla",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Silverbackvzla"
+      "estado": "en_proceso",
+      "nombre": "Silverbackvzla",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "com.ve/aliados/vip-fitness-center",
@@ -734,14 +738,16 @@
     {
       "key": "clinicalafloresta.com",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Instituto Médico La Floresta"
+      "estado": "en_proceso",
+      "nombre": "Instituto Médico La Floresta",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "centroclinicoprofesionalcaracas.com",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Centro Clínico Profesional Caracas"
+      "estado": "en_proceso",
+      "nombre": "Centro Clínico Profesional Caracas",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "spa manzanares",
@@ -752,8 +758,9 @@
     {
       "key": "altum",
       "fecha_visto": "2026-09-20T16:59:08+00:00",
-      "estado": "nuevo",
-      "nombre": "Altum"
+      "estado": "en_proceso",
+      "nombre": "Altum",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "alfredito burguer",
@@ -764,38 +771,44 @@
     {
       "key": "alfresko",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "nuevo",
-      "nombre": "Alfresko"
+      "estado": "contactado",
+      "nombre": "Alfresko",
+      "fecha_actualizado": "2026-09-24T13:56:05+00:00"
     },
     {
       "key": "altos munchies",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "nuevo",
-      "nombre": "Altos Munchies"
+      "estado": "en_proceso",
+      "nombre": "Altos Munchies",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "ambar cafe restaurante",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "nuevo",
-      "nombre": "Ámbar Café & Restaurante"
+      "estado": "en_proceso",
+      "nombre": "Ámbar Café & Restaurante",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "aprile restaurant",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "nuevo",
-      "nombre": "Aprile Restaurant"
+      "estado": "en_proceso",
+      "nombre": "Aprile Restaurant",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "araxi burger grill gourmet",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "nuevo",
-      "nombre": "Araxi Burger Grill & Gourmet"
+      "estado": "en_proceso",
+      "nombre": "Araxi Burger Grill & Gourmet",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     },
     {
       "key": "arepa factory",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "nuevo",
-      "nombre": "Arepa Factory"
+      "estado": "contactado",
+      "nombre": "Arepa Factory",
+      "fecha_actualizado": "2026-09-24T14:08:46+00:00"
     },
     {
       "key": "ananda fit fat",
@@ -832,6 +845,13 @@
       "fecha_visto": "2026-09-21T15:42:26+00:00",
       "estado": "nuevo",
       "nombre": "Arroces Lozano"
+    },
+    {
+      "key": "vip fitness center",
+      "fecha_visto": "2026-09-24T13:01:07+00:00",
+      "estado": "en_proceso",
+      "nombre": "VIP Fitness Center",
+      "fecha_actualizado": "2026-09-24T13:01:07+00:00"
     }
   ],
   "proyectos_workana": [

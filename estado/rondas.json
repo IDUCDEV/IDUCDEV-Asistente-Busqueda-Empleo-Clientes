@@ -1,6 +1,25 @@
 {
   "rondas": [
     {
+      "fecha": "2026-09-24",
+      "inicio": "2026-09-24T14:09:05+00:00",
+      "tipo": "clientes",
+      "fases": [
+        {
+          "fase": "enviar-clientes",
+          "archivo": "resultados/mensajes-clientes/",
+          "nuevas": 0,
+          "omitidas": 0,
+          "errores": [
+            "9"
+          ],
+          "ok": false,
+          "notas": "Ronda WhatsApp clientes 2026-09-24: 12 leads procesados. Enviados: Fit Club, Alfresko, Arepa Factory (3/12, cupo restante 9). Errores: 4 no registrado (Oxygen, VIP, Araxi, Centro Clínico), 1 descartado (Fastmed), 4 saltados por usuario (La Floresta, Altos Munchies, Ámbar, Aprile). Silverbackvzla y Altum pendientes de envío manual (.md).",
+          "fin": "2026-09-24T14:09:05+00:00"
+        }
+      ]
+    },
+    {
       "fecha": "2026-09-21",
       "inicio": "2026-09-21T14:49:20+00:00",
       "tipo": "empleos",

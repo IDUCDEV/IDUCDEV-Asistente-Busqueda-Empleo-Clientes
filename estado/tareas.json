@@ -87,6 +87,39 @@
       "creado": "2026-09-22T14:03:41+00:00",
       "vencimiento": "2026-09-25T14:03:41+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924093640-9",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "fit club caracas",
+      "titulo": "Seguimiento: fit club caracas",
+      "url": "",
+      "creado": "2026-09-24T13:36:40+00:00",
+      "vencimiento": "2026-09-27T13:36:40+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924095605-10",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "alfresko",
+      "titulo": "Seguimiento: alfresko",
+      "url": "",
+      "creado": "2026-09-24T13:56:05+00:00",
+      "vencimiento": "2026-09-27T13:56:05+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924100846-11",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "arepa factory",
+      "titulo": "Seguimiento: arepa factory",
+      "url": "",
+      "creado": "2026-09-24T14:08:46+00:00",
+      "vencimiento": "2026-09-27T14:08:46+00:00",
+      "estado": "pendiente"
     }
   ]
 }
