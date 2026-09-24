@@ -9,7 +9,8 @@
       "url": "",
       "creado": "2026-09-21T13:34:59+00:00",
       "vencimiento": "2026-09-24T13:34:59+00:00",
-      "estado": "pendiente"
+      "estado": "hecho",
+      "fecha_hecho": "2026-09-24T14:58:05+00:00"
     },
     {
       "id": "t-20260921094644-2",
@@ -20,7 +21,8 @@
       "url": "",
       "creado": "2026-09-21T13:46:44+00:00",
       "vencimiento": "2026-09-24T13:46:44+00:00",
-      "estado": "pendiente"
+      "estado": "hecho",
+      "fecha_hecho": "2026-09-24T14:58:05+00:00"
     },
     {
       "id": "t-20260921095800-3",
@@ -119,6 +121,51 @@
       "url": "",
       "creado": "2026-09-24T14:08:46+00:00",
       "vencimiento": "2026-09-27T14:08:46+00:00",
+      "estado": "hecho",
+      "fecha_hecho": "2026-09-24T15:05:53+00:00"
+    },
+    {
+      "id": "t-20260924105805-12",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
+      "titulo": "Seguimiento: https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
+      "url": "",
+      "creado": "2026-09-24T14:58:05+00:00",
+      "vencimiento": "2026-09-27T14:58:05+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924105805-13",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
+      "titulo": "Seguimiento: https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
+      "url": "",
+      "creado": "2026-09-24T14:58:05+00:00",
+      "vencimiento": "2026-09-27T14:58:05+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924114516-14",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "arepa factory",
+      "titulo": "Seguimiento propuesta: arepa factory",
+      "url": "",
+      "creado": "2026-09-24T15:45:16+00:00",
+      "vencimiento": "2026-09-27T15:45:16+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924180455-15",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://www.linkedin.com/posts/julieth-andrea-serna-ruiz-3b564b135_were-hiring-at-praxis-latam-tenemos-nuevas-share-7508570744768081921-uDb6/",
+      "titulo": "Seguimiento: https://www.linkedin.com/posts/julieth-andrea-serna-ruiz-3b564b135_were-hiring-at-praxis-latam-tenemos-nuevas-share-7508570744768081921-uDb6/",
+      "url": "",
+      "creado": "2026-09-24T22:04:55+00:00",
+      "vencimiento": "2026-09-27T22:04:55+00:00",
       "estado": "pendiente"
     }
   ]

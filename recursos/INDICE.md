@@ -38,6 +38,8 @@ Todo resultado generado por una skill vive bajo `resultados/`.
 | `linkedin-outreach` | `resultados/mensajes-outreach/{nombre}-{YYYY-MM-DD}.md` |
 | `contactar-clientes` | `resultados/mensajes-clientes/{nombre}-{YYYY-MM-DD}.md` + cola `estado/cola_envios.json` (status lead `en_cola`) |
 | `enviar-clientes` | envía la cola: email SMTP automático, WhatsApp Web (navegador), LinkedIn semi. Marcas `contactado` + seguimiento D+3 en `estado/historial.json`, `status: contacted` en `leads-db.json` |
+| `aplicar-workana` | `resultados/propuestas-workana/{key}-{YYYY-MM-DD}.md` + cola `estado/cola_envios.json` (canal `workana`, proyecto `en_proceso`) |
+| `enviar-workana` | envía la cola `workana`: abre la URL del proyecto, pega título+propuesta en el formulario de postulación (usuario pulsa enviar). Marca `applied` + seguimiento D+7 en `estado/historial.json` |
 | `flutter-employers` | `resultados/empresas-target/{YYYY-MM-DD}-empresas.md` + `leads-db.json` |
 | `prospectar-clientes` | `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md` + `leads-db.json` |
 | Orquestador (informe) | `resultados/informes/{YYYY-MM-DD}-resumen.md` |

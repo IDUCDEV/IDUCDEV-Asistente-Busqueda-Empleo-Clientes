@@ -199,12 +199,53 @@ python3 .opencode/skills/workana-search/workana_search.py
 
 ---
 
+## 10. aplicar-workana — Propuestas de postulación en Workana (GENERA + ENCOLA)
+
+- Entrada: listado `resultados/vacantes-workana/{YYYY-MM-DD}.md` + backlog del
+  historial `proyectos_workana`.
+- Filtro: solo `is_flutter: true`, estado `nuevo`, sin keywords no-elegibles
+  (chatbot/automatización/low-code/filemaker/unity/IoT) y presupuesto
+  reseñable (≥ USD 500 o por hora decente).
+- Por proyecto genera una **propuesta freelancer** (entendimiento → solución
+  en Flutter → prueba social → plazo/presupuesto → CTA llamada → firma).
+- Guarda `.md` y **encola** (canal `workana`, destino = URL del proyecto):
+  ```bash
+  python3 estado/cola_envios.py add --key <key> --nombre <título> --canal workana \
+    --destino <url-proyecto> --mensaje-path <ruta.md>
+  ```
+- Proyecto queda `en_proceso`; el **applied real (y su D+7) ocurre al
+  enviar**, no al generar.
+- Output: `resultados/propuestas-workana/{key}-{YYYY-MM-DD}.md` + cola.
+
+## 11. enviar-workana — Envío de propuestas UNO POR UNO (Workana)
+
+- FASE 0: autorización de navegador + sesión `workana.com` (loguea el usuario
+  la primera vez; no automatizar login).
+- FASE 1: `cola_envios.py pendientes` (canal `workana`) + `enviados-hoy`
+  (cupo compartido con clientes).
+- FASE 2: tabla + confirmación de ronda + autorización de navegador.
+- FASE 3 (loop, mientras quede cupo): por cada propuesta, en orden:
+  `ver <id>` → preguntar **OK / modificar / saltar / parar**:
+  - OK → abrir URL del proyecto → ubicar formulario de postulación → pegar
+    título + propuesta → **el usuario pulsa enviar** (semi).
+  - modificar → editar `.md` + `editar <id> --cuerpo-file` → reconfirmar.
+  - saltar → queda pendiente (sin marcar nada).
+  - parar → cierre de ronda.
+- FASE 4: postulación efectiva → cola `enviado` + `orquestador.py marcar
+  proyectos_workana <key> applied` (crea seguimiento D+7).
+- FASE 5: `registrar enviar-workana` + `informe`.
+- Límite: mismo `ENVIO_MAX_DIA` (default 12). No hay modo lote.
+
+---
+
 ## Flujo recomendado
 
 ```
-Diario:  "Haz la ronda de hoy" → orquestador: empleos + clientes
+Diario:  "Haz la ronda de hoy" → orquestador: empleos + clientes + workana
 Semanal: flutter-employers + prospectar-clientes (descubrir más)
-A demanda: cv-apply (aplicar) · linkedin-outreach (contactar empleo) · contactar-clientes (generar) → enviar-clientes (enviar leads)
+A demanda: cv-apply (aplicar) · linkedin-outreach (contactar empleo) ·
+           contactar-clientes (generar) → enviar-clientes (enviar leads) ·
+           aplicar-workana (generar) → enviar-workana (postular workana)
 ```
 
 Siempre delegar vía el orquestador (`asistente-empleo-clientes`) para

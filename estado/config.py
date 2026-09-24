@@ -107,6 +107,7 @@ OUTPUT_DIRS = {
     "empresas-target": os.path.join(RESULTADOS_DIR, "empresas-target"),
     "mensajes-outreach": os.path.join(RESULTADOS_DIR, "mensajes-outreach"),
     "mensajes-clientes": os.path.join(RESULTADOS_DIR, "mensajes-clientes"),
+    "propuestas-workana": os.path.join(RESULTADOS_DIR, "propuestas-workana"),
     "cv": os.path.join(RESULTADOS_DIR, "cv"),
     "informes": os.path.join(RESULTADOS_DIR, "informes"),
 }

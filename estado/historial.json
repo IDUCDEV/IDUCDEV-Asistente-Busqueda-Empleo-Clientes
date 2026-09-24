@@ -570,6 +570,60 @@
       "titulo": "Mid Data Developer ( Azure + Databricks )",
       "url": "https://br.linkedin.com/jobs/view/mid-data-developer-azure-%2B-databricks-at-jobgether-4468491019",
       "fuente": "LinkedIn"
+    },
+    {
+      "key": "svitla systems::senior flutter engineer",
+      "fecha_visto": "2026-09-24T14:18:45+00:00",
+      "estado": "nuevo",
+      "empresa": "Svitla Systems, Inc.",
+      "titulo": "SENIOR FLUTTER ENGINEER",
+      "url": "https://ar.linkedin.com/jobs/view/senior-flutter-engineer-at-svitla-systems-inc-4471144674",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "deliver it serviços de tecnologia::desenvolvedor mobile android pleno",
+      "fecha_visto": "2026-09-24T14:18:45+00:00",
+      "estado": "nuevo",
+      "empresa": "Deliver IT Serviços de Tecnologia",
+      "titulo": "Desenvolvedor Mobile Android Pleno",
+      "url": "https://br.linkedin.com/jobs/view/desenvolvedor-mobile-android-pleno-at-deliver-it-servi%C3%A7os-de-tecnologia-4471452324",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "flying studio 3d::unreal engine 5 artist developer archviz interativo",
+      "fecha_visto": "2026-09-24T14:18:45+00:00",
+      "estado": "nuevo",
+      "empresa": "FLYING STUDIO 3D",
+      "titulo": "Unreal Engine 5 Artist / Developer | ArchViz Interativo",
+      "url": "https://br.linkedin.com/jobs/view/unreal-engine-5-artist-developer-archviz-interativo-at-flying-studio-3d-4469474032",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "bairesdev::kotlin mobile developer remote work",
+      "fecha_visto": "2026-09-24T14:18:45+00:00",
+      "estado": "nuevo",
+      "empresa": "BairesDev",
+      "titulo": "Kotlin Mobile Developer - Remote Work",
+      "url": "https://br.linkedin.com/jobs/view/kotlin-mobile-developer-remote-work-at-bairesdev-4470980281",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "dxc technology::jr net engineer",
+      "fecha_visto": "2026-09-24T14:18:45+00:00",
+      "estado": "nuevo",
+      "empresa": "DXC Technology",
+      "titulo": "Jr. .NET Engineer",
+      "url": "https://mx.linkedin.com/jobs/view/jr-net-engineer-at-dxc-technology-4469679056",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "redteam construction technology::desarrollador de aplicaciones moviles con flutter",
+      "fecha_visto": "2026-09-24T14:18:45+00:00",
+      "estado": "nuevo",
+      "empresa": "RedTeam - Construction Technology",
+      "titulo": "DESARROLLADOR DE APLICACIONES MOVILES CON FLUTTER",
+      "url": "https://himalayas.app/companies/redteam-construction-technology/jobs/desarrollador-de-aplicaciones-moviles-con-flutter-7027490102",
+      "fuente": "Himalayas"
     }
   ],
   "empresas": [
@@ -684,6 +738,70 @@
       "nombre": "Skandia (Colombia)",
       "url": "https://www.skandia.co/",
       "score": 65
+    },
+    {
+      "key": "kiwicompany",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "Kiwicompany",
+      "url": "https://kiwicompany.com",
+      "score": 45
+    },
+    {
+      "key": "kronit",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "KRONIT",
+      "url": "https://www.linkedin.com/company/kronit/",
+      "score": 30
+    },
+    {
+      "key": "appbyte",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "AppByte",
+      "url": "https://www.linkedin.com/company/appbyte-cl/",
+      "score": 45
+    },
+    {
+      "key": "egobytes",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "Egobytes",
+      "url": "https://www.linkedin.com/company/egobytes/",
+      "score": 45
+    },
+    {
+      "key": "patagonia-it",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "Patagonia IT",
+      "url": "https://www.linkedin.com/company/patagonia-it-ai/",
+      "score": 45
+    },
+    {
+      "key": "pineapple-lab",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "Pineapple Lab",
+      "url": "https://www.linkedin.com/company/pineapple-lab/",
+      "score": 30
+    },
+    {
+      "key": "ventrue-technologies",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "Ventrue Technologies",
+      "url": "https://www.linkedin.com/company/ventrue-technologies/",
+      "score": 30
+    },
+    {
+      "key": "vp-team-tech-recruitment",
+      "fecha_visto": "2026-09-24T14:52:29+00:00",
+      "estado": "nuevo",
+      "nombre": "VP Team TECH Recruitment",
+      "url": "https://www.linkedin.com/company/vpteam/",
+      "score": 40
     }
   ],
   "clientes": [
@@ -806,9 +924,9 @@
     {
       "key": "arepa factory",
       "fecha_visto": "2026-09-21T15:42:26+00:00",
-      "estado": "contactado",
+      "estado": "respuesta",
       "nombre": "Arepa Factory",
-      "fecha_actualizado": "2026-09-24T14:08:46+00:00"
+      "fecha_actualizado": "2026-09-24T15:45:16+00:00"
     },
     {
       "key": "ananda fit fat",
@@ -852,6 +970,46 @@
       "estado": "en_proceso",
       "nombre": "VIP Fitness Center",
       "fecha_actualizado": "2026-09-24T13:01:07+00:00"
+    },
+    {
+      "key": "clinica veterinaria avierm",
+      "fecha_visto": "2026-09-24T14:47:08+00:00",
+      "estado": "nuevo",
+      "nombre": "Clinica Veterinaria Avierm",
+      "web": "",
+      "rubro": "clinica_veterinaria"
+    },
+    {
+      "key": "clínica veterinaria amivet",
+      "fecha_visto": "2026-09-24T14:47:08+00:00",
+      "estado": "nuevo",
+      "nombre": "Clínica Veterinaria Amivet",
+      "web": "https://www.instagram.com/amivets.vzla",
+      "rubro": "clinica_veterinaria"
+    },
+    {
+      "key": "clínica veterinaria country",
+      "fecha_visto": "2026-09-24T14:47:08+00:00",
+      "estado": "nuevo",
+      "nombre": "Clínica Veterinaria Country",
+      "web": "",
+      "rubro": "clinica_veterinaria"
+    },
+    {
+      "key": "clinica veterinaria sebucan",
+      "fecha_visto": "2026-09-24T14:47:08+00:00",
+      "estado": "nuevo",
+      "nombre": "Clinica Veterinaria Sebucan",
+      "web": "",
+      "rubro": "clinica_veterinaria"
+    },
+    {
+      "key": "clínica veterinaria el ávila",
+      "fecha_visto": "2026-09-24T14:47:08+00:00",
+      "estado": "nuevo",
+      "nombre": "Clínica Veterinaria El Ávila",
+      "web": "https://www.instagram.com/veterinariaavila",
+      "rubro": "clinica_veterinaria"
     }
   ],
   "proyectos_workana": [
@@ -2314,6 +2472,138 @@
       "author": "H. C.",
       "budget": "USD 500 - 1.000",
       "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-prototipo-academico-de-inmueble-con-realidad-aumentada-y-contenido-multimedia",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Prototipo Académico de Inmueble con Realidad Aumentad...",
+      "url": "https://www.workana.com/job/desarrollo-de-prototipo-academico-de-inmueble-con-realidad-aumentada-y-contenido-multimedia",
+      "author": "J. J. V. N.",
+      "budget": "USD 100 - 250",
+      "is_flutter": false
+    },
+    {
+      "key": "solucion-de-error-de-configuracion-de-notificaciones-push-onesignal-en-ios",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Solución de Error de Configuración de Notificaciones Push Onesignal...",
+      "url": "https://www.workana.com/job/solucion-de-error-de-configuracion-de-notificaciones-push-onesignal-en-ios",
+      "author": "Alex A.",
+      "budget": "Menos de USD 50",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-sistema-de-automatizacion-de-mensajes-por-whatsapp-con-ia",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Automatización de Mensajes por Whatsapp co...",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-automatizacion-de-mensajes-por-whatsapp-con-ia",
+      "author": "Brayan D. Q. S.",
+      "budget": "USD 100 - 250",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollador-android-para-solucion-de-reinicio-automatico-de-aplicacion",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollador Android para Solución de Reinicio Automático de Aplic...",
+      "url": "https://www.workana.com/job/desarrollador-android-para-solucion-de-reinicio-automatico-de-aplicacion",
+      "author": "agrin",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "proyecto-control-de-gastos-icios-y-mostrara-cuanto-dinero-he-gastado",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "*Proyecto: Control de gastos icios, y mostrará cuánto dinero he gas...",
+      "url": "https://www.workana.com/job/proyecto-control-de-gastos-icios-y-mostrara-cuanto-dinero-he-gastado",
+      "author": "A. G. T.",
+      "budget": "Más de USD 45 / hora",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-funcionalidad-de-agendamiento-de-citas-para-aplicacion-movil",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "en_proceso",
+      "titulo": "Desarrollo de Funcionalidad de Agendamiento de Citas para Aplicació...",
+      "url": "https://www.workana.com/job/desarrollo-de-funcionalidad-de-agendamiento-de-citas-para-aplicacion-movil",
+      "author": "Sergio I.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": true,
+      "fecha_actualizado": "2026-09-24T21:51:03+00:00"
+    },
+    {
+      "key": "desarrollo-de-sistema-de-control-de-motores-y-visualizacion-de-video-remota-con-esp32-cam",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Control de Motores y Visualización de Vide...",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-control-de-motores-y-visualizacion-de-video-remota-con-esp32-cam",
+      "author": "Edwin",
+      "budget": "USD 50 - 100",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "en_proceso",
+      "titulo": "Desarrollo de Aplicación Móvil de Citas para Mascotas al Estilo Tinder",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder",
+      "author": "L. C.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": true,
+      "fecha_actualizado": "2026-09-24T21:51:03+00:00"
+    },
+    {
+      "key": "desarrollo-de-sistema-de-mensajeria-automatica-para-whatsapp",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Mensajería Automática para Whatsapp",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-mensajeria-automatica-para-whatsapp",
+      "author": "Derwin Y.",
+      "budget": "USD 250 - 500",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-movil-e-commerce-para-ios-y-android-de-productos-wellness",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación Móvil E-commerce para Ios y Android de Pro...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-e-commerce-para-ios-y-android-de-productos-wellness",
+      "author": "R. C.",
+      "budget": "USD 500 - 1.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollador-low-code-para-app-movil-con-integracion-filemaker-y-automatizacion-excel",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollador Low-Code para App Móvil con Integración Filemaker y A...",
+      "url": "https://www.workana.com/job/desarrollador-low-code-para-app-movil-con-integracion-filemaker-y-automatizacion-excel",
+      "author": "E. M. M.",
+      "budget": "USD 1.000 - 3.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-sistema-de-automatizacion-de-respuestas-para-whatsapp-31",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Sistema de Automatización de Respuestas para Whatsapp",
+      "url": "https://www.workana.com/job/desarrollo-de-sistema-de-automatizacion-de-respuestas-para-whatsapp-31",
+      "author": "Manuel A. S. L.",
+      "budget": "Más de USD 3.000",
+      "is_flutter": false
+    },
+    {
+      "key": "desarrollo-de-aplicacion-de-mensajeria-interna-para-comunicacion-empresarial",
+      "fecha_visto": "2026-09-24T14:18:47+00:00",
+      "estado": "nuevo",
+      "titulo": "Desarrollo de Aplicación de Mensajería Interna para Comunicación Em...",
+      "url": "https://www.workana.com/job/desarrollo-de-aplicacion-de-mensajeria-interna-para-comunicacion-empresarial",
+      "author": "P. C.",
+      "budget": "Menos de USD 50",
+      "is_flutter": true
     }
   ],
   "posts_linkedin": [
@@ -2325,7 +2615,7 @@
       "empresa": "Proyecto internacional",
       "url": "https://www.linkedin.com/posts/georgina-brizio-79095917b_flutter-flutterdeveloper-dart-share-7506402142971121664-1TyA/",
       "snippet": "Senior Flutter Developer | 100% Remote | LATAM | contractor USD",
-      "fecha_actualizado": "2026-09-21T13:34:59+00:00"
+      "fecha_actualizado": "2026-09-24T14:58:05+00:00"
     },
     {
       "key": "https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
@@ -2335,7 +2625,7 @@
       "empresa": "TeamUp",
       "url": "https://www.linkedin.com/posts/maria-gabriela-a-039a1144_flutter-dart-ui-share-7506691786799513600-QYF7/",
       "snippet": "Senior Fullstack (Flutter/Dart) | 100% Remote | LATAM Only",
-      "fecha_actualizado": "2026-09-21T13:46:44+00:00"
+      "fecha_actualizado": "2026-09-24T14:58:05+00:00"
     },
     {
       "key": "https://www.linkedin.com/posts/internship-hiring-freshers-share-7506578822842986498-ccjv/",
@@ -2381,6 +2671,19 @@
       "empresa": "BC Tecnologia (Chile)",
       "url": "https://lnkd.in/p/em2Gvv26",
       "snippet": "Desarrollador/a Full Stack Node.js - Flutter | Remoto"
+    },
+    {
+      "key": "https://www.linkedin.com/posts/julieth-andrea-serna-ruiz-3b564b135_were-hiring-at-praxis-latam-tenemos-nuevas-share-7508570744768081921-uDb6/",
+      "fecha_visto": "2026-09-24T14:37:00+00:00",
+      "estado": "applied",
+      "empresa": "Praxis LATAM",
+      "rol": "Desarrollador(a) Móvil Flutter/Dart",
+      "modalidad": "Colombia-Remoto | Pago en USD",
+      "requisitos": "5+ años | Flutter | Dart | APIs REST | BLoC | iOS/Android",
+      "contacto": "j2.serna@staff.praxisglobe.com",
+      "autor": "Julieth Andrea Serna Ruiz",
+      "fecha": "21 h",
+      "fecha_actualizado": "2026-09-24T22:04:55+00:00"
     }
   ],
   "outreach": []

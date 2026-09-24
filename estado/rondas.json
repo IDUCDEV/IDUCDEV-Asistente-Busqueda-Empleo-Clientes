@@ -6,16 +6,66 @@
       "tipo": "clientes",
       "fases": [
         {
-          "fase": "enviar-clientes",
-          "archivo": "resultados/mensajes-clientes/",
-          "nuevas": 0,
-          "omitidas": 0,
+          "fase": "job-search",
+          "archivo": "resultados/vacantes/2026-09-24.md",
+          "nuevas": 6,
+          "omitidas": 27,
+          "errores": [],
+          "ok": true,
+          "notas": "Himalayas: 1; LinkedIn: 5",
+          "fin": "2026-09-24T14:18:45+00:00"
+        },
+        {
+          "fase": "workana-search",
+          "archivo": "resultados/vacantes-workana/2026-09-24.md",
+          "nuevas": 13,
+          "omitidas": 1,
           "errores": [
-            "9"
+            "Page 3: JSON decode error: Invalid \\escape: line 1 column 32653 (char 32652)"
           ],
           "ok": false,
-          "notas": "Ronda WhatsApp clientes 2026-09-24: 12 leads procesados. Enviados: Fit Club, Alfresko, Arepa Factory (3/12, cupo restante 9). Errores: 4 no registrado (Oxygen, VIP, Araxi, Centro Clínico), 1 descartado (Fastmed), 4 saltados por usuario (La Floresta, Altos Munchies, Ámbar, Aprile). Silverbackvzla y Altum pendientes de envío manual (.md).",
-          "fin": "2026-09-24T14:09:05+00:00"
+          "notas": "Total: 13; Flutter/Dart: 3; Páginas: 2",
+          "fin": "2026-09-24T14:18:47+00:00"
+        },
+        {
+          "fase": "linkedin-hidden-jobs",
+          "archivo": "resultados/vacantes-ocultas/2026-09-24-hidden.md",
+          "nuevas": 1,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-24T14:37:16+00:00"
+        },
+        {
+          "fase": "prospectar-clientes",
+          "archivo": "resultados/clientes-potenciales/2026-09-24-leads.md",
+          "nuevas": 5,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-24T14:48:39+00:00"
+        },
+        {
+          "fase": "flutter-employers",
+          "archivo": "resultados/empresas-target/2026-09-24-empresas.md",
+          "nuevas": 8,
+          "omitidas": 25,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-09-24T14:52:53+00:00"
+        },
+        {
+          "fase": "enviar-clientes",
+          "archivo": "resultados/mensajes-clientes/",
+          "nuevas": 1,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "wa:1 errores:0 saltados:0",
+          "fin": "2026-09-24T15:45:25+00:00"
         }
       ]
     },

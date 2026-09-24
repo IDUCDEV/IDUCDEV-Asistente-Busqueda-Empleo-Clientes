@@ -9,7 +9,7 @@ Estados de un envío:
     pendiente → enviado | error
 
 Uso CLI:
-    python3 cola_envios.py add --key <clave> --nombre <n> --canal whatsapp|email|linkedin \
+    python3 cola_envios.py add --key <clave> --nombre <n> --canal whatsapp|email|linkedin|workana \
         --destino <tel|email|url> --mensaje-path <ruta.md> [--asunto "..."] \
         [--cuerpo "..."] [--cuerpo-file <ruta>]
     python3 cola_envios.py pendientes
@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import COLA_ENVIOS_PATH, ENVIO_MAX_DIA
 
-CANALES = ("whatsapp", "email", "linkedin")
+CANALES = ("whatsapp", "email", "linkedin", "workana")
 ESTADOS = ("pendiente", "enviado", "error")
 
 
@@ -202,7 +202,7 @@ def main(argv=None):
     p_add.add_argument("--key", required=True)
     p_add.add_argument("--nombre", required=True)
     p_add.add_argument("--canal", required=True, choices=CANALES)
-    p_add.add_argument("--destino", required=True, help="teléfono, email o URL de LinkedIn")
+    p_add.add_argument("--destino", required=True, help="teléfono, email, URL de LinkedIn o de Workana")
     p_add.add_argument("--mensaje-path", default="", help="ruta del .md generado")
     p_add.add_argument("--asunto", default="", help="asunto (solo email)")
     p_add.add_argument("--cuerpo", default=None)

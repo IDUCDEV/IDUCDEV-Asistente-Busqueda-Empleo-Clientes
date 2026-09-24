@@ -167,6 +167,48 @@
       "creado": "2026-09-24T13:00:52+00:00",
       "enviado_en": "2026-09-24T14:08:46+00:00",
       "error": null
+    },
+    {
+      "id": "e-20260924110533-13",
+      "lead_key": "arepa factory",
+      "nombre": "Arepa Factory",
+      "canal": "whatsapp",
+      "destino": "584241327277",
+      "asunto": "",
+      "cuerpo": "¡Perfecto! Le cuento en palabras simples qué le propongo:\n\nSu marca lleva años siendo parte de Los Palos Grandes, y hoy la gente tiene que entrar a Instagram y buscar entre las historias para ver el menú. Muchos llegan y se van sin saber que tienen.\n\nLo que yo hago es darle a Arepa Factory **su propia página en Internet**, bien bonita y sencilla, donde:\n\n- Aparece su historia: su trayectoria, los sabores, la calidad que ya los hace famosos.\n- Se ve el menú completo con fotos y precios, como un catálogo en la mano.\n- Cada comida tiene un botón de WhatsApp: el cliente toca \"Pedir\" y le llega a usted el pedido armado y ordenado, sin llamadas ni malentendidos.\n- Su **dirección de Internet propia** (ej. arepafactoryve.com): la casa digital de Arepa Factory, donde la gente lo encuentra sin depender del linktree ni de que el algoritmo de Instagram los muestre. Ya viene incluida en la inversión.\n- Se lee perfecto en el teléfono, que es donde su gente lo va a ver.\n\nEn resumen: más clientes viendo el menú, menos preguntas repetidas por WhatsApp y más pedidos tomados, incluso preparándolos para el día por la tarde.\n\n**Inversión: $250, (50% para arrancar, 50% al finalizar).** Entrega en alrededor de una semana.\n\n¿Le parece bien? Si me confirma, podemos tener una videollamada para conocernos mejor.\n\n— Isaac Urdaneta, IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/arepa-factory-propuesta-2026-09-24.md",
+      "estado": "enviado",
+      "creado": "2026-09-24T15:05:33+00:00",
+      "enviado_en": "2026-09-24T15:43:21+00:00",
+      "error": null
+    },
+    {
+      "id": "e-20260924175057-14",
+      "lead_key": "desarrollo-de-funcionalidad-de-agendamiento-de-citas-para-aplicacion-movil",
+      "nombre": "Agendamiento de citas",
+      "canal": "workana",
+      "destino": "https://www.workana.com/job/desarrollo-de-funcionalidad-de-agendamiento-de-citas-para-aplicacion-movil",
+      "asunto": "",
+      "cuerpo": "Hola Sergio:\n\nRevisé tu proyecto: agregar agendamiento de citas a la app existente para que los trabajadores soliciten visitas de forma sencilla. Entiendo que la clave es un flujo claro (solicitar → confirmar/agendar) sin romper lo que ya está construido.\n\nLo desarrollaría en Flutter sobre la base actual, con Clean Architecture y BLoC para que la nueva funcionalidad quede modular y no choque con el resto de la app. El calendario, las solicitudes y los estados de cada cita se sincronizarían en tiempo real con Supabase, dándote control desde un panel si lo requieres.\n\nEn proyectos anteriores lancé más de 3 apps en producción con esta arquitectura, reduciendo además un 50% el tiempo de configuración del entorno de desarrollo.\n\nEl plazo y el costo exactos se afinan en una llamada corta según el alcance y las pantallas de la reserva. ¿Podemos tener una videollamada breve para revisarlo?\n\n— Isaac Urdaneta · IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/propuestas-workana/desarrollo-de-funcionalidad-de-agendamiento-de-citas-para-aplicacion-movil-2026-09-24.md",
+      "estado": "pendiente",
+      "creado": "2026-09-24T21:50:57+00:00",
+      "enviado_en": null,
+      "error": null
+    },
+    {
+      "id": "e-20260924175057-15",
+      "lead_key": "desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder",
+      "nombre": "Citas mascotas estilo Tinder",
+      "canal": "workana",
+      "destino": "https://www.workana.com/job/desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder",
+      "asunto": "",
+      "cuerpo": "Hola L. C.:\n\nVi tu proyecto: una app de citas para mascotas estilo Tinder, con perfiles detallados de cada mascota y el sistema de \"me gusta\" / emparejamiento. Es un proyecto entretenido y claro de mapear.\n\nLo desarrollaría en Flutter (iOS y Android con una sola base de código) usando Clean Architecture y BLoC para el flujo de emparejamientos. El swipe, los perfiles y las coincidencias se sincronizarían en tiempo real con Supabase, de modo que todo quede consistente entre dispositivos.\n\nTengo experiencia real en interacción social en apps: construí salas multijugador en tiempo real y una app de bienestar con check-in en menos de 30 segundos, además de más de 3 apps en producción con arquitectura BLoC.\n\nEl plazo y el costo se afinan en una llamada corta según las pantallas y la lógica de emparejamiento que tengas en mente. ¿Podemos tener una videollamada breve para revisarlo?\n\n— Isaac Urdaneta · IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/propuestas-workana/desarrollo-de-aplicacion-movil-de-citas-para-mascotas-al-estilo-tinder-2026-09-24.md",
+      "estado": "pendiente",
+      "creado": "2026-09-24T21:50:57+00:00",
+      "enviado_en": null,
+      "error": null
     }
   ]
 }

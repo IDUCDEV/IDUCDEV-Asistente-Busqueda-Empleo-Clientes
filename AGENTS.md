@@ -38,6 +38,7 @@ resultados/           # SALIDAS de las skills (se regeneran, ignoradas por git)
   empresas-target/    #   ← flutter-employers
   mensajes-outreach/  #   ← linkedin-outreach (empleo)
   mensajes-clientes/  #   ← contactar-clientes (genera) → enviar-clientes (envía)
+  propuestas-workana/ #   ← aplicar-workana (genera) → enviar-workana (postula)
   cv/                 #   ← cv-apply (CV + carta + PDF)
   informes/           #   ← orquestador (resumen diario)
 estado/
@@ -78,6 +79,16 @@ informes/  (ya no — ahora resultados/informes/)
   Web con navegador, LinkedIn semi) y **solo tras envío efectivo** marca
   `orquestador.py marcar clientes <clave> contactado` (crea el D+3).
   Límite diario `ENVIO_MAX_DIA` (default 12) y pausa 15-35s entre WhatsApp.
+- **Flujo de postulación Workana (2 skills):** `aplicar-workana` genera la
+  propuesta (solo `is_flutter: true`, sin automatizaciones, presupuesto
+  ≥ USD 500) y la **encola** (`cola_envios.py add --canal workana`, proyecto
+  `en_proceso`); `enviar-workana` envía **uno por uno** (muestra la
+  propuesta, la valida el usuario: ok/modificar/saltar/parar; abre la URL del
+  proyecto, pega título + propuesta en el formulario de postulación y **el
+  usuario pulsa enviar**) y **solo tras postulación efectiva** marca
+  `orquestador.py marcar proyectos_workana <key> applied` (crea el D+7,
+  `SEGUIMIENTO_DIAS["proyectos_workana"]`). Mismo cupo `ENVIO_MAX_DIA`
+  compartido con clientes.
 
 ## Ciclo de vida del estado (historial.json)
 
