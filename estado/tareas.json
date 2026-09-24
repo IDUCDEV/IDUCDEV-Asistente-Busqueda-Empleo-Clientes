@@ -167,6 +167,17 @@
       "creado": "2026-09-24T22:04:55+00:00",
       "vencimiento": "2026-09-27T22:04:55+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20260924181930-16",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "svitla systems::senior flutter engineer",
+      "titulo": "Seguimiento: svitla systems::senior flutter engineer",
+      "url": "",
+      "creado": "2026-09-24T22:19:30+00:00",
+      "vencimiento": "2026-10-01T22:19:30+00:00",
+      "estado": "pendiente"
     }
   ]
 }
