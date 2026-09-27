@@ -214,6 +214,27 @@ def strip_html(text):
 
 # ── Normalizadores por ATS ───────────────────────────────────────────
 
+def to_iso_date(value):
+    """Normaliza una fecha a YYYY-MM-DD.
+
+    Greenhouse y Ashby ya devuelven ISO (basta truncar), pero Lever manda un
+    Unix timestamp: sin convertirlo, `[:10]` devolvía "1790040082" en el
+    informe en vez de una fecha.
+    """
+    if value in (None, ""):
+        return ""
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return str(value)[:10]
+    if n > 10_000_000_000:  # milisegundos
+        n //= 1000
+    try:
+        return datetime.fromtimestamp(n, timezone.utc).date().isoformat()
+    except (OverflowError, OSError, ValueError):
+        return ""
+
+
 def norm_greenhouse(data):
     out = []
     for j in (data.get("jobs") or []):
@@ -255,7 +276,7 @@ def norm_lever(data):
             "location": cats.get("location", "") or "",
             "url": j.get("hostedUrl", ""),
             "description": (j.get("descriptionPlain") or "")[:400],
-            "published": str(j.get("createdAt", ""))[:10],
+            "published": to_iso_date(j.get("createdAt")),
         })
     return out
 
@@ -427,9 +448,9 @@ def fmt_report(hits, date_str, time_str, checked, errs):
         )
         if c.get("domain"):
             lines.append(f"**Web:** {c['domain']}\n")
-        for r in h["roles"]:
+        for n, r in enumerate(h["roles"], 1):
             flag = " ⚠ **verificar:** solo Flutter en la descripción" if r.get("review") else ""
-            lines.append(f"### · {r['title']} _(score {r['score']})_")
+            lines.append(f"### {n}. {r['title']} _(score {r['score']})_")
             lines.append(f"**Ubicación:** {r.get('location') or 'N/A'}")
             if r.get("published"):
                 lines.append(f"**⏰** {r['published']}")

@@ -2687,5 +2687,27 @@
       "fecha_actualizado": "2026-09-24T22:04:55+00:00"
     }
   ],
-  "outreach": []
+  "outreach": [],
+  "vacantes_empresa": [
+    {
+      "key": "jobgether::mid level flutter developer",
+      "fecha_visto": "2026-09-27T01:04:07+00:00",
+      "estado": "nuevo",
+      "empresa": "Jobgether",
+      "titulo": "Mid Level Flutter Developer",
+      "url": "https://jobs.lever.co/jobgether/2bc0b918-6ade-472f-9fb0-2e48be5c8d7f",
+      "tablero": "lever/jobgether",
+      "score": 60
+    },
+    {
+      "key": "jobgether::pessoa desenvolvedora flutter sênior",
+      "fecha_visto": "2026-09-27T01:04:07+00:00",
+      "estado": "nuevo",
+      "empresa": "Jobgether",
+      "titulo": "Pessoa Desenvolvedora Flutter - Sênior",
+      "url": "https://jobs.lever.co/jobgether/f39eab32-8a7a-4a4e-9dd0-03eddd5f0a64",
+      "tablero": "lever/jobgether",
+      "score": 60
+    }
+  ]
 }

@@ -467,6 +467,22 @@
       "careers_url": "",
       "industry": "Reclutamiento Tech",
       "usa_flutter": false
+    },
+    "jobgether": {
+      "key": "jobgether",
+      "name": "Jobgether",
+      "domain": "jobgether.com",
+      "region": "global",
+      "tier": 1,
+      "status": "con_vacante",
+      "added": "2026-09-27",
+      "last_checked": "2026-09-27T01:05:02+00:00",
+      "open_roles": 2,
+      "careers_url": "https://jobs.lever.co/jobgether",
+      "ats": "lever",
+      "slug": "jobgether",
+      "source": "site:jobs.lever.co flutter (descubierto por websearch)",
+      "nota": "Agregador con API publica en Lever: 3930 roles, 403 LATAM. Vive en LATAM."
     }
   }
 }
