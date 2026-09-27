@@ -31,7 +31,8 @@ Todo resultado generado por una skill vive bajo `resultados/`.
 
 | Skill | Salida |
 |-------|--------|
-| `job-search` | `resultados/vacantes/{YYYY-MM-DD}.md` |
+| `job-search` | `resultados/vacantes/{YYYY-MM-DD}.md` (12 fuentes) |
+| `hidden-jobs-web` | `resultados/vacantes-web/{YYYY-MM-DD}.md` (mobile.career, YC, X, `site:boards.*`) + altas en `estado/empresas_registry.json` |
 | `workana-search` | `resultados/vacantes-workana/{YYYY-MM-DD}.md` |
 | `linkedin-hidden-jobs` | `resultados/vacantes-ocultas/{YYYY-MM-DD}-hidden.md` |
 | `cv-apply` | `resultados/cv/{cv-base}-{rol}-{empresa}.md` + carta + `.pdf` |
@@ -40,7 +41,7 @@ Todo resultado generado por una skill vive bajo `resultados/`.
 | `enviar-clientes` | envía la cola: email SMTP automático, WhatsApp Web (navegador), LinkedIn semi. Marcas `contactado` + seguimiento D+3 en `estado/historial.json`, `status: contacted` en `leads-db.json` |
 | `aplicar-workana` | `resultados/propuestas-workana/{key}-{YYYY-MM-DD}.md` + cola `estado/cola_envios.json` (canal `workana`, proyecto `en_proceso`) |
 | `enviar-workana` | envía la cola `workana`: abre la URL del proyecto, pega título+propuesta en el formulario de postulación (usuario pulsa enviar). Marca `applied` + seguimiento D+7 en `estado/historial.json` |
-| `flutter-employers` | `resultados/empresas-target/{YYYY-MM-DD}-empresas.md` + `leads-db.json` |
+| `flutter-employers` | `resultados/empresas-target/{YYYY-MM-DD}-empresas-vacantes.md` + `estado/empresas_registry.json` (vacantes Flutter reales de tableros Greenhouse/Ashby/Lever) |
 | `prospectar-clientes` | `resultados/clientes-potenciales/{YYYY-MM-DD}-leads.md` + `leads-db.json` |
 | Orquestador (informe) | `resultados/informes/{YYYY-MM-DD}-resumen.md` |
 

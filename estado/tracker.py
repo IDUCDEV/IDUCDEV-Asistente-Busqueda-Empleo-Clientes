@@ -70,6 +70,7 @@ CATEGORIES = {
     "proyectos_workana": "clave: slug del proyecto",
     "posts_linkedin": "clave: URL del post",
     "outreach": "clave: URL del perfil contactado",
+    "vacantes_empresa": "clave: empresa::titulo normalizados (tableros ATS directos)",
 }
 
 
@@ -205,6 +206,11 @@ class Historial:
         items = self.data.get(category, [])
         if states is None:
             return [dict(i) for i in items]
+        # Acepta un estado suelto ("nuevo") o varios (("nuevo", "en_proceso")).
+        # Sin esto, set("nuevo") sería un set de letras y el filtro nunca
+        # coincidiría: fallo silencioso.
+        if isinstance(states, str):
+            states = (states,)
         states = set(states)
         return [dict(i) for i in items if i.get("estado") in states]
 

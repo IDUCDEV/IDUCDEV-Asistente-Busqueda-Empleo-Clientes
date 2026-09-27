@@ -1,6 +1,6 @@
 ---
 name: job-search
-description: Use when the user asks to search for Flutter/remote/LATAM job vacancies. Queries 9 sources (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto), filters, deduplicates, and generates a markdown listing.
+description: Úsala cuando el usuario pida buscar vacantes Flutter/Dart remotas (LATAM o US). Consulta 12 fuentes (LinkedIn ≤24h y ≤7d, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto, Wellfound, elempleo.co), filtra, deduplica contra el historial central y genera el listado markdown. Para mobile.career/YC/X o para buscar empresas por tablero, ver hidden-jobs-web y flutter-employers.
 ---
 
 # Skill: job-search
@@ -258,16 +258,61 @@ de IT (`/categoria-empleo/it/feed/`) existe pero hoy está vacío; se mantiene s
 
 ---
 
+### 10. LinkedIn ≤7 días (segunda pasada)
+Misma `parse_linkedin`, pero `f_TPR=r604800` (7 días) en vez de `r86400` (24 h).
+4 queries × 4 páginas. Se etiqueta `LinkedIn (7d)` para que el informe separe lo
+fresco de lo tibio.
+
+**Por qué existe:** con solo 24 h se descartaban vacantes LATAM de 2-7 días, que
+siguen abiertas. Es la fuente #1 de vacantes LATAM del usuario.
+
+### 11. Wellfound (HTML SSR)
+`wellfound.com/role/flutter-developer?page=N` (3 págs) y
+`wellfound.com/location/south-america?role=flutter-developer` (2 págs).
+Puesto en `/jobs/{id}-{slug}`, empresa en `/company/{slug}` + `<h2>`.
+Salario en formato `$140K–$180K`; seniority en el título.
+
+> **Requiere el User-Agent completo** (`Chrome/... Safari/537.36`). Con el UA
+> truncado responde 403. Es la fuente nueva más productive (~20 roles/página).
+
+### 12. elempleo.com (Colombia)
+`elempleo.com/co/ofertas-empleo/trabajo-desarrollador-flutter`. Cada tarjeta lleva
+sus datos en el atributo `data-ga4-offerdata` (JSON con `&quot;` escapado):
+`title`, `company`, `location`, `salary`, `tags`. Modalidad en
+`div.js-work-modality`.
+
+> La búsqueda **no pagina** (`totalPages=1`) y devuelve ~20 items de los que solo
+> ~3-4 son Flutter. El filtro de relevancia es obligatorio; el resto es ruido
+> (cobol, rpa, cnc). Colombia → solo remoto, se descartan híbrido/presencial.
+
+---
+
 ## Filtros globales (aplicar DESPUÉS de parsear cada fuente)
 
 | Filtro | Regla |
 |--------|-------|
 | **Tecnología** | Título debe contener "Flutter" o "Dart" (case-insensitive). Si no hay título claro, mantener si la descripción lo menciona. |
-| **LinkedIn** | Solo ≤24h (ya viene filtrado, verificar en el texto de tiempo) |
+| **LinkedIn** | ≤24 h en la 1ª pasada; ≤7 días en la 2ª (etiqueta aparte) |
+| **elempleo.com** | Título con Flutter/Dart, o móvil con Flutter en la descripción (`review`). El resto se descarta |
 | **Venezuela (Computrabajo VE)** | Incluir remoto + híbrido + presencial |
 | **Resto de fuentes/países** | Solo remoto |
 | **Duplicados** | Misma empresa + mismo título → fusionar, mostrar una vez (priorizar la fuente con más datos) |
-| **Antigüedad** | LinkedIn: ≤24h. Otras fuentes: ordenar por más reciente |
+| **Antigüedad** | LinkedIn: ≤24 h. Otras fuentes: ordenar por más reciente |
+
+---
+
+## Notas de mantenimiento
+
+- **User-Agent:** mantenerlo completo. Varias fuentes dan 403 si lo recortas.
+- **Paginación:** `fetch_source(name, url, fmt, parser, pages, step, start)`. El
+  `step`/`start` es por fuente (LinkedIn/Himalayas: offsets de 10/20; Wellfound:
+  `?page=1..N`). No hardcodear `p * 10`.
+- **Rutas:** `OUTPUT_DIR` sale de `config.OUTPUT_DIRS["vacantes"]`, no de una
+  ruta escrita a mano.
+- **Prueba sin ensuciar el historial:** `--dry-run` no escribe el `.md` ni
+  `historial.json`.
+- Para lo que no es parseable por HTTP (mobile.career, YC, X, `site:boards.*`),
+  usar la skill hermana `hidden-jobs-web`.
 
 ---
 
@@ -300,8 +345,54 @@ de IT (`/categoria-empleo/it/feed/`) existe pero hoy está vacío; se mantiene s
 (se repite el mismo bloque para Himalayas, RemoteJobs.org, Jobicy, Career Nest,
  Computrabajo por país, Remotico y Workremoto)
 
+## LinkedIn 7d ({n} vacantes · ≤7 días)
+
+### {ID}. {Título}
+**Empresa:** {empresa}
+**Ubicación:** {ubicación} | **Modalidad:** {remoto}
+**⏰** {tiempo}
+**🔗** [{url}]({url})
+
+## Wellfound ({n} vacantes)
+
+### {ID}. {Título}
+**Empresa:** {empresa}
+**Ubicación:** {ubicación} | **Modalidad:** remoto
+**💰** {salario} | **🎯** {seniority}
+**🔗** [{url}]({url})
+
+## elempleo.co ({n} vacantes · Colombia)
+
+### {ID}. {Título}
+**Empresa:** {empresa}
+**Ubicación:** {ubicación} | **Modalidad:** remoto
+**💰** {salario si aplica}
+**🔗** [{url}]({url})
+`⚠ verificar` (solo Flutter en la descripción)
+
 > 📝 Para aplicar: copia el `🔗 link` y dímelo con "aplica a esta vacante" para generar CV personalizado con `cv-apply`.
 ```
+
+---
+
+## Salida en consola (protocolo del orquestador)
+
+El script imprime, en este orden, para que `orquestador.py registrar` lo consuma:
+
+```
+---JOBCOUNT---
+<n>
+---SKIPPED---
+<n>
+---SOURCES---
+<fuente>:<n>
+...
+---ERRORS---
+<fuente>: <motivo>
+```
+
+Añadir fuentes nuevas exige mantener este contrato; `---SOURCES---` alimenta el
+conteo por fase de `rondas.json`.
 
 ---
 

@@ -9,3 +9,7 @@ __pycache__/
 
 # Outputs generados por las skills (se regeneran solos)
 resultados/
+
+# Cache de sondeo ATS: se regenera sola (TTL 24 h). El registro
+# empresas_registry.json sí se versiona: es memoria del proyecto.
+estado/empresas_cache.json

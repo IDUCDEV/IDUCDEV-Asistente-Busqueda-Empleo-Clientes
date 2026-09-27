@@ -92,6 +92,12 @@ TAREAS_PATH = os.path.join(ESTADO_DIR, "tareas.json")
 RONDAS_PATH = os.path.join(ESTADO_DIR, "rondas.json")
 COLA_ENVIOS_PATH = os.path.join(ESTADO_DIR, "cola_envios.json")
 
+# Descubrimiento de empresas (Fase 2): registro persistente + caché de sondeo.
+# Viven en estado/ (y no en resultados/) porque resultados/ está gitignored y
+# se regenera: el registro debe sobrevivir para no re-sondear las mismas empresas.
+EMPRESAS_REGISTRY_PATH = os.path.join(ESTADO_DIR, "empresas_registry.json")
+EMPRESAS_CACHE_PATH = os.path.join(ESTADO_DIR, "empresas_cache.json")
+
 # Envío de mensajes a clientes (cola + rate limit)
 ENVIO_MAX_DIA = int(os.environ.get("ENVIO_MAX_DIA", "12"))
 ENVIO_PAUSA_WA_MIN = int(os.environ.get("ENVIO_PAUSA_WA_MIN", "15"))
@@ -101,6 +107,7 @@ EMAIL_APP_PASSWORD = os.environ.get("EMAIL_APP_PASSWORD", "")
 
 OUTPUT_DIRS = {
     "vacantes": os.path.join(RESULTADOS_DIR, "vacantes"),
+    "vacantes-web": os.path.join(RESULTADOS_DIR, "vacantes-web"),
     "vacantes-workana": os.path.join(RESULTADOS_DIR, "vacantes-workana"),
     "vacantes-ocultas": os.path.join(RESULTADOS_DIR, "vacantes-ocultas"),
     "clientes-potenciales": os.path.join(RESULTADOS_DIR, "clientes-potenciales"),
@@ -115,6 +122,7 @@ OUTPUT_DIRS = {
 SKILL_SCRIPTS = {
     "job-search": os.path.join(SKILLS_DIR, "job-search", "job_search.py"),
     "workana-search": os.path.join(SKILLS_DIR, "workana-search", "workana_search.py"),
+    "empresas-search": os.path.join(SKILLS_DIR, "flutter-employers", "empresas_search.py"),
 }
 
 # Seguimientos automáticos: cuántos días después se crea una tarea de revisión.
@@ -122,8 +130,15 @@ SEGUIMIENTO_DIAS = {
     "outreach": 3,      # contacto enviado → revisar respuesta en 3 días
     "clientes": 3,      # lead contactado → revisar respuesta en 3 días
     "vacantes": 7,      # aplicación enviada → revisar status en 7 días
+    "vacantes_empresa": 7,  # vacante de tablero ATS → revisar status en 7 días
     "proyectos_workana": 7,
 }
+
+# Sondeo de tableros de empresa (Fase 2). Pausas para no abusar de las APIs.
+EMPRESAS_PAUSA_S = float(os.environ.get("EMPRESAS_PAUSA_S", "0.6"))
+EMPRESAS_TIMEOUT_S = int(os.environ.get("EMPRESAS_TIMEOUT_S", "12"))
+EMPRESAS_CACHE_HORAS = int(os.environ.get("EMPRESAS_CACHE_HORAS", "24"))
+EMPRESAS_FALLOS_MAX = 3
 
 
 def ensure_dir(path):
@@ -140,5 +155,7 @@ if __name__ == "__main__":
     print(f"HISTORIAL_PATH   : {HISTORIAL_PATH}")
     print(f"TAREAS_PATH      : {TAREAS_PATH}")
     print(f"RONDAS_PATH      : {RONDAS_PATH}")
+    print(f"EMPRESAS_REGISTRY: {EMPRESAS_REGISTRY_PATH}")
+    print(f"EMPRESAS_CACHE   : {EMPRESAS_CACHE_PATH}")
     for key, path in OUTPUT_DIRS.items():
         print(f"OUTPUT {key:<18}: {path}")

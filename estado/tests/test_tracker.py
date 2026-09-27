@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from tracker import (Historial, domain_key, normalize_company,
+from tracker import (CATEGORIES, Historial, domain_key, normalize_company,
                      normalize_title, vacancy_key)  # noqa: E402
 
 ISO = "%Y-%m-%dT%H:%M:%S%z"
@@ -97,9 +97,24 @@ class TestHistorial(unittest.TestCase):
 
     def test_stats_cubre_todas_las_categorias(self):
         stats = self.h.stats()
-        for cat in ("vacantes", "empresas", "clientes",
-                    "proyectos_workana", "posts_linkedin", "outreach"):
+        for cat in CATEGORIES:
             self.assertIn(cat, stats)
+
+    def test_categoria_vacantes_empresa_para_tableros_ats(self):
+        # Vacantes halladas en tableros de empresa (flutter-employers) usan
+        # "empresa::titulo" para poder deduplicar contra las de los agregadores.
+        self.assertIn("vacantes_empresa", CATEGORIES)
+        h = Historial(path=os.path.join(self.tmp, "otro.json"))
+        self.assertTrue(h.add("vacantes_empresa",
+                              vacancy_key("Canonical", "Flutter Web Frontend Engineer")))
+        # La clave es empresa::título (sin URL), así que la misma vacante
+        # reaparecida en otro agregador no se vuelve a listar.
+        self.assertFalse(h.add("vacantes_empresa",
+                               vacancy_key("Canonical", "Flutter Web Frontend Engineer")))
+        # Otra vacante de la misma empresa sí es nueva.
+        self.assertTrue(h.add("vacantes_empresa",
+                              vacancy_key("Canonical", "Mobile Engineer (Flutter)")))
+        self.assertEqual(len(h.by_state("vacantes_empresa", "nuevo")), 2)
 
 
 if __name__ == "__main__":

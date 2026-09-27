@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """job_search.py — Flutter/LATAM remote job aggregator.
 
-Orquestra 9 fuentes, filtra, deduplica, normaliza salarios
+Orquesta 13 fuentes, filtra, deduplica, normaliza salarios
 y genera markdown en resultados/vacantes/{YYYY-MM-DD}.md
+
+Prioridad geográfica: LATAM primero, EE.UU. segundo.
 """
 
+import argparse
 import html
 import json
 import os
@@ -17,7 +20,12 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 
-USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+# UA completo de navegador: con el UA truncado, several fuentes (Wellfound)
+# responden 403. No lo acortes.
+USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+)
 TIMEOUT = 20
 LATAM_COUNTRIES = {
     "argentina", "bolivia", "brazil", "chile", "colombia", "costa rica",
@@ -45,7 +53,9 @@ PROJECT_DIR = _find_project_root()
 if not PROJECT_DIR:
     sys.exit("No se localizó el proyecto IDUCDEV. Define IDUCDEV_PROJECT_DIR.")
 sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
-OUTPUT_DIR = os.path.join(PROJECT_DIR, "resultados", "vacantes")
+from config import OUTPUT_DIRS  # noqa: E402  (ruta canónica, sin hardcodear)
+
+OUTPUT_DIR = OUTPUT_DIRS["vacantes"]
 
 
 # ── helpers ──────────────────────────────────────────────────────────
@@ -776,6 +786,157 @@ def parse_workremoto(xml_text):
     return jobs
 
 
+WF_JOB_HREF = re.compile(r'href="(/jobs/(\d+)-[a-z0-9\-]+)"')
+WF_CARD = re.compile(
+    r'<div class="mb-4 w-full px-4">(.*?)(?=<div class="mb-4 w-full px-4">|</main>|\Z)',
+    re.DOTALL,
+)
+WF_COMPANY = re.compile(r'href="/company/[^"]*"[^>]*>\s*<h2[^>]*>(.*?)</h2>', re.DOTALL)
+WF_SALARY = re.compile(r'\$\s?([\d.,]+)\s?([KkMm]?)\s?[-–—]?\s?\$?\s?([\d.,]+)?\s?([KkMm]?)?\s*(?:a\s*año|per year|/yr|annually)', re.I)
+WF_META = re.compile(
+    r'<span class="text-xs text-neutral-1000">([^<]{2,60})</span>'
+    r'.*?<span class="text-xs italic text-neutral-500">([^<]{2,60})</span>',
+    re.DOTALL,
+)
+WF_SENIORITY = re.compile(r'\b(junior|mid|semi-?senior|senior|staff|lead|principal|entry[- ]level|intern)\b', re.I)
+
+
+def _wf_money_to_usd(num_text, suffix):
+    """'140' + 'K' -> 140000 ; '2,5' + 'M' -> 2500000. Decimal ','-tolerant."""
+    if not num_text:
+        return None
+    n = float(re.sub(r"[^\d.]", "", num_text.replace(",", ".")) or 0)
+    if not n:
+        return None
+    mult = {"k": 1_000, "m": 1_000_000}.get((suffix or "").lower(), 1)
+    return int(n * mult)
+
+
+def parse_wellfound(html_text, label="Wellfound"):
+    """Wellfound (SSR). Puesto en /jobs/{id}-{slug}, empresa en /company/{slug}+<h2>."""
+    jobs = []
+    for card in WF_CARD.findall(html_text):
+        m_job = WF_JOB_HREF.search(card)
+        if not m_job:
+            continue
+        url = "https://wellfound.com" + m_job.group(1)
+
+        m_title = re.search(
+            r'href="' + re.escape(m_job.group(1)) + r'"[^>]*>(.*?)</a>', card, re.DOTALL
+        )
+        title = html.unescape(re.sub(r"<[^>]+>", "", m_title.group(1))).strip() if m_title else ""
+        if not title:
+            continue
+
+        company = "No especificada"
+        m_co = WF_COMPANY.search(card)
+        if m_co:
+            company = html.unescape(re.sub(r"<[^>]+>", "", m_co.group(1))).strip()
+
+        location, extra = "Remoto", ""
+        m_meta = WF_META.search(card)
+        if m_meta:
+            location = html.unescape(m_meta.group(1)).strip()
+            extra = html.unescape(m_meta.group(2)).strip()
+
+        smin = smax = None
+        m_sal = WF_SALARY.search(card)
+        if m_sal:
+            smin = _wf_money_to_usd(m_sal.group(1), m_sal.group(2))
+            smax = _wf_money_to_usd(m_sal.group(3), m_sal.group(4)) if m_sal.group(3) else None
+
+        seniority = ""
+        m_sen = WF_SENIORITY.search(title)
+        if m_sen:
+            seniority = m_sen.group(1).title()
+
+        review = not has_flutter_dart(title)
+        jobs.append({
+            "source": label,
+            "title": title,
+            "company": company,
+            "location": location,
+            "url": url,
+            "time": extra if extra else "",
+            "modality": "Remoto",
+            "salary_min": smin, "salary_max": smax, "salary_currency": "USD" if smin else None,
+            "description": "",
+            "seniority": seniority,
+            "review": review,
+        })
+    return jobs
+
+
+EE_ITEM = re.compile(
+    r'<div class="col-md-12 p-0 js-area-bind area-bind"\s*'
+    r'data-url="(?P<url>[^"]+)"\s*'
+    r'data-ga4-offerdata="(?P<ga4>[^"]*)"'
+    r'(?P<rest>.*?)(?=<div class="col-md-12 p-0 js-area-bind|\Z)',
+    re.DOTALL,
+)
+EE_MODALIDAD = re.compile(r'js-work-modality[^"]*"[^>]*>\s*(?:-\s*)?([^<]{2,40})<', re.I)
+EE_MOBILE = re.compile(r"\b(m[oó]vil|mobile|android|ios|aplicaciones m[oó]viles)\b", re.I)
+EE_REMOTO = re.compile(r"remot|home[- ]?office|teletrabajo", re.I)
+EE_SALARIO_NUM = re.compile(r"([\d.]{4,})\s*(?=.*(?:COP|\$|USD|al mes|mensual))", re.I)
+
+
+def parse_elempleo(html_text, country="CO"):
+    """elempleo.com (Colombia) — cada tarjeta lleva su data en `data-ga4-offerdata`.
+
+    La búsqueda NO pagina (totalPages=1) y el listado mezcla Flutter con
+    perfiles no relacionados, así que el filtro de relevancia es obligatorio.
+    """
+    jobs = []
+    for m in EE_ITEM.finditer(html_text):
+        try:
+            data = json.loads(html.unescape(m.group("ga4")))
+        except Exception:
+            continue
+        title = (data.get("title") or "").strip()
+        if not title:
+            continue
+        # Relevancia estricta: Flutter/Dart explícito, o móvil (para revisar).
+        if has_flutter_dart(title):
+            review = False
+        elif EE_MOBILE.search(title):
+            review = True
+        else:
+            continue
+
+        rest = m.group("rest")
+        m_mod = EE_MODALIDAD.search(rest)
+        modality = html.unescape(m_mod.group(1)).strip().title() if m_mod else ""
+        if country != "VE" and modality and re.search(r"H[ií]brid|Presencial", modality, re.I):
+            continue
+
+        url = m.group("url")
+        if url.startswith("/"):
+            url = "https://www.elempleo.com" + url
+
+        salary_raw = (data.get("salary") or "").strip()
+        smin = smax = None
+        m_sal = EE_SALARIO_NUM.search(salary_raw)
+        if m_sal:
+            digits = re.sub(r"[^\d]", "", m_sal.group(1))
+            if len(digits) >= 4:
+                smin = smax = int(digits)
+
+        jobs.append({
+            "source": f"elempleo.com {country}",
+            "title": title,
+            "company": (data.get("company") or "No especificada").strip(),
+            "location": (data.get("location") or country_name(country)).strip(),
+            "url": url,
+            "time": "",
+            "modality": modality or "⚠ No especificada",
+            "salary_min": smin, "salary_max": smax,
+            "salary_currency": "COP" if smin else None,
+            "description": (data.get("tags") or "").strip(),
+            "review": review,
+        })
+    return jobs
+
+
 def _normalize_salary_period(smin, smax, source=""):
     """Detect if salary values are annual and convert to monthly."""
     if source == "RemoteJobs.org":
@@ -818,12 +979,14 @@ SOURCES_LINKEDIN = [  # noqa: N816
      "html", parse_linkedin, 1),
 ]
 SOURCES_GETONBOARD = [
-    ("GetOnBoard", "https://www.getonbrd.com/api/v0/search/jobs?query=flutter&remote=true&per_page=20",
+    ("GetOnBoard (flutter)", "https://www.getonbrd.com/api/v0/search/jobs?query=flutter&remote=true&per_page=50",
+     "text", parse_getonboard),
+    ("GetOnBoard (dart)", "https://www.getonbrd.com/api/v0/search/jobs?query=dart&remote=true&per_page=50",
      "text", parse_getonboard),
 ]
 SOURCES_HIMALAYAS = [
     ("Himalayas", "https://himalayas.app/jobs/api/search?q=flutter&sort=recent&offset={page}",
-     "text", parse_himalayas, 3),
+     "text", parse_himalayas, 5),
 ]
 SOURCES_REMOTEJOBS = [
     ("RemoteJobs.org", "https://remotejobs.org/api/v1/jobs?q=flutter&category=programming&limit=50",
@@ -849,23 +1012,52 @@ SOURCES_COMPUTRABAJO = [
 SOURCES_REMOTICO = [
     ("Remotico (flutter)", "https://remotico.io/jobs/skill/flutter", "html", parse_remotico),
     ("Remotico (dart)", "https://remotico.io/jobs/skill/dart", "html", parse_remotico),
+    ("Remotico (mobile)", "https://remotico.io/jobs/skill/mobile", "html", parse_remotico),
+    ("Remotico (ionic)", "https://remotico.io/jobs/skill/ionic", "html", parse_remotico),
 ]
 SOURCES_WORKREMOTO = [
     ("Workremoto (desarrollo)", "https://workremoto.com/categoria-empleo/desarrollo/feed/", "text", parse_workremoto),
+    ("Workremoto (tecnologia)", "https://workremoto.com/categoria-empleo/tecnologia/feed/", "text", parse_workremoto),
+]
+
+# ── Segundas pasadas:Amplían la ventana temporal y cubren mercado EE.UU. ──
+# LinkedIn por defecto solo mira 24 h (f_TPR=r86400) y descarta vacantes LATAM
+# de más de un día. Esta pasada mira 7 días (r604800) con más queries.
+SOURCES_LINKEDIN_7D = [  # noqa: N816
+    ("Flutter 7d", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Flutter&f_WT=2&f_TPR=r604800&location=Latin%20America&start={page}",
+     "html", parse_linkedin, 4),
+    ("Flutter Developer 7d", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=%22Flutter%20Developer%22&f_WT=2&f_TPR=r604800&location=Latin%20America&start={page}",
+     "html", parse_linkedin, 4),
+    ("Dart 7d", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Dart&f_WT=2&f_TPR=r604800&location=Latin%20America&start={page}",
+     "html", parse_linkedin, 4),
+    ("Mobile Engineer Flutter 7d", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=%22Mobile%20Engineer%22%20Flutter&f_WT=2&f_TPR=r604800&location=Latin%20America&start={page}",
+     "html", parse_linkedin, 4),
+]
+SOURCES_WELLFOUND = [
+    ("Wellfound (flutter)", "https://wellfound.com/role/flutter-developer?page={page}",
+     "html", parse_wellfound, 3),
+    ("Wellfound (LATAM)", "https://wellfound.com/location/south-america?role=flutter-developer&page={page}",
+     "html", parse_wellfound, 2),
+]
+SOURCES_ELEMPLEO = [
+    ("elempleo CO", "https://www.elempleo.com/co/ofertas-empleo/trabajo-desarrollador-flutter",
+     "html", parse_elempleo),
 ]
 
 
-def fetch_source(name, url, fmt, parser, pages=1):
+def fetch_source(name, url, fmt, parser, pages=1, step=10, start=0):
+    """Descarga `pages` páginas de una fuente.
+
+    `step`/`start` controlan la paginación porque cada portal pagina distinto:
+    LinkedIn y Himalayas usan offsets de 10/20, Wellfound usa ?page=1..N.
+    """
     all_jobs = []
     for p in range(pages):
-        u = url.format(page=p * 10) if pages > 1 else url
+        u = url.format(page=(p * step) + start) if pages > 1 else url
         raw = fetch(u)
         if raw.startswith("__FETCH_ERR__"):
-            return [], raw.split(":", 1)[1] if ":" in raw else raw
-        if fmt == "text":
-            jobs = parser(raw)
-        else:
-            jobs = parser(raw)
+            return all_jobs, raw.split(":", 1)[1] if ":" in raw else raw
+        jobs = parser(raw)
         all_jobs.extend(jobs)
         if len(jobs) == 0:
             break
@@ -972,9 +1164,15 @@ def main():
     all_jobs = []
     source_errors = []
     source_counts = {}
-    total_sources = 9
+    all_sources = (
+        SOURCES_LINKEDIN + SOURCES_LINKEDIN_7D + SOURCES_GETONBOARD
+        + SOURCES_HIMALAYAS + SOURCES_REMOTEJOBS + SOURCES_CAREERNEST
+        + SOURCES_JOBICY + SOURCES_COMPUTRABAJO + SOURCES_REMOTICO
+        + SOURCES_WORKREMOTO + SOURCES_WELLFOUND + SOURCES_ELEMPLEO
+    )
+    total_sources = len(all_sources)
 
-    # 1. LinkedIn (3 queries precisas, hasta 2 páginas por query)
+    # 1. LinkedIn (24 h: 3 queries precisas, hasta 2 páginas por query)
     li_jobs_raw = []
     for li_name, li_url, _fmt, _parser, _pages in SOURCES_LINKEDIN:
         for p in range(2):
@@ -990,22 +1188,66 @@ def main():
     all_jobs.extend(li_jobs_raw)
     source_counts["LinkedIn"] = len(li_jobs_raw)
 
+    # 1b. LinkedIn 7 días (segunda pasada: captura lo publicado hace 2-7 días)
+    li7_jobs = []
+    for li_name, li_url, _fmt, _parser, pages in SOURCES_LINKEDIN_7D:
+        for p in range(pages):
+            url = li_url.format(page=p * 10)
+            raw = fetch(url)
+            if raw.startswith("__FETCH_ERR__"):
+                source_errors.append(f"LinkedIn 7d ({li_name} page {p}): {raw.split(':',1)[1] if ':' in raw else raw}")
+                break
+            j = _parser(raw)
+            for job in j:
+                # Etiqueta propia: el informe separa lo fresco (≤24h) de lo tibio (≤7d).
+                job["source"] = "LinkedIn (7d)"
+            li7_jobs.extend(j)
+            if len(j) < 10:
+                break
+    all_jobs.extend(li7_jobs)
+    source_counts["LinkedIn (7d)"] = len(li7_jobs)
+
     # 2. GetOnBoard
-    jobs, err = fetch_source(*SOURCES_GETONBOARD[0][:4])
-    if err:
-        source_errors.append(f"GetOnBoard: {err}")
-    all_jobs.extend(jobs)
-    source_counts["GetOnBoard"] = len(jobs)
+    gob_jobs = []
+    for _name, _url, _fmt, _parser in SOURCES_GETONBOARD:
+        jobs, err = fetch_source(_name, _url, _fmt, _parser)
+        if err:
+            source_errors.append(f"{_name}: {err}")
+        gob_jobs.extend(jobs)
+    all_jobs.extend(gob_jobs)
+    source_counts["GetOnBoard"] = len(gob_jobs)
+
+    # 2b. Wellfound (Flutter + LATAM, mercado EE.UU./global)
+    wf_jobs = []
+    for _name, _url, _fmt, _parser, pages in SOURCES_WELLFOUND:
+        jobs, err = fetch_source(_name, _url, _fmt, _parser,
+                                 pages=pages, step=1, start=1)
+        if err:
+            source_errors.append(f"{_name}: {err}")
+        wf_jobs.extend(jobs)
+    all_jobs.extend(wf_jobs)
+    source_counts["Wellfound"] = len(wf_jobs)
+
+    # 2c. elempleo.com (Colombia, LATAM)
+    ee_jobs = []
+    for _name, _url, _fmt, _parser in SOURCES_ELEMPLEO:
+        jobs, err = fetch_source(_name, _url, _fmt, _parser)
+        if err:
+            source_errors.append(f"{_name}: {err}")
+        ee_jobs.extend(jobs)
+    all_jobs.extend(ee_jobs)
+    source_counts["elempleo.com"] = len(ee_jobs)
 
     # 3. Himalayas
     him_jobs = []
-    for p in range(3):
-        url = SOURCES_HIMALAYAS[0][1].format(page=p * 20)
+    him_name, him_url, _him_fmt, him_parser, him_pages = SOURCES_HIMALAYAS[0][:5]
+    for p in range(him_pages):
+        url = him_url.format(page=p * 20)
         raw = fetch(url)
         if raw.startswith("__FETCH_ERR__"):
-            source_errors.append(f"Himalayas (page {p}): {raw.split(':',1)[1] if ':' in raw else raw}")
+            source_errors.append(f"{him_name} (page {p}): {raw.split(':',1)[1] if ':' in raw else raw}")
             break
-        j = SOURCES_HIMALAYAS[0][3](raw)
+        j = him_parser(raw)
         him_jobs.extend(j)
         if len(j) < 20:
             break
@@ -1096,7 +1338,10 @@ def main():
 
     # ── Cross-session dedup vs estado/historial.json ──
     # No repetir vacantes ya listadas en ejecuciones anteriores.
+    # Con --dry-run se consulta el historial pero NO se escribe: sirve para
+    # probar los parsers sin contaminar el "no repitas esto" central.
     skipped = 0
+    dry_run = "--dry-run" in sys.argv
     try:
         from tracker import Historial, vacancy_key
         hist = Historial()
@@ -1108,13 +1353,14 @@ def main():
             # Solo omite lo listado en días anteriores; lo del mismo día se re-lista
             # (la ejecución del día regenera el archivo con la vista completa).
             seen_today = bool(prev) and (prev.get("fecha_visto") or "").startswith(date_str)
-            hist.add("vacantes", key, meta={
-                "empresa": j.get("company", ""),
-                "titulo": j.get("title", ""),
-                "url": j.get("url", ""),
-                "fuente": j.get("source", ""),
-                "salario": j.get("salary_min"),
-            })
+            if not dry_run:
+                hist.add("vacantes", key, meta={
+                    "empresa": j.get("company", ""),
+                    "titulo": j.get("title", ""),
+                    "url": j.get("url", ""),
+                    "fuente": j.get("source", ""),
+                    "salario": j.get("salary_min"),
+                })
             if not prev or seen_today:
                 fresh.append(j)
             else:
@@ -1146,9 +1392,24 @@ def main():
     sections.append(fmt_section("LinkedIn", li_jobs, " · ≤24h"))
 
     # GetOnBoard
-    gob_jobs = [j for j in deduped if j.get("source") == "GetOnBoard"]
+    gob_jobs_f = [j for j in deduped if j.get("source") == "GetOnBoard"]
     sections.append(f"---\n")
-    sections.append(fmt_section("GetOnBoard", gob_jobs))
+    sections.append(fmt_section("GetOnBoard", gob_jobs_f))
+
+    # LinkedIn 7 días (segunda pasada)
+    li7_jobs_f = [j for j in deduped if j.get("source") == "LinkedIn (7d)"]
+    sections.append(f"---\n")
+    sections.append(fmt_section("LinkedIn (7d)", li7_jobs_f, " · ≤7 días, revisar si aún abierta"))
+
+    # Wellfound (mercado EE.UU./global)
+    wf_jobs_f = [j for j in deduped if j.get("source") == "Wellfound"]
+    sections.append(f"---\n")
+    sections.append(fmt_section("Wellfound", wf_jobs_f, " · mercado EE.UU./global"))
+
+    # elempleo.com (Colombia)
+    ee_jobs_f = [j for j in deduped if j.get("source", "").startswith("elempleo.com")]
+    sections.append(f"---\n")
+    sections.append(fmt_section("elempleo.com (Colombia)", ee_jobs_f, " · solo remoto"))
 
     # Himalayas
     him_jobs_f = [j for j in deduped if j.get("source") == "Himalayas"]
@@ -1217,6 +1478,22 @@ def main():
 
     markdown = "\n".join(sections)
 
+    if dry_run:
+        out_path = os.path.join(OUTPUT_DIR, f"{date_str}.md")
+        print(f"[dry-run] no se escribe {out_path} ni se actualiza historial.json")
+        print(markdown)
+        print("---JOBCOUNT---")
+        print(len(deduped))
+        print("---SKIPPED---")
+        print(skipped)
+        print("---SOURCES---")
+        for k, v in sorted(source_counts_deduped.items()):
+            print(f"{k}: {v}")
+        print("---ERRORS---")
+        for e in source_errors:
+            print(e)
+        return
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out_path = os.path.join(OUTPUT_DIR, f"{date_str}.md")
 
@@ -1252,4 +1529,8 @@ def main():
 
 
 if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--dry-run", action="store_true",
+                    help="Consulta y muestra el informe sin escribir el .md ni tocar historial.json")
+    ap.parse_args()
     main()

@@ -32,6 +32,7 @@ recursos/             # CENTRO DE RECURSOS (entrada, lo mantiene el humano)
   guias/              # cv-reglas-ats.md, linkedin.md
 resultados/           # SALIDAS de las skills (se regeneran, ignoradas por git)
   vacantes/           #   ← job-search
+  vacantes-web/       #   ← hidden-jobs-web (mobile.career, YC, X, site:boards.*)
   vacantes-workana/   #   ← workana-search
   vacantes-ocultas/   #   ← linkedin-hidden-jobs
   clientes-potenciales/#  ← prospectar-clientes
@@ -49,6 +50,8 @@ estado/
   rondas.json         # bitácora de rondas (fases + conteos)
   cola_envios.json    # cola de envíos a clientes (contactar → enviar)
   cola_envios.py      # CLI cola: add, pendientes, enviados-hoy, marcar
+  empresas_registry.json  # registro de empresas (versionado) ← flutter-employers
+  empresas_cache.json     # cache de sondeo ATS (TTL 24 h, se regenera)
   enviar_email.py     # envío SMTP (Gmail app password, desde .env)
   orquestador.py      # CLI: ronda, registrar, estado, marcar, tareas, informe, reset
 .env                  # credenciales SMTP + límites (NO commitear; ver .env.example)
@@ -65,6 +68,16 @@ informes/  (ya no — ahora resultados/informes/)
   informe diario en `resultados/informes/`. Las fases de navegador
   (hidden-jobs, prospectar, empresas) se registran con
   `orquestador.py registrar <fase> <archivo> --nuevas N`.
+- **Búsqueda de empleo en 2 carriles:**
+  - `job_search.py` (sin navegador, 12 fuentes agregadoras) →
+    `resultados/vacantes/`. `--dry-run` no escribe nada.
+  - `empresas_search.py` (tableros directos Greenhouse/Ashby/Lever) →
+    `resultados/empresas-target/`. Resuelve `ats`+`slug` desde la
+    `careers_url` del registro y cachea 24 h (`empresas_cache.json`).
+    Un tablero que responde vacío se marca `tablero_vacio`, **nunca**
+    "sin vacantes": suele ser slug equivocado.
+  - `hidden-jobs-web` cubre lo no parseable (mobile.career, YC, X,
+    `site:boards.*`) y da de alta empresas en `empresas_registry.json`.
 - `orquestador.py estado` expone historial + bandeja + vencidos (pendientes
   y seguimientos). `seguimientos` crea tareas automáticas D+3 (outreach y
   clientes) y D+7 (aplicaciones) desde el historial.
