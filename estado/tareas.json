@@ -178,6 +178,39 @@
       "creado": "2026-09-24T22:19:30+00:00",
       "vencimiento": "2026-10-01T22:19:30+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20261003102729-17",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "altimetrik::senior flutter developer remote",
+      "titulo": "Seguimiento: altimetrik::senior flutter developer remote",
+      "url": "",
+      "creado": "2026-10-03T14:27:29+00:00",
+      "vencimiento": "2026-10-10T14:27:29+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261003103949-18",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "rethink by framework::desenvolvedor a flutter sênior",
+      "titulo": "Seguimiento: rethink by framework::desenvolvedor a flutter sênior",
+      "url": "",
+      "creado": "2026-10-03T14:39:49+00:00",
+      "vencimiento": "2026-10-10T14:39:49+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261003105310-19",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "iterative::desenvolvedor mobile sênior",
+      "titulo": "Seguimiento: iterative::desenvolvedor mobile sênior",
+      "url": "",
+      "creado": "2026-10-03T14:53:10+00:00",
+      "vencimiento": "2026-10-10T14:53:10+00:00",
+      "estado": "pendiente"
     }
   ]
 }
