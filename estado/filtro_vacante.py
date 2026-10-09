@@ -44,12 +44,22 @@ RE_DESEJABLE = re.compile(
     re.I,
 )
 # Flutter cuenta como "de verdade" solo si aparece ANTES del primer marcador.
+# OJO: LinkedIn/Indeed muestran el tipo de jornada como una ETIQUETA suelta en
+# la tarjeta ("Presencial" / "Remoto" / "Hibrido"), no como frase. El regex solo
+# sabia leer la forma espanola "modalidade de X hibrido", asi que una vacante
+# marcada Presencial pasaba el filtro (caso ENGESOFTWARE Senior 2026-10-04:
+# on-site en Brasilia, salario en BRL). Ahora se reconocen la etiqueta
+# estructurada y la frase portuguesa. El guardia RE_REMOTO de F4 ya evita el
+# falso positivo habitual ("presencial ou remoto" / "hibrido ou remoto").
 RE_CONTRATO_LOCAL = re.compile(
     r"\b(CLT|EPS)\b|modalidade de (.+?)h[íi]brido|presencialidade|"
     r"\b(\d+)\s*[x/]\s*semana\s+presencial|trabalhar presencial|"
+    r"trabalho\s+presencial|"
+    r"(?:modalidade|modelo|tipo)\s*(?:de\s+trabalho|de\s+|do\s+)?\s*[:-]?\s*presencial\b|"
+    r"^\s*presencial\s*$|"
     r"on-?site in person|no remoto|must be (located|based) in|"
     r"base(?:d)? em la ciudad|tienes base en",
-    re.I,
+    re.I | re.M,
 )
 RE_REMOTO = re.compile(
     r"\b(100%\s*remot[eo]|remote[- ]first|fully remote|remoto\b|"
@@ -76,7 +86,7 @@ RE_NIVEL_BAJO = re.compile(r"\b(junior|trainee|becario|entry[- ]level)\b", re.I)
 # PT-BR: "concluido/concluida" es explícito, asi que no hace falta interpretar
 # "graduacao completa" (que en PT significa "carrera completa", no "terminada").
 RE_FORMACION_OBLIG = re.compile(
-    r"(forma[çc][ãa]o\s+superior\s+(completo|completa)|"
+    r"(forma(?:[çc][ãa]o|ci[óo]n)\s+superior\s+(completo|completa)|"
     r"licenciatura\s+(completa|em ci[êe]ncia)|"
     r"(four|4)[- ]year\s+degree|degree\s+(is\s+)?required|"
     r"graduaci[óo]n\s+(completa|obligatoria)|"
@@ -85,7 +95,34 @@ RE_FORMACION_OBLIG = re.compile(
     r"(?:ensino|forma[çc][ãa]o)\s+superior\s+[\w\s]{0,24}?conclu[íi]d[oa]|"
     r"superior\s+completo\s*\(\s*pleno\s*\)|"
     r"(?:bacharelado|licenciatura)\s+(?:em\s+[\w\s]{0,24}?)?conclu[íi]d[oa]|"
-    r"ensino\s+superior\s+(?:completo|completa))",
+    r"ensino\s+superior\s+(?:completo|completa)|"
+    # "Conclusao de nivel superior" = titulo TERMINADO, orden invertido respecto a
+    # "ensino superior concluido". Sin esto la vacante Flutter/Dart de
+    # ENGESOFTWARE (4474792135) daba PASS pidiendo nivel superior obligatorio.
+    r"conclus[ãa]o\s+de\s+n[íi]vel\s+superior|"
+    r"conclus[ãa]o\s+d[oa]s?\s+(?:curso|ensino|forma[çc][ãa]o)\s+superior)",
+    re.I,
+)
+
+# --- F12: app movil YA publicada (requisito que no puedes cumplir) ---------
+# El CV base tiene esto como regla de veracidad #5: "beta Android distribuida
+# via GitHub Releases, 5 releases v1.0.0 -> v1.0.2, Google Play en camino.
+# NUNCA afirmar 'publicado en Google Play' o 'en App Store'". Y el objetivo O-01
+# confirma que Rifame sigue sin publicar. Una vacante que pone esto bajo
+# "Requirements" es imposible de satisfacer sin mentir, asi que es bloqueante
+# aunque el stack sea perfecto (caso Jobgether Senior Flutter 2026-10-04).
+# Se ancla en la FENOLOGIA DE VERBO + SUSTANTIVO ("published apps"), no en la
+# palabra "publish" suelta, para no chocar con "prepare releases to the store".
+RE_APP_PUBLICADA = re.compile(
+    r"(?:published|released|launched|shipped)\s+(?:one\s+or\s+more|at\s+least\s+(?:one|\d+)|\d+)"
+    r"[\w\s]{0,30}?(?:apps?|applications?)\b|"
+    r"\bpublished\s+apps?\b|"
+    r"(?:apps?|applications?)\s+(?:already\s+)?published\s+(?:on|in|to|through)\b|"
+    r"(?:track\s+record|proven\s+track\s+record|history)\s+of\s+(?:having\s+)?"
+    r"(?:successfully\s+)?(?:publish(?:ed|ing)|shipp?(?:ed|ing)|launch(?:ed|ing)|releas(?:ed|ing))\b|"
+    r"(?:track\s+record|history|proven)\s+of\s+at\s+least\s+(?:one|\d+)\s+"
+    r"(?:live\s+|production\s+)?(?:apps?|applications?)\b|"
+    r"(?:google\s+play|app\s+store|play\s+store)\s+(?:published|publicad|public)",
     re.I,
 )
 
@@ -219,6 +256,17 @@ def evaluar(titulo, empresa, cuerpo):
             f"Señales de perfil web ({n_web} menciones de frameworks/"
             f"herramientas web) superan a Flutter ({n_flut}). "
             f"Flutter es secundario en esta vacante.",
+        )
+
+    # F12 — exige app movil ya publicada en tienda (imposible por veracidad)
+    m_pub = RE_APP_PUBLICADA.search(texto)
+    if m_pub:
+        reject(
+            "F12",
+            f"Exige app movil YA publicada en Google Play / App Store: "
+            f"'{m_pub.group(0).strip()[:60]}'. Tu CV base prohibe afirmar publicacion "
+            f"(regla de veracidad #5) y Rifame sigue sin publicar (O-01): "
+            f"no se puede cumplir sin mentir.",
         )
 
     # --- avisos (no descartan) --------------------------------------------

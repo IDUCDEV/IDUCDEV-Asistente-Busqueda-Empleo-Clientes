@@ -9,8 +9,9 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from tracker import (CATEGORIES, Historial, domain_key, normalize_company,
-                     normalize_title, vacancy_key)  # noqa: E402
+from tracker import (CATEGORIES, Historial, canon_vacancy_key, domain_key,
+                     normalize_company, normalize_title, normalize_vacancy_keys,
+                     vacancy_key)  # noqa: E402
 
 ISO = "%Y-%m-%dT%H:%M:%S%z"
 WEEK_AGO = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat(timespec="seconds")
@@ -34,6 +35,92 @@ class TestNormalize(unittest.TestCase):
     def test_domain_key(self):
         self.assertEqual(domain_key("https://www.sub.empresa.com/"), "empresa.com")
         self.assertEqual(domain_key(""), "")
+
+
+class TestCanonizacionClaves(unittest.TestCase):
+    """El dedup fallaba porque convivían dos convenciones de clave en las mismas
+    categorías (cruda `Zeely::Tech Lead Flutter` vs normalizada
+    `zeely::tech lead flutter`), así que la misma vacante se guardaba dos veces."""
+
+    def test_canon_desde_meta_gana_al_key_crudo(self):
+        # Ojo: normalize_company quita el sufijo, "Zeely Inc." → "zeely".
+        self.assertEqual(
+            canon_vacancy_key("zeely::Tech Lead Flutter",
+                              {"empresa": "Zeely Inc.", "titulo": "Tech Lead Flutter"}),
+            "zeely::tech lead flutter",
+        )
+
+    def test_canon_desde_la_propia_clave(self):
+        self.assertEqual(
+            canon_vacancy_key("Labhouse::Flutter Developer"),
+            "labhouse::flutter developer",
+        )
+
+    def test_canon_rechaza_claves_incompletas(self):
+        self.assertEqual(canon_vacancy_key("solo-titulo"), "")
+        self.assertEqual(canon_vacancy_key("::sin empresa"), "")
+        self.assertEqual(canon_vacancy_key(""), "")
+
+    def test_add_canoniza_la_clave_al_escribir(self):
+        tmp = tempfile.mkdtemp(prefix="hist-canon-")
+        h = Historial(path=os.path.join(tmp, "historial.json"))
+        h.add("vacantes_empresa", "Zeely::Tech Lead Flutter",
+              {"empresa": "Zeely Inc.", "titulo": "Tech Lead Flutter"})
+        claves = [i["key"] for i in h.data["vacantes_empresa"]]
+        self.assertEqual(claves, ["zeely::tech lead flutter"])
+
+    def test_add_es_idempotente_entre_convenciones(self):
+        tmp = tempfile.mkdtemp(prefix="hist-canon2-")
+        h = Historial(path=os.path.join(tmp, "historial.json"))
+        # La misma vacante escrita una vez cruda y otra normalizada.
+        nuevo1 = h.add("vacantes_empresa", "Zeely::Tech Lead Flutter",
+                       {"empresa": "Zeely Inc.", "titulo": "Tech Lead Flutter"})
+        nuevo2 = h.add("vacantes_empresa", "zeely::tech lead flutter")
+        self.assertTrue(nuevo1)
+        self.assertFalse(nuevo2, "la 2a forma debe deduplicar contra la 1a")
+        self.assertEqual(len(h.data["vacantes_empresa"]), 1)
+
+    def test_set_state_acepta_clave_cruda(self):
+        tmp = tempfile.mkdtemp(prefix="hist-canon3-")
+        h = Historial(path=os.path.join(tmp, "historial.json"))
+        h.add("vacantes_empresa", "zeely::tech lead flutter")
+        self.assertTrue(h.set_state("vacantes_empresa", "Zeely::Tech Lead Flutter", "applied"))
+
+    def test_normalize_fusiona_duplicados_y_conserva_mejor_estado(self):
+        data = {"vacantes_empresa": [
+            {"key": "zeely::Tech Lead Flutter", "estado": "nuevo",
+             "fecha_visto": "2026-10-02T10:00:00+00:00"},
+            {"key": "zeely::tech lead flutter", "estado": "applied",
+             "fecha_visto": "2026-10-04T10:00:00+00:00", "tablero": "ashby/zeely"},
+        ]}
+        resumen = normalize_vacancy_keys(data)
+        self.assertEqual(resumen["vacantes_empresa"]["antes"], 2)
+        self.assertEqual(resumen["vacantes_empresa"]["despues"], 1)
+        item = data["vacantes_empresa"][0]
+        self.assertEqual(item["key"], "zeely::tech lead flutter")
+        self.assertEqual(item["estado"], "applied", "gana el estado más avanzado")
+        self.assertEqual(item["fecha_visto"], "2026-10-02T10:00:00+00:00",
+                         "conserva la primera vez que se vio")
+        self.assertEqual(item["tablero"], "ashby/zeely",
+                         "rellena metadata que faltaba")
+
+    def test_normalize_dry_run_no_escribe(self):
+        data = {"vacantes_empresa": [{"key": "A::X"}, {"key": "a::x"}]}
+        resumen = normalize_vacancy_keys(data, dry_run=True)
+        self.assertEqual(resumen["vacantes_empresa"]["despues"], 1)
+        self.assertEqual(len(data["vacantes_empresa"]), 2, "no debe tocar el dict")
+
+    def test_normalize_respeta_fecha_actualizado(self):
+        data = {"vacantes": [
+            {"key": "e::p", "estado": "nuevo", "fecha_visto": "2026-10-01T00:00:00+00:00",
+             "fecha_actualizado": "2026-10-01T00:00:00+00:00"},
+            {"key": "E::P", "estado": "nuevo", "fecha_visto": "2026-10-05T00:00:00+00:00",
+             "fecha_actualizado": "2026-10-05T00:00:00+00:00"},
+        ]}
+        normalize_vacancy_keys(data)
+        item = data["vacantes"][0]
+        self.assertEqual(item["fecha_visto"], "2026-10-01T00:00:00+00:00")
+        self.assertEqual(item["fecha_actualizado"], "2026-10-05T00:00:00+00:00")
 
 
 class TestHistorial(unittest.TestCase):
@@ -80,15 +167,15 @@ class TestHistorial(unittest.TestCase):
         self.assertEqual(len(pen["vacantes"]), 1)
 
     def test_vencidos_detecta_items_sin_actualizar(self):
-        self.h.add("proyectos_workana", "slug-ejemplo")
-        self.h.set_state("proyectos_workana", "slug-ejemplo", "applied")
+        self.h.add("vacantes_empresa", "empresa::puesto ats")
+        self.h.set_state("vacantes_empresa", "empresa::puesto ats", "applied")
         # forzar fecha vieja
-        item = self.h.get("proyectos_workana", "slug-ejemplo")
+        item = self.h.get("vacantes_empresa", "empresa::puesto ats")
         item["fecha_actualizado"] = WEEK_AGO
         self.h.save()
         vencidos = self.h.vencidos(3)
         self.assertEqual(len(vencidos), 1)
-        self.assertEqual(vencidos[0]["categoria"], "proyectos_workana")
+        self.assertEqual(vencidos[0]["categoria"], "vacantes_empresa")
 
     def test_vencidos_ignora_items_recientes(self):
         self.h.add("vacantes", "a::x")

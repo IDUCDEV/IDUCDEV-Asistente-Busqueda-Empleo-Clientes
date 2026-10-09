@@ -48,6 +48,7 @@ Guarda el texto de la vacante en un archivo primero (el HTML de la página sirve
 | F6 | Una stack ajena (React Native, Kotlin, .NET, data eng, QA…) domina el cuerpo |
 | F10 | **Angular** declarado 2+ veces — no está en tu base (0 menciones) |
 | F11 | Señales de perfil web (TypeScript/NPM/Vue/Next.js) superan a Flutter en el cuerpo |
+| F12 | Exige app móvil **ya publicada** en Google Play / App Store — tu CV base prohíbe afirmarlo |
 | F7 | *(aviso, no descarta)* Inglés avanzado / B2+ — el usuario ha aplicado igual |
 | F8 | *(aviso)* Título Junior — quedaría por encima |
 | F9 | *(aviso)* Pide muchos más años de los que tienes |

@@ -9,7 +9,7 @@ Estados de un envío:
     pendiente → enviado | error
 
 Uso CLI:
-    python3 cola_envios.py add --key <clave> --nombre <n> --canal whatsapp|email|linkedin|workana \
+    python3 cola_envios.py add --key <clave> --nombre <n> --canal whatsapp|email|linkedin \
         --destino <tel|email|url> --mensaje-path <ruta.md> [--asunto "..."] \
         [--cuerpo "..."] [--cuerpo-file <ruta>]
     python3 cola_envios.py pendientes
@@ -30,13 +30,13 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import COLA_ENVIOS_PATH, ENVIO_MAX_DIA
 
-CANALES = ("whatsapp", "email", "linkedin", "workana")
+CANALES = ("whatsapp", "email", "linkedin")
 ESTADOS = ("pendiente", "enviado", "error")
 
 
@@ -202,7 +202,7 @@ def main(argv=None):
     p_add.add_argument("--key", required=True)
     p_add.add_argument("--nombre", required=True)
     p_add.add_argument("--canal", required=True, choices=CANALES)
-    p_add.add_argument("--destino", required=True, help="teléfono, email, URL de LinkedIn o de Workana")
+    p_add.add_argument("--destino", required=True, help="teléfono, email o URL de LinkedIn")
     p_add.add_argument("--mensaje-path", default="", help="ruta del .md generado")
     p_add.add_argument("--asunto", default="", help="asunto (solo email)")
     p_add.add_argument("--cuerpo", default=None)
@@ -238,12 +238,13 @@ def main(argv=None):
         return 0
     if args.cmd == "pendientes":
         pend = c.pendientes()
-        print(f"{len(pend)} pendiente(s) de {c.max_dia}/día — cupo restante: {c.cupo_restante()}")
+        print(f"{len(pend)} pendiente(s)")
+        print(f"  cupo restante hoy: {c.cupo_restante()}/{c.max_dia}")
         _print_table(pend)
         return 0
     if args.cmd == "enviados-hoy":
         n = len(c.enviados_hoy())
-        print(f"{n}/{c.max_dia} — cupo restante: {c.cupo_restante()}")
+        print(f"enviados hoy: {n}/{c.max_dia} — cupo restante: {c.cupo_restante()}")
         return 0
     if args.cmd == "marcar":
         e = c.marcar(args.id, args.estado, args.motivo)

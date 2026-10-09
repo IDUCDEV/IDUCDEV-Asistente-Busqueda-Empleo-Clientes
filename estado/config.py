@@ -97,31 +97,33 @@ COLA_ENVIOS_PATH = os.path.join(ESTADO_DIR, "cola_envios.json")
 # se regenera: el registro debe sobrevivir para no re-sondear las mismas empresas.
 EMPRESAS_REGISTRY_PATH = os.path.join(ESTADO_DIR, "empresas_registry.json")
 EMPRESAS_CACHE_PATH = os.path.join(ESTADO_DIR, "empresas_cache.json")
+# Semilla de candidatos a registrar (nombre + dominio). NO es el registro: es la
+# lista de trabajo que `verificar_registro.py` sondea y de la que solo sobrevive
+# lo que tiene un tablero que responde de verdad. Editable a mano.
+EMPRESAS_SEED_PATH = os.path.join(ESTADO_DIR, "empresas_seed.json")
 
 # Envío de mensajes a clientes (cola + rate limit)
 ENVIO_MAX_DIA = int(os.environ.get("ENVIO_MAX_DIA", "12"))
 ENVIO_PAUSA_WA_MIN = int(os.environ.get("ENVIO_PAUSA_WA_MIN", "15"))
 ENVIO_PAUSA_WA_MAX = int(os.environ.get("ENVIO_PAUSA_WA_MAX", "35"))
+
 EMAIL_USER = os.environ.get("EMAIL_USER", "")
 EMAIL_APP_PASSWORD = os.environ.get("EMAIL_APP_PASSWORD", "")
 
 OUTPUT_DIRS = {
     "vacantes": os.path.join(RESULTADOS_DIR, "vacantes"),
     "vacantes-web": os.path.join(RESULTADOS_DIR, "vacantes-web"),
-    "vacantes-workana": os.path.join(RESULTADOS_DIR, "vacantes-workana"),
     "vacantes-ocultas": os.path.join(RESULTADOS_DIR, "vacantes-ocultas"),
     "clientes-potenciales": os.path.join(RESULTADOS_DIR, "clientes-potenciales"),
     "empresas-target": os.path.join(RESULTADOS_DIR, "empresas-target"),
     "mensajes-outreach": os.path.join(RESULTADOS_DIR, "mensajes-outreach"),
     "mensajes-clientes": os.path.join(RESULTADOS_DIR, "mensajes-clientes"),
-    "propuestas-workana": os.path.join(RESULTADOS_DIR, "propuestas-workana"),
     "cv": os.path.join(RESULTADOS_DIR, "cv"),
     "informes": os.path.join(RESULTADOS_DIR, "informes"),
 }
 
 SKILL_SCRIPTS = {
     "job-search": os.path.join(SKILLS_DIR, "job-search", "job_search.py"),
-    "workana-search": os.path.join(SKILLS_DIR, "workana-search", "workana_search.py"),
     "empresas-search": os.path.join(SKILLS_DIR, "flutter-employers", "empresas_search.py"),
 }
 
@@ -131,14 +133,22 @@ SEGUIMIENTO_DIAS = {
     "clientes": 3,      # lead contactado → revisar respuesta en 3 días
     "vacantes": 7,      # aplicación enviada → revisar status en 7 días
     "vacantes_empresa": 7,  # vacante de tablero ATS → revisar status en 7 días
-    "proyectos_workana": 7,
 }
 
 # Sondeo de tableros de empresa (Fase 2). Pausas para no abusar de las APIs.
 EMPRESAS_PAUSA_S = float(os.environ.get("EMPRESAS_PAUSA_S", "0.6"))
 EMPRESAS_TIMEOUT_S = int(os.environ.get("EMPRESAS_TIMEOUT_S", "12"))
+# Timeout corto SOLO para leer la página de carreras: se prueban varias rutas
+# (/careers, /jobs, /vacantes…) y un dominio muerto se come el timeout entero en
+# cada una. Medido: nunez.com.ar tardaba 79 s en 6 URLs. 3 s basta para saber si
+# una página pública responde; con 6 s la corrida de la semilla iba a 50 min.
+EMPRESAS_CAREERS_TIMEOUT_S = int(os.environ.get("EMPRESAS_CAREERS_TIMEOUT_S", "3"))
 EMPRESAS_CACHE_HORAS = int(os.environ.get("EMPRESAS_CACHE_HORAS", "24"))
 EMPRESAS_FALLOS_MAX = 3
+# Hilos del verificador (registro de empresas). Solo páginas públicas de carreras
+# y endpoints JSON de solo lectura, así que 8 en paralelo es respetuoso (los
+# endpoints devuelven 404 rápido; lo lento son los timeouts, que sí paralelizan).
+EMPRESAS_WORKERS = int(os.environ.get("EMPRESAS_WORKERS", "8"))
 
 
 def ensure_dir(path):

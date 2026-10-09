@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """tracker.py — Base de datos central de deduplicación.
 
-Registra TODO lo ya visto (vacantes, empresas, clientes, proyectos de
-Workana, posts de LinkedIn y mensajes de outreach) en estado/historial.json.
+Registra TODO lo ya visto (vacantes, empresas, clientes, posts de LinkedIn y
+mensajes de outreach) en estado/historial.json.
 
 Su objetivo es que el asistente NUNCA vuelva a mostrarte:
   - una vacante ya listada
@@ -28,6 +28,7 @@ Uso standalone (CLI):
     python3 tracker.py vencidos [dias]       # seguimientos vencidos
     python3 tracker.py estados <cat>         # items con su estado
     python3 tracker.py buscar <cat> <texto>  # búsqueda en claves
+    python3 tracker.py normalizar [--dry-run]  # canoniza y deduplica claves de vacantes
     python3 tracker.py purge                 # limpia categorías vacías
 """
 
@@ -67,11 +68,14 @@ CATEGORIES = {
     "vacantes": "clave: empresa::titulo normalizados",
     "empresas": "clave: dominio o nombre normalizado",
     "clientes": "clave: dominio o nombre del negocio",
-    "proyectos_workana": "clave: slug del proyecto",
     "posts_linkedin": "clave: URL del post",
     "outreach": "clave: URL del perfil contactado",
     "vacantes_empresa": "clave: empresa::titulo normalizados (tableros ATS directos)",
 }
+
+# Categorías cuya clave SIEMPRE es `empresa::titulo`. Cualquier otra forma se
+# canoniza al escribir (ver Historial.add) para que el dedup sea unificado.
+VACANCY_CATEGORIES = ("vacantes", "vacantes_empresa")
 
 
 def now_iso():
@@ -100,6 +104,102 @@ def normalize_title(t):
 
 def vacancy_key(company, title):
     return normalize_company(company) + "::" + normalize_title(title)
+
+
+# ── Canonización de claves de vacantes ─────────────────────────────────
+# Antes convivían dos convenciones en las mismas categorías: la cruda
+# ("Zeely::Tech Lead Flutter") y la normalizada ("zeely::tech lead flutter").
+# El dedup comparaba strings, así que la misma vacante se guardaba dos veces y
+# volvía a listarse como "nueva" en cada ronda. Ahora toda clave pasa por
+# `_canon_vacancy_key` al escribir, y `normalize_vacancy_keys` limpia el
+# historial ya contaminado.
+
+_ESTADO_RANK = {
+    "nuevo": 0, "revisado": 1, "en_cola": 2,
+    "enviado": 3, "contactado": 3,
+    "en_proceso": 4,
+    "applied": 5, "aplicado": 5, "respuesta": 5,
+    "descartado": 6,
+}
+
+
+def canon_vacancy_key(key, meta=None):
+    """Lleva cualquier clave de vacante a la forma canónica `empresa::titulo`.
+
+    Prefiere `meta` (empresa/titulo) porque es la fuente real; si no está, parte
+    de la propia clave. Si no hay empresa reconocible devuelve "" para no crear
+    una clave degenerada tipo "::titulo" que fusionaría vacantes distintas.
+    """
+    if meta:
+        empresa = str(meta.get("empresa") or "").strip()
+        titulo = str(meta.get("titulo") or "").strip()
+        if empresa and titulo:
+            return vacancy_key(empresa, titulo)
+    key = str(key or "")
+    if "::" in key:
+        empresa, _, titulo = key.partition("::")
+        empresa, titulo = empresa.strip(), titulo.strip()
+        if empresa and titulo:
+            return vacancy_key(empresa, titulo)
+    return ""
+
+
+def _best_state(states):
+    """El estado más avanzado de los fusionados (descartado > aplicado > ... > nuevo)."""
+    valid = [s for s in states if s]
+    if not valid:
+        return "nuevo"
+    return max(valid, key=lambda s: _ESTADO_RANK.get(s, 0))
+
+
+def normalize_vacancy_keys(historial, dry_run=False):
+    """Canoniza y deduplica las categorías de vacantes de un historial en memoria.
+
+    Al fusionar dos registros de la misma vacante se conserva el estado más
+    avanzado, la `fecha_visto` más antigua (cuándo la viste por primera vez) y
+    la `fecha_actualizado` más reciente. Devuelve {categoría: {antes, despues,
+    fusionadas}}.
+    """
+    resumen = {}
+    for cat in VACANCY_CATEGORIES:
+        items = historial.get(cat)
+        if not isinstance(items, list) or not items:
+            continue
+        fused = {}
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            key = canon_vacancy_key(item.get("key"), item)
+            if not key:
+                continue
+            prev = fused.get(key)
+            if prev is None:
+                merged = dict(item)
+                merged["key"] = key
+                fused[key] = merged
+                continue
+            prev["estado"] = _best_state([prev.get("estado"), item.get("estado")])
+            vistos = [v for v in (prev.get("fecha_visto"), item.get("fecha_visto")) if v]
+            if vistos:
+                prev["fecha_visto"] = min(vistos)
+            acts = [v for v in (prev.get("fecha_actualizado"), item.get("fecha_actualizado")) if v]
+            if acts:
+                prev["fecha_actualizado"] = max(acts)
+            # Rellena metadata que el primer registro no tenía (p. ej. `tablero`).
+            for campo, valor in item.items():
+                if campo in ("key", "estado", "fecha_visto", "fecha_actualizado"):
+                    continue
+                if valor is not None and not prev.get(campo):
+                    prev[campo] = valor
+        limpio = sorted(fused.values(), key=lambda i: i.get("fecha_visto") or "")
+        resumen[cat] = {
+            "antes": len(items),
+            "despues": len(limpio),
+            "fusionadas": len(items) - len(limpio),
+        }
+        if not dry_run and limpio != items:
+            historial[cat] = limpio
+    return resumen
 
 
 def domain_key(domain):
@@ -153,10 +253,20 @@ class Historial:
         return items
 
     def get(self, category, key):
+        key = self._resolve_key(category, key)
         for item in self.data.get(category, []):
             if item.get("key") == key:
                 return item
         return None
+
+    def _resolve_key(self, category, key):
+        """Canoniza la clave si la categoría es de vacantes (ver canon_vacancy_key)."""
+        key = str(key or "")
+        if category in VACANCY_CATEGORIES:
+            canon = canon_vacancy_key(key)
+            if canon:
+                return canon
+        return key
 
     def is_known(self, category, key):
         return self.get(category, key) is not None
@@ -166,6 +276,13 @@ class Historial:
         key = str(key).strip()
         if not key:
             return False
+        if category in VACANCY_CATEGORIES:
+            # Toda clave de vacante pasa por la forma canónica. Si no se puede
+            # canonizar (sin empresa reconocible) se cae de vuelta a la clave tal
+            # cual: es preferible una clave fea a perder la vacante.
+            canon = canon_vacancy_key(key, meta)
+            if canon:
+                key = canon
         self.data.setdefault(category, [])
         for item in self.data[category]:
             if item.get("key") == key:
@@ -193,6 +310,7 @@ class Historial:
 
     def set_state(self, category, key, state):
         """Actualiza el estado de un item: nuevo|aplicado|descartado|contactado..."""
+        key = self._resolve_key(category, key)
         for item in self.data.get(category, []):
             if item.get("key") == key:
                 item["estado"] = state
@@ -275,6 +393,17 @@ def main():
         for it in h.data.get(cat, []):
             if sub in it["key"].lower():
                 print(f"  {it.get('estado', '-'):<12} {it['key']}")
+    elif cmd == "normalizar":
+        dry = "--dry-run" in sys.argv
+        resumen = normalize_vacancy_keys(h.data, dry_run=dry)
+        if not resumen:
+            print("No hay categorías de vacantes que normalizar.")
+        for cat, r in resumen.items():
+            etiqueta = "[dry-run] " if dry else ""
+            print(f"{etiqueta}{cat}: {r['antes']} → {r['despues']} items "
+                  f"({r['fusionadas']} duplicadas fusionadas)")
+        if not dry:
+            h.save()
     elif cmd == "purge":
         empty = [c for c, n in h.stats().items() if n == 0]
         for cat in list(h.data):
@@ -284,7 +413,8 @@ def main():
         print(f"Categorías vacías: {empty or 'ninguna'}. Historial limpio.")
     else:
         print(f"Comando desconocido: {cmd}")
-        print("Uso: stats | estado | vencidos [dias] | estados <cat> | buscar <cat> <substr> | purge")
+        print("Uso: stats | estado | vencidos [dias] | estados <cat> | buscar <cat> <substr>"
+              " | normalizar [--dry-run] | purge")
         sys.exit(1)
 
 

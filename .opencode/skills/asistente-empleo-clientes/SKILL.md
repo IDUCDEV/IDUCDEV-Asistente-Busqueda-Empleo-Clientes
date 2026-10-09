@@ -1,6 +1,6 @@
 ---
 name: asistente-empleo-clientes
-description: Orquestador central de búsqueda de empleo y clientes. Delegado único para TODO el proceso tedioso: buscar vacantes (job-search, workana-search, linkedin-hidden-jobs), descubrir empresas (flutter-employers), prospectar clientes (prospectar-clientes), generar outreach (linkedin-outreach) y preparar CVs (cv-apply). NUNCA repite nada: consulta y actualiza estado/historial.json. Genera un resumen diario en resultados/informes/.
+description: Orquestador central de búsqueda de empleo y clientes. Delegado único para TODO el proceso tedioso: buscar vacantes (job-search, flutter-employers, linkedin-hidden-jobs), prospectar clientes (prospectar-clientes), generar outreach (linkedin-outreach) y preparar CVs (cv-apply). NUNCA repite nada: consulta y actualiza estado/historial.json. Genera un resumen diario en resultados/informes/.
 ---
 
 # Asistente IDUCDEV — Empleo + Clientes
@@ -57,7 +57,7 @@ EOF
 | `vacantes` | `empresa_normalizada::titulo_normalizado` | empresa, titulo, url, fuente |
 | `empresas` | dominio o nombre normalizado | url, score |
 | `clientes` | dominio o nombre del negocio | rubro, score, web |
-| `proyectos_workana` | slug del proyecto | titulo, url, budget |
+| `vacantes_empresa` | `empresa_normalizada::titulo_normalizado` | empresa, titulo, url, tablero, score |
 | `posts_linkedin` | URL del post | autor, snippet |
 | `outreach` | URL del perfil | nombre, empresa |
 
@@ -69,10 +69,14 @@ EOF
 Ejecuta el pipeline completo en este orden, SIN repetir nada:
 
 1. `job-search` → vacantes (`python3 .opencode/skills/job-search/job_search.py`)
-2. `workana-search` → proyectos freelance (`python3 .opencode/skills/workana-search/workana_search.py`)
+2. `flutter-employers` → tableros ATS de empresas (`python3 .opencode/skills/flutter-employers/empresas_search.py`)
 3. `linkedin-hidden-jobs` → mercado oculto de LinkedIn (navegador)
 4. `prospectar-clientes` → leads de negocio VE
-5. `flutter-employers` → empresas target (descubrimiento semanal)
+
+> Cuando el registro de empresas se quede corto (`python3 estado/verificar_registro.py --stats`),
+> amplíalo con `python3 estado/verificar_registro.py`: da de alta **solo** empresas cuyo
+> tablero responde de verdad, así que nunca mete ruido. Va aparte del pipeline: es
+> mantenimiento del registro, no una fase de la ronda.
 
 **Si es una ronda sin navegador**, ejecuta:
 ```bash
@@ -168,7 +172,7 @@ falta, añade) las claves en `historial.json`:
 - outreach generado → categoría `outreach`
 - cliente contactado → categoría `clientes` (estado `contactado`)
 
-Los scripts de `job-search` y `workana-search` ya deduplican solos
+Los scripts de `job-search` y `empresas-search` ya deduplican solos
 contra el historial; verifica su salida `---SKIPPED---`.
 Cliente encolado → estado `en_proceso`; solo `contactado` (y su D+3)
 tras el envío efectivo de `enviar-clientes`.

@@ -27,7 +27,7 @@ flowchart LR
     end
 
     subgraph RESULTADOS["📤 resultados/ (se regeneran)"]
-        VACANTES["vacantes/ · vacantes-workana/ · vacantes-ocultas/"]
+        VACANTES["vacantes/ · vacantes-web/ · vacantes-ocultas/"]
         CLIENTES["clientes-potenciales/ · empresas-target/ · leads-db.json"]
         MSG["mensajes-outreach/ · mensajes-clientes/"]
         CV["cv/ (CV + carta + PDF)"]
@@ -51,7 +51,7 @@ flowchart TD
     INICIO([¡Haz la ronda de hoy!]) --> PASO1
 
     PASO1["1️⃣ job-search<br/>vacantes Flutter/remoto LATAM<br/><i>scripts · sin navegador</i>"]
-    PASO2["2️⃣ workana-search<br/>proyectos freelance<br/><i>scripts · sin navegador</i>"]
+    PASO2["2️⃣ flutter-employers<br/>tableros ATS (Greenhouse/Ashby/Lever/Workday)<br/><i>scripts · sin navegador</i>"]
 
     PASO1 & PASO2 --> ORQ["estado/orquestador.py ronda --empleos<br/>(lanza 1 y 2 + anota rondas.json)"]
 
@@ -62,11 +62,11 @@ flowchart TD
 
     NAV --> H3["3️⃣ linkedin-hidden-jobs<br/>mercado oculto de LinkedIn"]
     NAV --> H4["4️⃣ prospectar-clientes<br/>leads de negocios VE"]
-    NAV --> H5["5️⃣ flutter-employers<br/>empresas target <i>(semanal)</i>"]
+    NAV --> H5["5️⃣ hidden-jobs-web<br/>mobile.career · YC · site:boards.* <i>(semanal)</i>"]
 
     H3 --> REG3["registrar linkedin-hidden-jobs<br/>--nuevas N"]
     H4 --> REG4["registrar prospectar-clientes<br/>--nuevas N"]
-    H5 --> REG5["registrar flutter-employers<br/>--nuevas N"]
+    H5 --> REG5["registrar hidden-jobs<br/>--nuevas N"]
 
     ORACULO["⚠️ sin navegador: solo fases 1-2"]
 
@@ -190,6 +190,24 @@ sequenceDiagram
     O-->>A: lista de seguimientos con vencimiento
     A-->>U: "⚠️ vence hoy: seguimiento de Clínica CCCT"
 ```
+
+## 6. Ampliar el registro de empresas (fuera de la ronda)
+
+```mermaid
+flowchart TD
+    SEMILLA["estado/empresas_seed.json<br/>candidatos: nombre + dominio"] --> VERIF["estado/verificar_registro.py<br/>5 hilos, un Prober por hilo"]
+    VERIF --> CAREERS["resolve_board<br/>lee /careers · /jobs · /vacantes…<br/>timeout corto (6 s)"]
+    CAREERS -->|encuentra el enlace al tablero| DESC["deduce ats + slug<br/>greenhouse · ashby · lever · workday"]
+    CAREERS -->|no lo encuentra| NO["✗ no se registra"]
+    DESC --> API{"¿El tablero devuelve<br/>≥1 vacante real?"}
+    API -->|no| NO
+    API -->|sí| REG["estado/empresas_registry.json<br/>+ ats + slug (camino corto la próxima vez)"]
+    REG --> RONDA["empresas_search.py<br/>ya no tiene que adivinar nada"]
+```
+
+> El alta es **empírica**: no se inventan empresas ni slugs, se preguntan los
+> tableros. Un tablero que responde vacío suele ser slug equivocado, así que
+> tampoco se registra.
 
 ---
 

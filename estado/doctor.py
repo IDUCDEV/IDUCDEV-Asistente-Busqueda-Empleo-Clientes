@@ -17,9 +17,10 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import (ESTADO_DIR, HISTORIAL_PATH, OUTPUT_DIRS, PROJECT_DIR,  # noqa: E402
-                    RONDAS_PATH, SKILL_SCRIPTS, TAREAS_PATH)
-from tracker import CATEGORIES  # noqa: E402
+from config import (EMPRESAS_SEED_PATH, ESTADO_DIR, HISTORIAL_PATH,  # noqa: E402
+                    OUTPUT_DIRS, PROJECT_DIR, RONDAS_PATH, SKILL_SCRIPTS,
+                    TAREAS_PATH)
+from tracker import CATEGORIES, VACANCY_CATEGORIES, canon_vacancy_key  # noqa: E402
 
 PROBLEMAS = []
 
@@ -81,19 +82,39 @@ def main():
                 continue
             keys = [i.get("key") for i in items if isinstance(i, dict)]
             dups = len(keys) - len(set(keys))
-            upper = [k for k in keys if k and k.lower() != k]
+            # Solo tiene sentido normalizar mayúsculas en claves de texto. Las
+            # de `posts_linkedin` son URLs, donde distinguir mayúsculas ES el
+            # objetivo: marcarlas como "no normalizadas" era un falso positivo.
+            upper = [k for k in keys
+                     if k and not str(k).startswith("http") and k.lower() != k]
             if dups:
                 prob(f"{cat}: {dups} claves duplicadas")
             if upper:
                 prob(f"{cat}: {len(upper)} claves no normalizadas (mayúsculas)")
     print()
 
-    print("== scripts de las skills ==")
-    for nombre, script in SKILL_SCRIPTS.items():
-        if os.path.exists(script):
-            ok(f"{nombre}: {script}")
+    print("== canonización de claves de vacante ==")
+    if historial is not None:
+        # Una clave de vacante sin pasar por canon_vacancy_key rompe el dedup:
+        # la misma vacante puede entrar dos veces si una ronda la escribe como
+        # "Empresa::Puesto" y otra como "empresa::puesto". Se comprueba el
+        # fichero en seco, sin escribir nada (`tracker normalizar --dry-run`).
+        sucias = []
+        for cat in VACANCY_CATEGORIES:
+            for item in historial.get(cat, []):
+                if not isinstance(item, dict):
+                    continue
+                key = item.get("key", "")
+                canon = canon_vacancy_key(key, item)
+                if canon and canon != key:
+                    sucias.append((cat, key))
+        if sucias:
+            prob(f"{len(sucias)} clave(s) de vacante sin canonizar; "
+                 f"ejecuta: python3 estado/tracker.py normalizar")
+            for cat, key in sucias[:3]:
+                print(f"         {cat}: {key[:60]}")
         else:
-            prob(f"{nombre}: falta {script}")
+            ok(f"claves de vacante canónicas ({'/'.join(VACANCY_CATEGORIES)})")
     print()
 
     print("== rutas absolutas hardcodeadas (estado/ y skills) ==")
@@ -123,10 +144,36 @@ def main():
         ok(f"{len(revisados)} scripts revisados, sin rutas absolutas")
     print()
 
+    print("== scripts de las skills ==")
+    for nombre, script in SKILL_SCRIPTS.items():
+        if os.path.exists(script):
+            ok(f"{nombre}: {script}")
+        else:
+            prob(f"{nombre}: falta {script}")
+    verificador = os.path.join(ESTADO_DIR, "verificar_registro.py")
+    (ok if os.path.exists(verificador) else prob)(
+        f"verificar_registro: {verificador}" if os.path.exists(verificador)
+        else f"verificar_registro: falta {verificador}")
+    print()
+
+    print("== semilla de empresas ==")
+    if os.path.exists(EMPRESAS_SEED_PATH):
+        seed = check_json(EMPRESAS_SEED_PATH, None)
+        if seed is not None:
+            cands = seed.get("candidates", [])
+            sin_dominio = [c for c in cands if not c.get("domain")]
+            ok(f"empresas_seed.json: {len(cands)} candidatos")
+            if sin_dominio:
+                prob(f"{len(sin_dominio)} candidato(s) sin 'domain': sin dominio no "
+                     f"hay forma de resolver el tablero (usa 'careers_url')")
+    else:
+        prob(f"falta {EMPRESAS_SEED_PATH} (verificar_registro.py no tendrá lista)")
+    print()
+
     print("== skills (proyecto) ==")
     skills_dir = os.path.join(PROJECT_DIR, ".opencode", "skills")
     skills = sorted(os.listdir(skills_dir)) if os.path.isdir(skills_dir) else []
-    for s in ("asistente-empleo-clientes", "job-search", "workana-search",
+    for s in ("asistente-empleo-clientes", "job-search",
               "linkedin-hidden-jobs", "cv-apply", "linkedin-outreach",
               "flutter-employers", "prospectar-clientes"):
         if s in skills:

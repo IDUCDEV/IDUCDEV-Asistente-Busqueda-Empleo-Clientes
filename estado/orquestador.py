@@ -10,7 +10,7 @@ Centraliza el cerebro del asistente:
 Comandos:
 
   python3 orquestador.py ronda [--empleos|--clientes]
-        Ejecuta la ronda: lanza job_search.py y workana_search.py,
+        Ejecuta la ronda: lanza job_search.py y empresas_search.py,
         registra las fases en rondas.json y regenera el informe del día.
         (Las fases de navegador —linkedin-hidden-jobs, prospectar-clientes,
         flutter-employers— las ejecuta la IA y se registran aparte.)
@@ -24,7 +24,7 @@ Comandos:
   python3 orquestador.py marcar <categoria> <key> <estado>
         Cambia el estado de un item en historial.json. Si el nuevo estado es
         aplicado, enviado o contactado, crea automáticamente la tarea de
-        seguimiento (outreach D+3 / vacantes,workana D+7).
+        seguimiento (outreach/clientes D+3 / vacantes D+7).
 
   python3 orquestador.py tareas
         Lista las tareas pendientes (bandeja de entrada).
@@ -369,8 +369,8 @@ def crear_seguimientos(auto=True):
                         f"Revisar respuesta del cliente: {it['key']}",
                         url=it.get("url", ""), dias=1)
             creados += 1
-    # Vacantes/workana: aplicados hace >= 7 días sin respuesta
-    for cat in ("vacantes", "proyectos_workana"):
+    # Vacantes: aplicadas hace >= 7 días sin respuesta
+    for cat in ("vacantes", "vacantes_empresa"):
         for it in h.by_state(cat, ("applied", "enviado")):
             ts = it.get("fecha_actualizado") or it.get("fecha_visto") or ""
             try:

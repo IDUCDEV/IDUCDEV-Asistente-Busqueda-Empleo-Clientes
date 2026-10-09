@@ -32,7 +32,7 @@ Frases que entiende:
 
 | Di esto | Qué hace por ti |
 |---------|-----------------|
-| **"Haz la ronda de hoy"** | Busca vacantes nuevas (7 fuentes) + proyectos Workana + posts ocultos de LinkedIn + leads de clientes + empresas target. **Omite lo ya visto** y te deja un resumen. |
+| **"Haz la ronda de hoy"** | Busca vacantes nuevas (12 fuentes) + tableros ATS de empresas + posts ocultos de LinkedIn + leads de clientes. **Omite lo ya visto** y te deja un resumen. |
 | **"Solo empleos"** | Solo la parte de búsqueda de trabajo. |
 | **"Solo clientes"** | Solo descubrir potenciales clientes. |
 | **"¿Qué hay nuevo?"** | Te dice lo pendiente de revisar y las tareas sin volver a buscar. |
@@ -98,7 +98,7 @@ Todo lo que las skills producen cae en una carpeta por skill:
 | Skill / Acción | Resultado |
 |----------------|-----------|
 | Buscador de vacantes (`job-search`) | `resultados/vacantes/{fecha}.md` |
-| Freelance (Workana) | `resultados/vacantes-workana/{fecha}.md` |
+| Empresas ATS (Flutter) | `resultados/empresas-target/{fecha}-empresas-vacantes.md` |
 | Mercado oculto de LinkedIn | `resultados/vacantes-ocultas/{fecha}-hidden.md` |
 | CVs optimizados (`cv-apply`) | `resultados/cv/{cv-base}-{rol}-{empresa}.md` + carta + PDF |
 | Mensajes de contacto (empleo) | `resultados/mensajes-outreach/{nombre}-{fecha}.md` |
@@ -152,7 +152,7 @@ diario.
 │   ├── cv/                       # Base + CVs canónicos + PDFs
 │   └── guias/                    # Reglas ATS, guía LinkedIn
 ├── resultados/                   # RESULTADOS por skill (se regeneran)
-│   ├── vacantes/  vacantes-workana/  vacantes-ocultas/
+│   ├── vacantes/  vacantes-web/  vacantes-ocultas/  empresas-target/
 │   ├── clientes-potenciales/  empresas-target/
 │   ├── mensajes-outreach/  mensajes-clientes/  cv/  informes/
 ├── .opencode/
@@ -176,7 +176,19 @@ python3 estado/orquestador.py informe         # regenera el resumen del día
 python3 estado/cola_envios.py pendientes      # mensajes a clientes en cola
 python3 estado/cola_envios.py enviados-hoy    # cupo usado del día
 python3 estado/orquestador.py reset --yes     # ¡CUIDADO! vacía historial/tareas/rondas (reempezar)
+
+# Ampliar el registro de empresas SOLO con tableros verificados:
+python3 estado/verificar_registro.py --stats        # cuántas empresas hay y cuántas faltan
+python3 estado/verificar_registro.py --dry-run      # prueba la semilla, no escribe nada
+python3 estado/verificar_registro.py                # da de alta lo que responde
+python3 estado/tracker.py normalizar --dry-run      # audita claves de vacantes
+python3 estado/doctor.py                            # diagnóstico del proyecto
 ```
+
+> `verificar_registro.py` no inventa empresas: parte de `estado/empresas_seed.json`
+> y **pregunta a cada tablero**. Solo entra en el registro la empresa que devuelve
+> al menos una vacante real, con su `ats`+`slug` ya resueltos para las próximas
+> rondas.
 
 > `reset` borra la deduplicación central (historial), la bandeja de entrada
 > (tareas) y la bitácora (rondas): todo lo ya visto volverá a aparecer.

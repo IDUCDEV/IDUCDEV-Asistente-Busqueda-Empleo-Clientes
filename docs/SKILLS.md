@@ -12,12 +12,12 @@ Las skills viven **dentro del proyecto** en `.opencode/skills/` (no en
 | # | Skill | Propósito | Tipo | Invocación |
 |---|-------|-----------|------|------------|
 | 0 | **asistente-empleo-clientes** | Orquestador central. Punto único de entrada para buscar empleo + clientes, con dedup central | AI guiada | Cargar la skill → delegar cualquier petición |
-| 1 | **job-search** | Busca vacantes Flutter/Dart en 7 fuentes (LinkedIn, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo) | Script Python | `python3 .opencode/skills/job-search/job_search.py` |
-| 2 | **workana-search** | Busca proyectos freelance en Workana (Mobile Development), marca Flutter/Dart ✅ | Script Python | `python3 .opencode/skills/workana-search/workana_search.py` |
+| 1 | **job-search** | Busca vacantes Flutter/Dart en 12 fuentes (LinkedIn ×2, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto, Wellfound, elempleo.co) | Script Python | `python3 .opencode/skills/job-search/job_search.py` |
+| 2 | **flutter-employers** | Sondea los tableros ATS (Greenhouse/Ashby/Lever/Workday) de empresas registradas y extrae los roles Flutter/Dart | Script Python | `python3 .opencode/skills/flutter-employers/empresas_search.py` |
 | 3 | **linkedin-hidden-jobs** | "Hidden job market": posts de LinkedIn con vacantes, no avisos oficiales | AI guiada + navegador | Cargar la skill → ejecuta el workflow |
 | 4 | **cv-apply** | CV optimizado ATS + carta + PDF a partir de una descripción de vacante | AI guiada | Cargar la skill → pegar descripción |
 | 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
-| 6 | **flutter-employers** | Descubre empresas target (startups + establecidas) en LATAM y globales remote-first que usan Flutter | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
+| 6 | **hidden-jobs-web** | Cubre lo no parseable por script: mobile.career, YC, X, `site:boards.*`. Da de alta empresas en `estado/empresas_registry.json` | AI guiada + navegador | Cargar la skill → ejecuta el workflow |
 | 7 | **prospectar-clientes** | Genera leads de negocios venezolanos que necesiten web o apps | AI guiada (pipeline 4 fases) | Cargar la skill → ejecuta el pipeline |
 | 8 | **contactar-clientes** | Genera y ENCOLA el mensaje de venta para un lead (WhatsApp/email/LinkedIn) | AI guiada | Cargar la skill → "contacta a {nombre}" |
 | 9 | **enviar-clientes** | Envía los mensajes encolados UNO POR UNO: muestra cada mensaje, valida (ok/modificar/saltar/parar), envía (email auto, WhatsApp Web, LinkedIn semi), respeta límite diario | AI guiada + navegador | "envía los pendientes" / `/enviar` |
@@ -45,10 +45,10 @@ python3 estado/orquestador.py reset --yes   # reempezar: vacía historial/tareas
 
 ```
 1. job-search            → resultados/vacantes/               (script)
-2. workana-search        → resultados/vacantes-workana/       (script)
+2. flutter-employers     → resultados/empresas-target/        (script)
 3. linkedin-hidden-jobs  → resultados/vacantes-ocultas/       (navegador)
 4. prospectar-clientes   → resultados/clientes-potenciales/   (navegador)
-5. flutter-employers     → resultados/empresas-target/        (navegador)
+5. hidden-jobs-web       → resultados/vacantes-web/          (navegador)
    ─────────────────────────────────────────────────────
    consolidar            → resultados/informes/{fecha}-resumen.md
 ```
@@ -72,7 +72,7 @@ estado/cola_envios.json ← cola de envíos a clientes (contactar → enviar)
 | `vacantes` | `empresa_normalizada::titulo_normalizado` |
 | `empresas` | dominio o nombre normalizado |
 | `clientes` | dominio o nombre del negocio |
-| `proyectos_workana` | slug del proyecto |
+| `vacantes_empresa` | `empresa_normalizada::titulo_normalizado` (tableros ATS) |
 | `posts_linkedin` | URL del post |
 | `outreach` | URL del perfil |
 
@@ -81,9 +81,13 @@ Ver estado:
 python3 estado/orquestador.py estado
 ```
 
-`job_search.py` y `workana_search.py` ya deduplican solos contra el
+`job_search.py` y `empresas_search.py` ya deduplican solos contra el
 historial e imprimen `---SKIPPED---` (cantidad omitida). Las skills
 guiadas por IA deben consultar/actualizar el historial al iniciar/terminar.
+
+> Toda clave de vacante se canoniza a `empresa::titulo` normalizado al
+> escribirse (`tracker.canon_vacancy_key`). Si alguna vez ves duplicados de una
+> misma vacante, corrige con `python3 estado/tracker.py normalizar`.
 
 ---
 
@@ -93,23 +97,38 @@ guiadas por IA deben consultar/actualizar el historial al iniciar/terminar.
 python3 .opencode/skills/job-search/job_search.py
 ```
 
-- 7 fuentes con paginación (LinkedIn, GetOnBoard, Himalayas, RemoteJobs,
-  Career Nest, Jobicy, Computrabajo).
+- 12 fuentes con paginación (LinkedIn ≤24h y ≤7d, GetOnBoard, Himalayas,
+  RemoteJobs, Career Nest, Jobicy, Computrabajo ×7 países, Remotico,
+  Workremoto, Wellfound, elempleo.co).
 - Filtra Flutter/Dart, remoto, LATAM (LinkedIn ≤24h).
 - Normaliza salarios a USD/mes.
 - Dedup entre sesiones contra `estado/historial.json`.
 - Output: `resultados/vacantes/{YYYY-MM-DD}.md`
 
-## 2. workana-search — Proyectos freelance
+## 2. flutter-employers — Tableros ATS de empresas
 
 ```bash
-python3 .opencode/skills/workana-search/workana_search.py
+python3 .opencode/skills/flutter-employers/empresas_search.py --limit 60
+python3 .opencode/skills/flutter-employers/empresas_search.py --stats
+
+python3 estado/verificar_registro.py --stats     # qué falta en el registro
+python3 estado/verificar_registro.py --dry-run   # prueba la semilla, no escribe
+python3 estado/verificar_registro.py             # registra lo verificado
 ```
 
-- Scrapea Workana (IT & Programming > Mobile Development, hasta 20 págs).
-- Marca con ✅ proyectos Flutter/Dart.
-- Dedup entre sesiones (por slug) contra `estado/historial.json`.
-- Output: `resultados/vacantes-workana/{YYYY-MM-DD}.md`
+- Sondea los tableros Greenhouse/Ashby/Lever/**Workday** de las empresas del registro.
+- Resuelve `ats`+`slug` leyendo la página de carreras de la empresa (el paso que
+  sí acierta en LATAM). Los slugs a ciegas están desactivados por defecto: miden
+  ~0 % y costaban ~10 peticiones por empresa.
+- Filtra **aplicabilidad**: descarta lo presencial en país no LATAM sin señal de
+  remoto. `--min-score N` descarta por puntuación.
+- Cachea 24 h por empresa en `estado/empresas_cache.json`.
+- Puntúa 0-100 (Flutter en título, remoto, LATAM-friendly, seniority).
+- Dedup entre sesiones contra `estado/historial.json` (categoría `vacantes_empresa`).
+- `verificar_registro.py` **agranda el registro solo con tableros verificados**:
+  parte de `estado/empresas_seed.json` y da de alta únicamente las empresas cuyo
+  tablero devuelve ≥1 vacante real. Corre en paralelo y es idempotente.
+- Output: `resultados/empresas-target/{YYYY-MM-DD}-empresas-vacantes.md`
 
 ## 3. linkedin-hidden-jobs — Mercado laboral oculto
 
@@ -199,53 +218,35 @@ python3 .opencode/skills/workana-search/workana_search.py
 
 ---
 
-## 10. aplicar-workana — Propuestas de postulación en Workana (GENERA + ENCOLA)
+## 10. Postulación a tableros ATS (con `cv-apply`)
 
-- Entrada: listado `resultados/vacantes-workana/{YYYY-MM-DD}.md` + backlog del
-  historial `proyectos_workana`.
-- Filtro: solo `is_flutter: true`, estado `nuevo`, sin keywords no-elegibles
-  (chatbot/automatización/low-code/filemaker/unity/IoT) y presupuesto
-  reseñable (≥ USD 500 o por hora decente).
-- Por proyecto genera una **propuesta freelancer** (entendimiento → solución
-  en Flutter → prueba social → plazo/presupuesto → CTA llamada → firma).
-- Guarda `.md` y **encola** (canal `workana`, destino = URL del proyecto):
+No hay skill propia: las vacantes de `vacantes_empresa` se aplican **una a una**
+con `cv-apply` y la postulación se hace en el navegador del usuario.
+
+- Los tableros Greenhouse/Ashby/Lever/Workday usan **reCAPTCHA invisible** (v3,
+  sin casilla) y renderizan el formulario por JavaScript: **no es automatizable
+  por HTTP**. El usuario abre la URL de la vacante y postea.
+- A diferencia de un marketplace con anti-bot, **no hay desafío visible ni cupo
+  semanal**: se puede postular a todas las vacantes del listado el mismo día.
+- Tras la postulación efectiva:
   ```bash
-  python3 estado/cola_envios.py add --key <key> --nombre <título> --canal workana \
-    --destino <url-proyecto> --mensaje-path <ruta.md>
+  python3 estado/orquestador.py marcar vacantes_empresa "<empresa>::<titulo>" applied
   ```
-- Proyecto queda `en_proceso`; el **applied real (y su D+7) ocurre al
-  enviar**, no al generar.
-- Output: `resultados/propuestas-workana/{key}-{YYYY-MM-DD}.md` + cola.
-
-## 11. enviar-workana — Envío de propuestas UNO POR UNO (Workana)
-
-- FASE 0: autorización de navegador + sesión `workana.com` (loguea el usuario
-  la primera vez; no automatizar login).
-- FASE 1: `cola_envios.py pendientes` (canal `workana`) + `enviados-hoy`
-  (cupo compartido con clientes).
-- FASE 2: tabla + confirmación de ronda + autorización de navegador.
-- FASE 3 (loop, mientras quede cupo): por cada propuesta, en orden:
-  `ver <id>` → preguntar **OK / modificar / saltar / parar**:
-  - OK → abrir URL del proyecto → ubicar formulario de postulación → pegar
-    título + propuesta → **el usuario pulsa enviar** (semi).
-  - modificar → editar `.md` + `editar <id> --cuerpo-file` → reconfirmar.
-  - saltar → queda pendiente (sin marcar nada).
-  - parar → cierre de ronda.
-- FASE 4: postulación efectiva → cola `enviado` + `orquestador.py marcar
-  proyectos_workana <key> applied` (crea seguimiento D+7).
-- FASE 5: `registrar enviar-workana` + `informe`.
-- Límite: mismo `ENVIO_MAX_DIA` (default 12). No hay modo lote.
+  Eso crea el seguimiento D+7 (`SEGUIMIENTO_DIAS["vacantes_empresa"]`).
+- ⚠️ Nunca automatizar ni esquivar una protección anti-bot. Si un portal
+  responde 403 + desafío (Cloudflare/Turnstile), la ronda se detiene y lo
+  resuelve el usuario. El scraping de páginas **públicas** sí es legítimo.
 
 ---
 
 ## Flujo recomendado
 
 ```
-Diario:  "Haz la ronda de hoy" → orquestador: empleos + clientes + workana
-Semanal: flutter-employers + prospectar-clientes (descubrir más)
-A demanda: cv-apply (aplicar) · linkedin-outreach (contactar empleo) ·
-           contactar-clientes (generar) → enviar-clientes (enviar leads) ·
-           aplicar-workana (generar) → enviar-workana (postular workana)
+Diario:  "Haz la ronda de hoy" → orquestador: empleos (job-search + flutter-employers) + clientes
+Semanal: hidden-jobs-web (mobile.career, YC, site:boards.*) + prospectar-clientes
+A demanda: cv-apply (aplicar a una vacante de empresa o portal) ·
+           linkedin-outreach (contactar empleo) ·
+           contactar-clientes (generar) → enviar-clientes (enviar leads)
 ```
 
 Siempre delegar vía el orquestador (`asistente-empleo-clientes`) para

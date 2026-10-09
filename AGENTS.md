@@ -33,13 +33,11 @@ recursos/             # CENTRO DE RECURSOS (entrada, lo mantiene el humano)
 resultados/           # SALIDAS de las skills (se regeneran, ignoradas por git)
   vacantes/           #   ← job-search
   vacantes-web/       #   ← hidden-jobs-web (mobile.career, YC, X, site:boards.*)
-  vacantes-workana/   #   ← workana-search
   vacantes-ocultas/   #   ← linkedin-hidden-jobs
   clientes-potenciales/#  ← prospectar-clientes
   empresas-target/    #   ← flutter-employers
   mensajes-outreach/  #   ← linkedin-outreach (empleo)
   mensajes-clientes/  #   ← contactar-clientes (genera) → enviar-clientes (envía)
-  propuestas-workana/ #   ← aplicar-workana (genera) → enviar-workana (postula)
   cv/                 #   ← cv-apply (CV + carta + PDF)
   informes/           #   ← orquestador (resumen diario)
 estado/
@@ -64,18 +62,28 @@ informes/  (ya no — ahora resultados/informes/)
 ## El cerebro (estado/)
 
 - `orquestador.py ronda [--empleos|--clientes]` → corre `job_search.py` y
-  `workana_search.py`, anota las fases en `rondas.json` y regenera el
+  `empresas_search.py`, anota las fases en `rondas.json` y regenera el
   informe diario en `resultados/informes/`. Las fases de navegador
   (hidden-jobs, prospectar, empresas) se registran con
   `orquestador.py registrar <fase> <archivo> --nuevas N`.
 - **Búsqueda de empleo en 2 carriles:**
   - `job_search.py` (sin navegador, 12 fuentes agregadoras) →
     `resultados/vacantes/`. `--dry-run` no escribe nada.
-  - `empresas_search.py` (tableros directos Greenhouse/Ashby/Lever) →
-    `resultados/empresas-target/`. Resuelve `ats`+`slug` desde la
-    `careers_url` del registro y cachea 24 h (`empresas_cache.json`).
-    Un tablero que responde vacío se marca `tablero_vacio`, **nunca**
-    "sin vacantes": suele ser slug equivocado.
+  - `empresas_search.py` (tableros directos Greenhouse/Ashby/Lever/Workday) →
+    `resultados/empresas-target/`. Resuelve `ats`+`slug` leyendo la página de
+    carreras del registro y cachea 24 h (`empresas_cache.json`). Un tablero que
+    responde vacío se marca `tablero_vacio`, **nunca** "sin vacantes": suele ser
+    slug equivocado. Workday **sí** tiene API pública (endpoint CXS, `POST`):
+    el `<site>` del path va **sin locale** y el `<tenant>` no es el subdominio
+    `wd<N>`. Los slugs a ciegas están **desactivados por defecto** (`--slugs-ciegos`
+    los activa): miden ~0 % en LATAM y costaban ~10 peticiones por empresa.
+  - `verificar_registro.py` **agranda el registro de forma verificada**: parte de
+    `empresas_seed.json` y da de alta solo las empresas cuyo tablero devuelve
+    ≥1 vacante real (nunca empresas inventadas con slugs supuestos). Corre en
+    paralelo (`EMPRESAS_WORKERS`), es idempotente y además **repara** entradas
+    con tablero sin resolver o placeholders antiguos. `--stats` dice qué falta.
+    Un tablero vacío solo se descarta si el slug se adivinó (`Prober.resolution`):
+    si lo dedujo la página de la empresa, 0 vacantes es "no hay vacantes".
   - `hidden-jobs-web` cubre lo no parseable (mobile.career, YC, X,
     `site:boards.*`) y da de alta empresas en `empresas_registry.json`.
 - `orquestador.py estado` expone historial + bandeja + vencidos (pendientes
@@ -92,16 +100,19 @@ informes/  (ya no — ahora resultados/informes/)
   Web con navegador, LinkedIn semi) y **solo tras envío efectivo** marca
   `orquestador.py marcar clientes <clave> contactado` (crea el D+3).
   Límite diario `ENVIO_MAX_DIA` (default 12) y pausa 15-35s entre WhatsApp.
-- **Flujo de postulación Workana (2 skills):** `aplicar-workana` genera la
-  propuesta (solo `is_flutter: true`, sin automatizaciones, presupuesto
-  ≥ USD 500) y la **encola** (`cola_envios.py add --canal workana`, proyecto
-  `en_proceso`); `enviar-workana` envía **uno por uno** (muestra la
-  propuesta, la valida el usuario: ok/modificar/saltar/parar; abre la URL del
-  proyecto, pega título + propuesta en el formulario de postulación y **el
-  usuario pulsa enviar**) y **solo tras postulación efectiva** marca
-  `orquestador.py marcar proyectos_workana <key> applied` (crea el D+7,
-  `SEGUIMIENTO_DIAS["proyectos_workana"]`). Mismo cupo `ENVIO_MAX_DIA`
-  compartido con clientes.
+- **Flujo de postulación a tableros ATS (1 skill):** las vacantes de
+  `vacantes_empresa` se aplican con `cv-apply` **una a una**. Al marcar
+  `orquestador.py marcar vacantes_empresa "<empresa>::<titulo>" applied` se crea
+  el seguimiento D+7 (`SEGUIMIENTO_DIAS["vacantes_empresa"]`).
+  Los cuatro tableros soportados (Greenhouse/Ashby/Lever/Workday) usan
+  **reCAPTCHA invisible** (v3, sin casilla) y renderizan el formulario por
+  JavaScript: el envío **no** se puede automatizar por HTTP y lo hace el usuario
+  en su navegador, pero **no hay desafío visible ni cupo semanal**.
+- ⚠️ **Nunca automatizar ni esquivar una protección anti-bot.** Si un portal
+  responde 403 + desafío (Cloudflare/Turnstile), se detiene la ronda y lo hace
+  el usuario en su navegador. El scraping HTTP de páginas **públicas** sí es
+  legítimo y es lo que usa todo el proyecto; lo que no se hace es automatizar
+  la sesión autenticada ni evadir el desafío.
 
 ## Ciclo de vida del estado (historial.json)
 
@@ -114,9 +125,12 @@ actualizar hace > N días (para no dejar contacts sin follow-up).
 
 ```bash
 python3 -m py_compile estado/*.py .opencode/skills/*/*.py
+python3 -m unittest discover -s estado/tests
 python3 estado/tracker.py stats
+python3 estado/tracker.py normalizar --dry-run   # auditoría de claves de vacantes
 python3 estado/orquestador.py estado
 python3 estado/cola_envios.py pendientes
+python3 estado/doctor.py
 ```
 
 ## Otras notas
@@ -126,7 +140,7 @@ python3 estado/cola_envios.py pendientes
 - Credenciales SMTP y límites de envío viven en `.env` (gitignored);
   la plantilla es `.env.example`. Nunca mencionar las credenciales al
   usuario, ni commitear `.env`.
-- Los scripts `job-search` y `workana-search` resuelven la raíz caminando
+- Los scripts `job-search` y `empresas-search` resuelven la raíz caminando
   hacia arriba y volcando `estado/` en `sys.path`; no dependen de variables
   de entorno ni del cwd.
 - El proyecto está pensado para renombrarse a una carpeta con la raíz limpia

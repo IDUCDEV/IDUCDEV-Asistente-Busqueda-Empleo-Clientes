@@ -20,6 +20,12 @@ Uso:
   python3 empresas_search.py --refresh           # ignora la cache
   python3 empresas_search.py --dry-run           # no escribe NADA
   python3 empresas_search.py --stats             # resumen del registro
+  python3 empresas_search.py --min-score 45      # solo roles con buen encaje
+
+Tableros soportados: Greenhouse, Ashby, Lever (JSON GET público) y Workday
+(CXS, JSON POST público). Los cuatro exponen la vacante en JSON sin credenciales;
+lo que NO se automatiza es el ENVÍO de la postulación (reCAPTCHA invisible +
+formulario renderizado por JS): eso lo hace el usuario en su navegador.
 """
 
 import argparse
@@ -30,6 +36,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -61,9 +68,9 @@ if not PROJECT_DIR:
 sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
 
 from config import (  # noqa: E402
-    EMPRESAS_CACHE_PATH, EMPRESAS_CACHE_HORAS, EMPRESAS_FALLOS_MAX,
-    EMPRESAS_PAUSA_S, EMPRESAS_REGISTRY_PATH, EMPRESAS_TIMEOUT_S,
-    OUTPUT_DIRS,
+    EMPRESAS_CACHE_PATH, EMPRESAS_CACHE_HORAS, EMPRESAS_CAREERS_TIMEOUT_S,
+    EMPRESAS_FALLOS_MAX, EMPRESAS_PAUSA_S, EMPRESAS_REGISTRY_PATH,
+    EMPRESAS_TIMEOUT_S, OUTPUT_DIRS,
 )
 from job_search import has_flutter_dart, normalize_company, normalize_title  # noqa: E402
 from tracker import Historial, vacancy_key  # noqa: E402
@@ -96,29 +103,91 @@ ATS_FINGERPRINTS = [
         r"jobs\.ashbyhq\.com/(?:embed\?for=)?([a-z0-9\-_]+)", re.I)),
     ("lever", re.compile(
         r"jobs\.lever\.co/([a-z0-9\-_]+)", re.I)),
+    # Workday: 3 grupos (host, locale, site). El host trae el subdominio del
+    # tenant ("rappi.wd12.myworkdayjobs.com") y el site va tras el locale.
     ("workday", re.compile(
-        r"([a-z0-9\-]+)\.myworkdayjobs\.com", re.I)),
+        r"(?:https?://)?([a-z0-9][a-z0-9\-]*\.[a-z0-9\-]+\.myworkdayjobs\.com)/"
+        r"([a-z]{2}(?:-[A-Za-z]{2,4})?/)?([A-Za-z0-9_\-]+)",
+        re.I)),
 ]
 
-CAREERS_PATHS = ["/careers", "/careers/", "/jobs", "/vacantes", "/empleo", "/trabalhe-conosco"]
+# Rutas de página de carreras que se prueban, en orden de probabilidad.
+# Sin duplicados con barra final: la mayoría de servidores redirige "/careers/"
+# a "/careers" y probarlo dos veces solo cuesta un timeout.
+CAREERS_PATHS = ["/careers", "/jobs", "/vacantes", "/empleo", "/trabalhe-conosco"]
 
 
-def discover_ats(careers_url, timeout=None):
-    """Lee la página de carreras y deduce (proveedor, slug).
+def discover_ats(careers_url, timeout=None, raw=None):
+    """Deduce (proveedor, slug) del HTML de una página de carreras.
 
-    Devuelve (ats, slug) o (None, None). Workday se detecta pero no se parsea:
-    no expone un JSON público, así que el llamador lo marca para navegador.
+    Devuelve (ats, slug) o (None, None). Si se pasa `raw`, no descarga nada: usa
+    ese cuerpo ya descargado (así `resolve_board` puede distinguir "el dominio no
+    resuelve" de "esta ruta no existe" sin gastar una petición extra).
+
+    Workday sí tiene endpoint JSON público (CXS), pero su URL se arma con tres
+    piezas (host, locale, site) que no encajan en el par (ats, slug) de los
+    otros tres proveedores. Se codifica así: `ats` = "workday:<host>" y `slug` =
+    "<locale>/<site>" (el path de navegación, que es lo que se ve en la web).
     """
-    raw = http_get(careers_url, timeout=timeout)
-    if raw.startswith("__ERR__") or raw == "__404__":
+    if raw is None:
+        raw = http_get(careers_url, timeout=timeout)
+    if raw.startswith("__ERR__") or raw.startswith("__NET__") or raw == "__404__":
         return None, None
     for ats, pat in ATS_FINGERPRINTS:
         m = pat.search(raw)
-        if m:
-            slug = next((g for g in m.groups() if g), None)
-            if slug and slug.lower() not in ("embed", "jobs", "en", "es", "index"):
-                return ats, slug.lower()
+        if not m:
+            continue
+        if ats == "workday":
+            host, locale, site = m.group(1), m.group(2) or "", m.group(3)
+            if not (host and site) or site.lower() in ("index", "jobs", "embed"):
+                continue
+            return f"workday:{host.lower()}", f"{locale}{site}"
+        slug = next((g for g in m.groups() if g), None)
+        if slug and slug.lower() not in ("embed", "jobs", "en", "es", "index"):
+            return ats, slug.lower()
     return None, None
+
+
+def careers_url_candidates(company):
+    """URLs de carrera plausibles a partir del dominio, en orden de probabilidad."""
+    domain = (company.get("domain") or "").strip()
+    if not domain:
+        return []
+    domain = re.sub(r"^https?://", "", domain).split("/")[0]
+    base = f"https://{domain}"
+    urls = [company["careers_url"]] if company.get("careers_url") else []
+    for path in CAREERS_PATHS:
+        u = base + path
+        if u not in urls:
+            urls.append(u)
+    return urls
+
+
+def resolve_board(company, timeout=None):
+    """Deduce (ats, slug) leyendo las páginas de carrera de la empresa.
+
+    Es el paso que de verdad acierta: leer /careers y deducir de lo que la propia
+    empresa enlaza, en vez de adivinar slugs.
+
+    Dos decisiones de rendimiento, ambas medidas:
+      · timeout corto (EMPRESAS_CAREERS_TIMEOUT_S): se prueban varias rutas y los
+        dominios muertos son la norma (nunez.com.ar tardaba 79 s en 6 URLs);
+      · **corta en el primer `__NET__`**: si el dominio no resuelve, las otras
+        rutas del mismo dominio tampoco van a resolver, así que no se prueban.
+        Es lo que separa una ronda de 50 minutos de una de 15.
+
+    Devuelve (ats, slug, careers_url) o (None, None, None).
+    """
+    if timeout is None:
+        timeout = EMPRESAS_CAREERS_TIMEOUT_S
+    for url in careers_url_candidates(company):
+        raw = http_get(url, timeout=timeout)
+        ats, slug = discover_ats(url, raw=raw)
+        if ats:
+            return ats, slug, url
+        if raw == "__NET__":
+            break  # dominio muerto: no hay nada que probar en las demás rutas
+    return None, None, None
 
 
 # ── Registro y cache ─────────────────────────────────────────────────
@@ -190,8 +259,13 @@ def slug_candidates(company):
 def http_get(url, timeout=None):
     """Devuelve el cuerpo, o un marcador.
 
-    `__404__` se separa a propósito: un slug inexistente es el caso NORMAL al
-    sondear tableros y no debe contar como fallo (ni disparar el cortocircuito).
+    Los marcadores están separados a propósito porque significan cosas distintas:
+      - `__404__`  slug inexistente: el caso NORMAL al sondear tableros.
+      - `__NET__`  el host no resuelve o no conecta (DNS muerto, subdominio
+        retirado). No es "el sitio nos bloquea", así que NO debe contar como
+        fallo ni disparar el cortocircuito: lo correcto es probar el siguiente
+        candidato (típico en Workday, donde el tenant cambia de subdominio).
+      - `__ERR__:` cualquier otro error (403, 429, 5xx): sí cuenta como fallo.
     """
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT,
                                                "Accept": "application/json,text/html,*/*"})
@@ -200,6 +274,32 @@ def http_get(url, timeout=None):
             return r.read().decode("utf-8", errors="replace")
     except urllib.error.HTTPError as e:
         return "__404__" if e.code == 404 else f"__ERR__:{e.code}"
+    except urllib.error.URLError:
+        return "__NET__"
+    except Exception as e:
+        return f"__ERR__:{type(e).__name__}"
+
+
+def http_post_json(url, payload, timeout=None):
+    """POST JSON → texto del cuerpo, o el mismo juego de marcadores que http_get.
+
+    Es lo que necesita el endpoint CXS de Workday, que es POST puro (su GET
+    devuelve 405). Es un endpoint **público** de solo lectura: la misma
+    EmploymentSite pública que el navegador consulta, sin credenciales.
+    """
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=body, method="POST", headers={
+        "User-Agent": USER_AGENT,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=timeout or EMPRESAS_TIMEOUT_S) as r:
+            return r.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as e:
+        return "__404__" if e.code == 404 else f"__ERR__:{e.code}"
+    except urllib.error.URLError:
+        return "__NET__"
     except Exception as e:
         return f"__ERR__:{type(e).__name__}"
 
@@ -212,27 +312,124 @@ def strip_html(text):
     return re.sub(r"\s+", " ", text).strip()
 
 
+# ── Workday (endpoint público CXS) ────────────────────────────────────
+# La premisa de que "Workday no expone JSON público" era falsa: el EmploymentSite
+# sirve la búsqueda con
+#   POST https://<host>/wday/cxs/<tenant>/<site>/jobs
+#   {"appliedFacets":{},"limit":N,"offset":0,"searchText":"flutter"}
+# Dos trampas verificadas contra tableros reales:
+#   1. el <site> del path CXS NO lleva el locale. `wday/cxs/rappi/es/Rappi_jobs`
+#      responde 405; `wday/cxs/rappi/Rappi_jobs` responde 200.
+#   2. el <tenant> no siempre es la primera etiqueta del host: en
+#      "nvidia.wd5.myworkdayjobs.com" es "nvidia", y en "rappi.wd12…" es "rappi"
+#      (el "wd12" es el subdominio numérico, no el tenant).
+# `searchText` busca en título Y descripción (en NVIDIA "GeForce" → 47, "Pune" → 93),
+# así que un solo POST con "flutter" ya es una señal fiable de ausencia o presencia.
+
+WD_LOCALE_RE = re.compile(r"^([a-z]{2}(?:-[A-Za-z]{2,4})?)/")
+WD_TENANT_SUBDOMAIN_RE = re.compile(r"^wd\d+$", re.I)
+WORKDAY_LIMIT = 20
+
+
+def workday_site(slug):
+    """'es/Rappi_jobs' → ('Rappi_jobs', 'es');  'Rappi_jobs' → ('Rappi_jobs', '')."""
+    m = WD_LOCALE_RE.match(slug or "")
+    if m:
+        return slug[m.end():], m.group(1)
+    return slug or "", ""
+
+
+def workday_tenants(host):
+    """Candidatos de tenant a partir del host, en orden de probabilidad.
+
+    Solo las etiquetas previas a `myworkdayjobs` son candidatas: las de la
+    segunda etiqueta (`wd12`, `wd5`) son el subdominio del tenant, no el tenant.
+    """
+    labels = [l for l in (host or "").split(".") if l]
+    if "myworkdayjobs" in labels:
+        labels = labels[:labels.index("myworkdayjobs")]
+    if not labels:
+        return []
+    real = [l for l in labels if not WD_TENANT_SUBDOMAIN_RE.match(l)]
+    return real or labels[:1]
+
+
+def workday_cxs_url(host, tenant, site):
+    return f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
+
+
+def workday_fetch(host, slug, search="flutter", limit=WORKDAY_LIMIT, timeout=None):
+    """Consulta el CXS de Workday. Devuelve el JSON parseado o None.
+
+    Prueba cada tenant candidato hasta que uno responda. Un 405/422 con un tenant
+    y 200 con otro es lo normal: el site existe pero el tenant no coincide.
+    """
+    site, _locale = workday_site(slug)
+    if not host or not site:
+        return None
+    for tenant in workday_tenants(host):
+        url = workday_cxs_url(host, tenant, site)
+        raw = http_post_json(url, {"appliedFacets": {}, "limit": limit,
+                                   "offset": 0, "searchText": search},
+                             timeout=timeout)
+        if raw.startswith("__") or raw == "__404__":
+            continue
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict) and "jobPostings" in data:
+            return data
+    return None
+
+
 # ── Normalizadores por ATS ───────────────────────────────────────────
 
 def to_iso_date(value):
     """Normaliza una fecha a YYYY-MM-DD.
 
     Greenhouse y Ashby ya devuelven ISO (basta truncar), pero Lever manda un
-    Unix timestamp: sin convertirlo, `[:10]` devolvía "1790040082" en el
-    informe en vez de una fecha.
+    Unix timestamp (sin convertirlo, `[:10]` devolvía "1790040082" en el informe
+    en vez de una fecha) y Workday manda texto relativo ("Posted 13 Days Ago"),
+    que hay que resolver contra hoy.
     """
     if value in (None, ""):
         return ""
     try:
         n = int(value)
     except (TypeError, ValueError):
-        return str(value)[:10]
+        return parse_relative_date(value)
     if n > 10_000_000_000:  # milisegundos
         n //= 1000
     try:
         return datetime.fromtimestamp(n, timezone.utc).date().isoformat()
     except (OverflowError, OSError, ValueError):
         return ""
+
+
+_REL_UNITS = {
+    "today": 0, "hour": 0, "day": 1, "week": 7, "month": 30, "year": 365,
+}
+
+
+def parse_relative_date(text):
+    """'Posted 13 Days Ago' → '2026-09-22'. Devuelve "" si no se puede resolver."""
+    text = (text or "").strip()
+    if not text:
+        return ""
+    if re.match(r"^\d{4}-\d{2}-\d{2}", text):  # ya es ISO
+        return text[:10]
+    if re.fullmatch(r"\d+", text):  # epoch, por si llega como string
+        return to_iso_date(int(text))
+    m = re.search(r"(\d+)\W*([a-z]+)", text.lower())  # "30+ Days" → 30, days
+    if not m:
+        # "Posted Today" no lleva número: hoy es hoy.
+        return datetime.now(timezone.utc).date().isoformat() if "today" in text.lower() else ""
+    unidad = m.group(2).rstrip("s")  # "days" → "day"
+    if unidad not in _REL_UNITS:
+        return ""
+    dias = int(m.group(1)) * _REL_UNITS[unidad]
+    return (datetime.now(timezone.utc) - timedelta(days=dias)).date().isoformat()
 
 
 def norm_greenhouse(data):
@@ -281,18 +478,71 @@ def norm_lever(data):
     return out
 
 
+def norm_workday(data, host, slug, matched="flutter"):
+    """Normaliza el listado CXS de Workday.
+
+    El listado no trae descripción (eso vive en un endpoint por vacante), pero
+    el rol llegó aquí porque `searchText` encontró `matched` ("flutter"/"dart")
+    en título o cuerpo. Se marca con `matched` para que `select_roles` lo cuente
+    como Flutter/Dart confirmado aunque el título no lo diga (p. ej. "Mobile
+    Engineer" cuya descripción menciona Flutter).
+    """
+    site, locale = workday_site(slug)
+    # El path de navegación lleva locale; el de CXS no (ver workday_fetch).
+    nav = f"{locale}/{site}" if locale else site
+    out = []
+    for j in (data.get("jobPostings") or []):
+        ext = j.get("externalPath") or ""
+        out.append({
+            "title": (j.get("title") or "").strip(),
+            "location": j.get("locationsText") or "",
+            "url": f"https://{host}/{nav}{ext}" if ext else "",
+            "description": "",  # solo en el endpoint de detalle, no se pide
+            "published": to_iso_date(j.get("postedOn")),
+            "matched": matched,
+            "ref": (j.get("bulletFields") or [None])[0],
+        })
+    return out
+
+
 NORMALIZERS = {"greenhouse": norm_greenhouse, "ashby": norm_ashby, "lever": norm_lever}
 
 
 # ── Sondeo ───────────────────────────────────────────────────────────
 
 class Prober:
-    MAX_INTENTOS = 10  # por empresa: 12 slugs × 3 ATS sería demasiado lento
+    MAX_INTENTOS = 10  # por EMPRESA: 12 slugs × 3 ATS sería demasiado lento
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, slug_ciegos=False):
         self.verbose = verbose
+        # Path 3 (slugs a ciegas) está DESACTIVADO por defecto: medido, rinde
+        # ~0% en LATAM (25 empresas LATAM → 0 tableros) y se come 10 peticiones
+        # + 10 pausas por empresa, o sea la ronda entera. Se activa con
+        # `--slugs-ciegos` cuando se quiere una pasada opportunista sobre una
+        # empresa suelta y no importa tardar.
+        self.slug_ciegos = slug_ciegos
         self.fallos = 0
-        self.intentos = 0
+        self.intentos = 0   # acumulado de toda la ronda (solo para el resumen)
+        self._usados = 0    # consumido en la empresa actual (reinicia en probe)
+        # De la última probe: de dónde salió el tablero y qué URL de carreras lo
+        # reveló. `resolution` distingue un tablero que la propia empresa enlazó
+        # ("careers", fiable) de uno adivinado ("ciego", puede estar equivocado).
+        self.resolution = None
+        self.last_careers_url = None
+
+    def gastar(self):
+        """Gasta una petición de la empresa actual. False si se agotó el presupuesto.
+
+        El presupuesto es POR EMPRESA a propósito. Con un contador global el
+        primer con 12 slugs agotaba la ronda entera y todas las empresas
+        siguientes devolvían "sin tablero" sin llegar a hacer una sola petición
+        (bug real: una ronda de 60 empresas solo sondeaba ~6).
+        """
+        if self._usados >= self.MAX_INTENTOS:
+            return False
+        self.intentos += 1
+        self._usados += 1
+        return True
 
     def get(self, url):
         if self.fallos >= EMPRESAS_FALLOS_MAX:
@@ -300,6 +550,8 @@ class Prober:
         raw = http_get(url)
         if raw == "__404__":
             return None  # slug inexistente: normal, no cuenta como fallo
+        if raw == "__NET__":
+            return None  # host muerto: tampoco es "nos bloquean"
         if raw.startswith("__ERR__"):
             self.fallos += 1
             return None
@@ -308,32 +560,74 @@ class Prober:
         except json.JSONDecodeError:
             return None
 
+    def workday(self, ats, slug, search="flutter"):
+        """Sondea un tablero Workday. Devuelve (ats, slug, roles) o None."""
+        host = ats.split(":", 1)[1] if ats.startswith("workday:") else ats
+        if not self.gastar():
+            return None
+        data = workday_fetch(host, slug, search=search)
+        if data is None:
+            return None
+        return ats, slug, norm_workday(data, host, slug, matched=search)
+
     def probe(self, company):
         """Devuelve (ats, slug, roles) para la primera fuente que responda con vacantes.
 
         Orden: (1) ats/slug ya conocidos, (2) deducidos de la página de carreras,
         (3) slugs candidatos a ciegas. Los slugs a ciegas casi nunca aciertan en
         LATAM, así que (2) es el paso que realmente rinde.
-        """
-        # 1) Ya resuelto en el registro.
-        if company.get("ats") and company.get("slug") and company["ats"] in ATS_PROBES:
-            self.intentos += 1
-            data = self.get(ATS_PROBES[company["ats"]].format(slug=company["slug"]))
-            if data is not None:
-                return company["ats"], company["slug"], NORMALIZERS[company["ats"]](data)
 
-        # 2) Deducir de la página de carreras.
-        careers = company.get("careers_url")
-        if careers:
-            self.intentos += 1
-            ats, slug = discover_ats(careers)
+        Deja en `self.resolution` de dónde salió el tablero ("registro",
+        "careers" o "ciego") y en `self.last_careers_url` la página que lo
+        reveló. Importa porque un tablero vacío deducido de la página de la
+        empresa es fiable ("no hay vacantes"), mientras que uno adivinado a
+        ciegas vacío casi siempre es slug equivocado.
+        """
+        self._usados = 0  # el presupuesto de peticiones es por empresa
+        self.resolution = None
+        self.last_careers_url = None
+        known_ats = company.get("ats") or ""
+
+        # 1) Ya resuelto en el registro.
+        if company.get("slug"):
+            if known_ats.startswith("workday:"):
+                hit = self.workday(known_ats, company["slug"])
+                if hit:
+                    self.resolution = "registro"
+                    if self.verbose:
+                        print(f"    · {company['name']} → {known_ats}/{company['slug']}: "
+                              f"{len(hit[2])} roles")
+                    return hit
+            elif known_ats in ATS_PROBES:
+                if self.gastar():
+                    data = self.get(ATS_PROBES[known_ats].format(slug=company["slug"]))
+                    if data is not None:
+                        self.resolution = "registro"
+                        return known_ats, company["slug"], NORMALIZERS[known_ats](data)
+
+        # 2) Deducir de la página de carreras (el paso que de verdad rinde).
+        #    Si la empresa no trae `careers_url`, se deduce del dominio.
+        if self.gastar():
+            ats, slug, careers = resolve_board(company)
+            self.last_careers_url = careers
+            if ats:
+                self.resolution = "careers"
             if self.verbose and ats:
-                print(f"    · {company['name']} → {ats}/{slug} (deducido de careers_url)")
-            if ats == "workday":
-                # Sin JSON público: se reporta para que lo mire el navegador.
-                return "workday", slug, []
-            if ats in ATS_PROBES:
-                self.intentos += 1
+                print(f"    · {company['name']} → {ats}/{slug} (deducido de {careers})")
+            if ats and ats.startswith("workday:"):
+                hit = self.workday(ats, slug)
+                if hit:
+                    if self.verbose:
+                        print(f"      ✓ {ats}/{slug}: {len(hit[2])} roles")
+                    return hit
+                # Todos los tenants fallaron: se reintenta con "dart" por si el
+                # tablero usa otra palabra, antes de rendirse con este tablero.
+                hit = self.workday(ats, slug, search="dart")
+                if hit:
+                    if self.verbose:
+                        print(f"      ✓ {ats}/{slug}: {len(hit[2])} roles (buscando dart)")
+                    return hit
+            elif ats in ATS_PROBES and self.gastar():
                 data = self.get(ATS_PROBES[ats].format(slug=slug))
                 if data is not None:
                     roles = NORMALIZERS[ats](data)
@@ -342,16 +636,17 @@ class Prober:
                     return ats, slug, roles
                 time.sleep(EMPRESAS_PAUSA_S)
 
-        # 3) Slugs candidatos.
+        # 3) Slugs candidatos a ciegas (opt-in: ver Prober.slug_ciegos).
         vacios = None
+        if not self.slug_ciegos:
+            return vacios or (None, None, [])
         for slug in slug_candidates(company):
             for ats, url_tpl in ATS_PROBES.items():
-                if self.fallos >= EMPRESAS_FALLOS_MAX or self.intentos >= self.MAX_INTENTOS:
+                if self.fallos >= EMPRESAS_FALLOS_MAX or not self.gastar():
                     # Un tablero que respondió vacío puede ser slug equivocado
                     # (p. ej. greenhouse/nubank existe pero Nubank usa otro):
                     # se reporta, pero nunca como "la empresa no tiene vacantes".
                     return vacios or (None, None, [])
-                self.intentos += 1
                 url = url_tpl.format(slug=slug)
                 if self.verbose:
                     print(f"    · {company['name']} → {ats}/{slug}")
@@ -367,7 +662,10 @@ class Prober:
                     continue
                 if self.verbose:
                     print(f"      ✓ {ats}/{slug}: {len(roles)} roles")
+                self.resolution = "ciego"
                 return ats, slug, roles
+        if vacios:
+            self.resolution = "ciego"
         return vacios or (None, None, [])
 
 
@@ -411,17 +709,56 @@ def score_role(role, company):
     return min(s, 100)
 
 
+# Un puesto presencial en un país que no es LATAM no es aplicable: no se puede
+# postular desde Venezuela. El score lo "^penalizaba" pero igual salía en el
+# informe y acababa siendo ruido (India, EE.UU. presencial, etc.).
+NON_LATAM_COUNTRY_RE = re.compile(
+    r"\b(india|pakistan|bangladesh|china|taiwan|japan|korea|israel|australia|"
+    r"new zealand|south africa|poland|ukraine|romania|hungary|island|ireland|"
+    r"netherlands|germany|france|spain|portugal|italy|sweden|norway|denmark|"
+    r"finland|belgium|austria|switzerland|czech|turkey|egypt|saudi|emirates|"
+    r"nigeria|kenya|ghana|vietnam|philippines|indonesia|malaysia|thailand|"
+    r"singapore|canada|estados unidos|united states|usa)\b", re.I)
+
+
+def es_aplicable(role, company):
+    """False cuando el puesto no es alcanzable desde LATAM.
+
+    Descarta solo lo inequívoco: una ciudad/país explícito que no es LATAM y
+    sin ninguna señal de remoto. Si el tablero no dice nada, no se descarta
+    (preferimos un falso positivo a perder una vacante real).
+    """
+    blob = f"{role.get('title','')} {role.get('location','')} {role.get('description','')}"
+    if REMOTE_RE.search(blob):
+        return True
+    if LATAM_RE.search(blob):
+        return True
+    return not NON_LATAM_COUNTRY_RE.search(blob)
+
+
 def select_roles(roles, company):
-    """Quedate con los roles relevantes: Flutter/Dart explícito, o móvil para revisar."""
+    """Quedate con los roles relevantes: Flutter/Dart explícito, o móvil para revisar.
+
+    Tres filtros, en este orden:
+      1. stack      — Flutter/Dart en el título, o `matched` (el searchText del
+                      board lo confirmó en el cuerpo aunque el título no lo diga).
+      2. Review     — móvil + Flutter en la descripción: se marca ⚠ para mirar.
+      3. Aplicable  — descartable si es presencial en un país que no es LATAM.
+    """
     picked = []
     for r in roles:
         title = r.get("title", "")
         desc = r.get("description", "")
-        if has_flutter_dart(title):
+        # `matched` solo vale si el término de búsqueda era Flutter o Dart: un
+        # "mobile" que vino del searchText NO confirma el stack.
+        matched = r.get("matched") in ("flutter", "dart")
+        if has_flutter_dart(title) or matched:
             r["review"] = False
         elif MOBILE_RE.search(title) and has_flutter_dart(desc):
             r["review"] = True
         else:
+            continue
+        if not es_aplicable(r, company):
             continue
         r["score"] = score_role(r, company)
         picked.append(r)
@@ -537,6 +874,12 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="No escribe NADA (ni registro, ni cache, ni .md)")
     ap.add_argument("--stats", action="store_true", help="Resumen del registro y sale")
     ap.add_argument("--verbose", action="store_true", help="Muestra cada sondeo")
+    ap.add_argument("--min-score", type=int, default=0, dest="min_score",
+                    help="Descarta roles con score menor a este valor (0 = sin filtro)")
+    ap.add_argument("--slugs-ciegos", action="store_true", dest="slugs_ciegos",
+                    help="Prueba slugs adivinados si falla la página de carreras "
+                         "(~0%% de acierto en LATAM, pero cada empresa cuesta ~10 "
+                         "peticiones: úsalo solo para una empresa concreta)")
     args = ap.parse_args()
 
     now = datetime.now(timezone.utc)
@@ -593,7 +936,7 @@ def main():
         )[: args.limit]
 
     cache = load_json(EMPRESAS_CACHE_PATH, {})
-    prober = Prober(verbose=args.verbose)
+    prober = Prober(verbose=args.verbose, slug_ciegos=args.slugs_ciegos)
     hits, errs, checked, skipped = [], [], 0, 0
 
     hist = Historial() if not args.dry_run else None
@@ -616,15 +959,15 @@ def main():
             if not args.dry_run:
                 c["status"] = c.get("status") or "sin_tablero"
             continue
-        if ats == "workday":
-            errs.append(f"{c['name']}: tablero Workday (sin API pública) → revisar en navegador")
-            if not args.dry_run:
-                c["ats"], c["slug"] = ats, slug
-                c["last_checked"] = now.isoformat(timespec="seconds")
-                c["status"] = "revisar_navegador"
-            continue
 
         selected = select_roles(roles, c)
+        if args.min_score:
+            selected = [r for r in selected if r["score"] >= args.min_score]
+        if args.verbose and selected:
+            descartados = len(select_roles(roles, c)) - len(selected)
+            if descartados:
+                print(f"      ✗ {c['name']}: {descartados} roles bajo "
+                      f"--min-score {args.min_score}")
         if not args.dry_run:
             c["ats"], c["slug"] = ats, slug
             c["last_checked"] = now.isoformat(timespec="seconds")

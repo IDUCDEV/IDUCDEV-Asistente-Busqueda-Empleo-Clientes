@@ -150,7 +150,7 @@ class TestSeguimientos(OrquestadorTestCase):
 class TestCmdReset(OrquestadorTestCase):
     def test_reset_limpia_dbs_con_yes(self):
         self.tracker.add("vacantes", "empresa::puesto", {"url": "https://x"})
-        self.tracker.add("proyectos_workana", "slug-proyecto")
+        self.tracker.add("vacantes_empresa", "empresa::puesto ats")
         oq.tarea_nueva("seguimiento_aplicacion", "vacantes", "empresa::puesto",
                        "Seguimiento: empresa::puesto", dias=7)
         oq.registrar_fase("job-search", "resultados/vacantes/2026-09-20.md", nuevas=5)

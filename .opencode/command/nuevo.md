@@ -13,5 +13,5 @@ h.add("vacantes", "<empresa::titulo>", meta={"empresa": "...", "titulo": "...", 
 EOF
 ```
 
-Categorías válidas: `vacantes`, `empresas`, `clientes`, `proyectos_workana`,
+Categorías válidas: `vacantes`, `vacantes_empresa`, `empresas`, `clientes`,
 `posts_linkedin`, `outreach`. Claves normalizadas (minúsculas).
