@@ -91,6 +91,8 @@ HISTORIAL_PATH = os.path.join(ESTADO_DIR, "historial.json")
 TAREAS_PATH = os.path.join(ESTADO_DIR, "tareas.json")
 RONDAS_PATH = os.path.join(ESTADO_DIR, "rondas.json")
 COLA_ENVIOS_PATH = os.path.join(ESTADO_DIR, "cola_envios.json")
+# Aplicaciones a vacantes (Wellfound): puente entre cv-apply y el envío.
+COLA_APLICACIONES_PATH = os.path.join(ESTADO_DIR, "cola_aplicaciones.json")
 
 # Descubrimiento de empresas (Fase 2): registro persistente + caché de sondeo.
 # Viven en estado/ (y no en resultados/) porque resultados/ está gitignored y
@@ -107,6 +109,9 @@ ENVIO_MAX_DIA = int(os.environ.get("ENVIO_MAX_DIA", "12"))
 ENVIO_PAUSA_WA_MIN = int(os.environ.get("ENVIO_PAUSA_WA_MIN", "15"))
 ENVIO_PAUSA_WA_MAX = int(os.environ.get("ENVIO_PAUSA_WA_MAX", "35"))
 
+# Aplicaciones a vacantes: límite diario para no quemar la cuenta de Wellfound.
+APLICACION_MAX_DIA = int(os.environ.get("APLICACION_MAX_DIA", "5"))
+
 EMAIL_USER = os.environ.get("EMAIL_USER", "")
 EMAIL_APP_PASSWORD = os.environ.get("EMAIL_APP_PASSWORD", "")
 
@@ -120,6 +125,7 @@ OUTPUT_DIRS = {
     "mensajes-clientes": os.path.join(RESULTADOS_DIR, "mensajes-clientes"),
     "cv": os.path.join(RESULTADOS_DIR, "cv"),
     "informes": os.path.join(RESULTADOS_DIR, "informes"),
+    "aplicaciones": os.path.join(RESULTADOS_DIR, "aplicaciones"),
 }
 
 SKILL_SCRIPTS = {

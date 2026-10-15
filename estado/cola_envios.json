@@ -181,6 +181,48 @@
       "creado": "2026-09-24T15:05:33+00:00",
       "enviado_en": "2026-09-24T15:43:21+00:00",
       "error": null
+    },
+    {
+      "id": "e-20261009094938-14",
+      "lead_key": "antonino's pizza napoletana",
+      "nombre": "Antonino's Pizza Napoletana",
+      "canal": "whatsapp",
+      "destino": "584242565878",
+      "asunto": "",
+      "cuerpo": "Hola, le escribo de IDUCDEV.\n\nLos vi en Infoguia, en Altamira, y me llamó la atención que un lugar con tan buenas referencias no tenga una web propia donde ver la carta.\n\nHoy quien quiere ver el menú, los precios o reservar tiene que escribirles por WhatsApp; en ese paso se pierden pedidos de gente que justo estaba buscando dónde comer.\n\nYo desarrollo web y apps — tengo 3 web-apps y 3 apps Flutter en producción, pueden verlas en mi portafolio: www.iducdev.org\n\n¿Le interesa que le cuente cómo quedaría una web con menú, fotos y reservas/pedidos en línea en su caso? Le paso una propuesta breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/antoninos-pizza-napoletana-2026-10-09.md",
+      "estado": "pendiente",
+      "creado": "2026-10-09T13:49:38+00:00",
+      "enviado_en": null,
+      "error": null
+    },
+    {
+      "id": "e-20261009094938-15",
+      "lead_key": "gimnasio planet fit",
+      "nombre": "Gimnasio Planet Fit",
+      "canal": "whatsapp",
+      "destino": "582122678932",
+      "asunto": "",
+      "cuerpo": "¡Hola! Les escribo de IDUCDEV.\n\nVi su gimnasio en La Castellana en Infoguia y se ve que tienen buen ambiente; me llamó la atención que para saber planes, horarios y precios haya que llamar o ir hasta allá.\n\nMucha gente que quiere entrenar no da ese paso, y ahí se les van clientes sin que se enteren.\n\nYo hago webs y apps en IDUCDEV — tengo 3 web-apps y 3 apps Flutter en producción, pueden verlas acá: www.iducdev.org\n\n¿Qué tal si lo vemos un momento? Les paso ideas sin costo de una web con planes, horarios y precios visibles, más inscripción por WhatsApp.\n\n— Isaac, IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/gimnasio-planet-fit-2026-10-09.md",
+      "estado": "pendiente",
+      "creado": "2026-10-09T13:49:38+00:00",
+      "enviado_en": null,
+      "error": null
+    },
+    {
+      "id": "e-20261009094938-16",
+      "lead_key": "babas burgers",
+      "nombre": "Babas Burgers",
+      "canal": "whatsapp",
+      "destino": "584123696956",
+      "asunto": "",
+      "cuerpo": "Hola, le escribo de IDUCDEV.\n\nLos vi en Infoguia, en El Hatillo, con muy buenas reseñas, pero sin una web donde ver la carta; me llamó la atención porque el producto se ve muy cuidado.\n\nHoy los pedidos dependen de que alguien pregunte precios y combos por WhatsApp, y eso frena a los que quieren pedir rápido.\n\nYo desarrollo web y apps — tengo 3 web-apps y 3 apps Flutter en producción, pueden verlas en mi portafolio: www.iducdev.org\n\n¿Le interesa que le muestre cómo quedaría una web con menú, fotos, combos y botón de pedido por WhatsApp para su negocio? Es una propuesta breve y sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/babas-burgers-2026-10-09.md",
+      "estado": "pendiente",
+      "creado": "2026-10-09T13:49:38+00:00",
+      "enviado_en": null,
+      "error": null
     }
   ]
 }

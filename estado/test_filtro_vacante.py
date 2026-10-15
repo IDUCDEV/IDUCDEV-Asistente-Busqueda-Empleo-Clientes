@@ -228,6 +228,69 @@ Contract Autonomy: self-directed contract engagement.
 """,
         "F12",
     ),
+    (
+        # Regresion 2026-10-09: Start Companies (ar.linkedin.com). Daba PASS con
+        # 0 hallazgos porque F4 solo leia modalidades en PT/EN y F12 solo el
+        # orden EN "Google Play published". El aviso tiene DOS excluyentes:
+        # "Al menos una app publicada en Google Play y/o App Store" y
+        # "Vivir en San Miguel de Tucuman o alrededores" + "Modalidad hibrida".
+        "Desarrollador de Apps Hibridas Fullstack (Flutter / Ionic / Capacitor)",
+        "Start Companies",
+        """
+        Requisitos excluyentes:
+        - 3 anos o mas de experiencia en desarrollo
+        - Experiencia en Flutter o en Angular + Ionic + Capacitor (nuestro stack actual)
+        - Al menos una app publicada en Google Play y/o App Store (vamos a pedir el link)
+        - Perfil fullstack: APIs REST, bases de datos y Git
+        - Vivir en San Miguel de Tucuman o alrededores
+        Que ofrecemos: Modalidad hibrida en Tucuman.
+        """,
+        "F4",
+    ),
+    (
+        # Mismo cluster que PremierSoft: la modalidad viene como "Contratacao
+        # Presencial em <ciudad>" y F4 no la leia (solo "modalidade de ...hibrido").
+        "Desenvolvedor Flutter Senior",
+        "PremierSoft",
+        """
+        Vaga para Desenvolvedor Flutter Senior. Contratacao Presencial em Blumenau/SC.
+        Requisitos: Flutter e Dart, BLoC, APIs REST, 3+ anos de experiencia.
+        """,
+        "F4",
+    ),
+    (
+        # F12 en portugues (caso TCS 4476935001): "publicacao de aplicativos na
+        # Google Play Console" como requisito. El regex solo cubria el orden EN.
+        "Analista Mobile Flutter Senior",
+        "Tata Consultancy Services",
+        """
+        Buscamos Analista Mobile Flutter Senior.
+        Requisitos: experiencia solida com Flutter e Dart; Clean Architecture;
+        gerenciamento de estado com BLoC ou Cubit; APIs REST; Git e Code Review.
+        Experiencia com publicacao de aplicativos na Google Play Console.
+        Conhecimento de publicacao na Apple App Store e uso do Xcode.
+        """,
+        "F12",
+    ),
+    (
+        # Regresion 2026-10-09: IT Singular full-stack mobile. Daba PASS con 0
+        # hallazgos porque F6 solo cuenta dominancia (PHP/Laravel aparecen 3
+        # veces) y no existia F13. El aviso exige "Dominio em PHP, requisito
+        # fundamental" (pilar full-stack) y "ciclo completo de publicacao na
+        # App Store e Google Play" (F12).
+        "Desenvolvedor Full-Stack Mobile",
+        "IT Singular",
+        """
+        O que buscamos em voce:
+        - Solida experiencia em Flutter e Dart, com GetX e Provider.
+        - Dominio em PHP, requisito fundamental para a posicao, com solida
+          experiencia no framework Laravel.
+        - Autonomia no ciclo completo de publicacao e manutencao de aplicativos
+          na App Store e Google Play.
+        - Experiencia com PostgreSQL, procedures e triggers.
+        """,
+        "F13",
+    ),
 ]
 
 ACEPTADAS = [

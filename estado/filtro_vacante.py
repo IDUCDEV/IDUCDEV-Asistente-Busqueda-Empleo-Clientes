@@ -55,10 +55,24 @@ RE_CONTRATO_LOCAL = re.compile(
     r"\b(CLT|EPS)\b|modalidade de (.+?)h[íi]brido|presencialidade|"
     r"\b(\d+)\s*[x/]\s*semana\s+presencial|trabalhar presencial|"
     r"trabalho\s+presencial|"
-    r"(?:modalidade|modelo|tipo)\s*(?:de\s+trabalho|de\s+|do\s+)?\s*[:-]?\s*presencial\b|"
+    # Modalidad declarada (ES "Modalidad híbrida/presencial", PT "Modalidade
+    # presencial"). El patron antiguo solo conocia "modalidade/modelo/tipo" +
+    # "presencial"; no leia la palabra espanola "modalidad" ni "híbrida". Caso
+    # Start Companies 2026-10-09: "Modalidad híbrida en Tucuman" daba PASS.
+    r"(?:modalidade|modalidad|modelo|tipo)\s*"
+    r"(?:de\s+trabalho|de\s+trabajo|de\s+|do\s+)?\s*[:-]?\s*"
+    r"(?:presencial|h[íi]brid[oa])\b|"
+    # "Vaga/Contratacao Presencial em <ciudad>" (PremierSoft) y su variante ES.
+    r"\b(?:vaga|contrata[çc][ãa]o|emprego)\s+(?:presencial|h[íi]brid[oa])\b|"
+    r"\b(?:vacante|puesto|contrataci[óo]n)\s+(?:presencial|h[íi]brid[oa])\b|"
     r"^\s*presencial\s*$|"
     r"on-?site in person|no remoto|must be (located|based) in|"
-    r"base(?:d)? em la ciudad|tienes base en",
+    r"base(?:d)? em la ciudad|tienes base en|"
+    # Requisito de residencia local ("Vivir en <Ciudad>", "Residir em <Ciudad>").
+    # La (mayuscula) scoped exige un toponimo con mayuscula para no confundir
+    # frases como "para vivir en remoto" con un requisito de ubicacion.
+    r"(?:vivir|residir|radicar)(?:se)?\s+en\s+(?-i:[A-ZÁÉÍÓÚÑ])|"
+    r"(?:vivir|residir|radicar)(?:se)?\s+en\b[^\n]{0,40}?alrededores",
     re.I | re.M,
 )
 RE_REMOTO = re.compile(
@@ -122,7 +136,43 @@ RE_APP_PUBLICADA = re.compile(
     r"(?:successfully\s+)?(?:publish(?:ed|ing)|shipp?(?:ed|ing)|launch(?:ed|ing)|releas(?:ed|ing))\b|"
     r"(?:track\s+record|history|proven)\s+of\s+at\s+least\s+(?:one|\d+)\s+"
     r"(?:live\s+|production\s+)?(?:apps?|applications?)\b|"
-    r"(?:google\s+play|app\s+store|play\s+store)\s+(?:published|publicad|public)",
+    r"(?:google\s+play|app\s+store|play\s+store)\s+(?:published|publicad|public)|"
+    # Orden invertido ES/PT: "al menos una app publicada", "app publicada en
+    # Google Play", "Experiencia com publicacao de aplicativos na Google Play
+    # Console" (caso TCS 4476935001). El patron anterior exigia el nombre de la
+    # tienda ANTES de "published/publicad", asi que Start Companies (2026-10-09)
+    # pedia una app publicada y daba PASS con 0 hallazgos.
+    r"(?:al\s+menos|m[íi]nimo|por\s+lo\s+menos|ao\s+menos|pelo\s+menos)\s+"
+    r"una?\s+(?:app|aplicaci[óo]n|aplicativo|juego|game)s?\s+publicad[oa]s?\b|"
+    r"(?:app|aplicaci[óo]n|aplicativo)s?\s+publicad[oa]s?\s+(?:en|em|na|no)\s+"
+    r"(?:google\s+play|app\s+store|play\s+store)\b|"
+    r"publicad[oa]s?\s+(?:en|em|na|no)\s+"
+    r"(?:google\s+play|app\s+store|play\s+store)\b|"
+    r"(?:experi[êe]ncia|experience)\s+com\s+publica[çc][ãa]o|"
+    # Orden "publicacao ... na App Store/Google Play" y "ciclo de publicacao"
+    # (caso IT Singular 2026-10-09). El regex solo miraba el orden
+    # "tienda + published".
+    r"publica[çc][ãa]o[^\n]{0,40}?(?:google\s+play|app\s+store|play\s+store)\b|"
+    r"(?:ciclo|processo)\s+(?:completo\s+)?de\s+publica[çc][ãa]o\b",
+    re.I,
+)
+
+# --- F13: stack ajena declarada como requisito FUNDAMENTAL/obligatorio -----
+# F6 solo cuenta dominancia por numero de menciones; una vacante puede nombrar
+# PHP/Laravel pocas veces y aun asi exigirlo como pilar. Caso IT Singular
+# (2026-10-09): "Dominio em PHP, requisito fundamental para a posicao" daba
+# PASS con 0 hallazgos (Flutter tambien estaba, como segunda pata full-stack).
+# Solo dispara si el marcador duro ("requisito/fundamental/excluyente...") esta
+# pegado al stack ajeno, para no rechazar roles donde el stack es un adorno.
+RE_STACK_OBLIG = re.compile(
+    r"(?:dom[íi]nio|dom[ií]nio|experi[êe]ncia|conhecimento|conocimiento|"
+    r"capacidade|capacidad|viv[êe]ncia)\s*"
+    r"(?:em|en|com|de|no|na|s[óo]lid[oa]\s+em)?\s*"
+    r"(php|laravel|java|spring(?:\s*boot)?|\.net|c#|kotlin|swift|"
+    r"ruby(?:\s*on\s*rails)?|node\.?js|angular|react\s*native)\b"
+    r"[^\n]{0,60}?"
+    r"(requisito|obrigat[óo]ri[oa]|excluyente|fundamental|imprescind[íi]vel|"
+    r"obligatori[oa]|indispens[áa]vel|essencial)",
     re.I,
 )
 
@@ -142,6 +192,9 @@ STACKS_AJENAS = {
     "swift/ios nativo": r"\bswift(ui)?\b|objective-?c",
     ".NET / C#": r"\b(c#|\.net|dotnet|asp\.net)\b",
     "java/spring": r"\bjava\b|spring\s*boot|\bspring\b",
+    # PHP/Laravel: 0 menciones en la base del usuario. Un rol full-stack que
+    # exige PHP como pilar no es un rol Flutter con PHP de adorno.
+    "php/laravel": r"\bphp\b|\blaravel\b",
     "data engineering": r"\bdatabricks|unity\s+catalog|pyspark|delta\s+lake|"
                         r"\bdataops\b|data\s+engineering|airflow|dbt\b|"
                         r"spark\b|etl\b",
@@ -267,6 +320,16 @@ def evaluar(titulo, empresa, cuerpo):
             f"'{m_pub.group(0).strip()[:60]}'. Tu CV base prohibe afirmar publicacion "
             f"(regla de veracidad #5) y Rifame sigue sin publicar (O-01): "
             f"no se puede cumplir sin mentir.",
+        )
+
+    # F13 — stack ajena exigida como requisito fundamental
+    m_ob = RE_STACK_OBLIG.search(texto)
+    if m_ob:
+        reject(
+            "F13",
+            f"Una stack ajena se exige como requisito fundamental: "
+            f"'{m_ob.group(0).strip()[:60]}'. Tu base no la tiene (0 menciones): "
+            f"es un rol full-stack, no un rol Flutter con ese stack de adorno.",
         )
 
     # --- avisos (no descartan) --------------------------------------------
