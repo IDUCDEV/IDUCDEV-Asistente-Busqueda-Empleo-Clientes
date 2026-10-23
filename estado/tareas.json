@@ -211,6 +211,61 @@
       "creado": "2026-10-03T14:53:10+00:00",
       "vencimiento": "2026-10-10T14:53:10+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20261015094656-20",
+      "tipo": "seguimiento_outreach",
+      "categoria": "clientes",
+      "key": "antonino's pizza napoletana",
+      "titulo": "Seguimiento: antonino's pizza napoletana",
+      "url": "",
+      "creado": "2026-10-15T13:46:56+00:00",
+      "vencimiento": "2026-10-18T13:46:56+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261022173352-21",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "azkait::desarrollador mobile flutter senior caracas",
+      "titulo": "Seguimiento: azkait::desarrollador mobile flutter senior caracas",
+      "url": "",
+      "creado": "2026-10-22T21:33:52+00:00",
+      "vencimiento": "2026-10-29T21:33:52+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261022173352-22",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://lnkd.in/p/ea5X6QBa",
+      "titulo": "Seguimiento: https://lnkd.in/p/ea5X6QBa",
+      "url": "",
+      "creado": "2026-10-22T21:33:52+00:00",
+      "vencimiento": "2026-10-25T21:33:52+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261022174849-23",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "posts_linkedin",
+      "key": "https://lnkd.in/p/e8Dh_TgS",
+      "titulo": "Seguimiento: https://lnkd.in/p/e8Dh_TgS",
+      "url": "",
+      "creado": "2026-10-22T21:48:49+00:00",
+      "vencimiento": "2026-10-25T21:48:49+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261022180227-24",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "trackampfield::mobile developer pleno track amp field",
+      "titulo": "Seguimiento: trackampfield::mobile developer pleno track amp field",
+      "url": "",
+      "creado": "2026-10-22T22:02:27+00:00",
+      "vencimiento": "2026-10-29T22:02:27+00:00",
+      "estado": "pendiente"
     }
   ]
 }

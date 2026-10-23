@@ -13,7 +13,7 @@ Las skills viven **dentro del proyecto** en `.opencode/skills/` (no en
 |---|-------|-----------|------|------------|
 | 0 | **asistente-empleo-clientes** | Orquestador central. Punto único de entrada para buscar empleo + clientes, con dedup central | AI guiada | Cargar la skill → delegar cualquier petición |
 | 1 | **job-search** | Busca vacantes Flutter/Dart en 12 fuentes (LinkedIn ×2, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto, Wellfound, elempleo.co) | Script Python | `python3 .opencode/skills/job-search/job_search.py` |
-| 2 | **flutter-employers** | Sondea los tableros ATS (Greenhouse/Ashby/Lever/Workday) de empresas registradas y extrae los roles Flutter/Dart | Script Python | `python3 .opencode/skills/flutter-employers/empresas_search.py` |
+| 2 | **flutter-employers** | Sondea los tableros de diez ATS (Greenhouse, Ashby, Lever, Workday, Workable, Recruitee, Teamtailor, SmartRecruiters, BambooHR, Personio) de empresas registradas y extrae los roles Flutter/Dart | Script Python | `python3 .opencode/skills/flutter-employers/empresas_search.py` |
 | 3 | **linkedin-hidden-jobs** | "Hidden job market": posts de LinkedIn con vacantes, no avisos oficiales | AI guiada + navegador | Cargar la skill → ejecuta el workflow |
 | 4 | **cv-apply** | CV optimizado ATS + carta + PDF a partir de una descripción de vacante | AI guiada | Cargar la skill → pegar descripción |
 | 5 | **linkedin-outreach** | Mensaje personalizado para contactar reclutadores en LinkedIn | AI guiada | Cargar la skill → pegar URL de perfil |
@@ -116,18 +116,25 @@ python3 estado/verificar_registro.py --dry-run   # prueba la semilla, no escribe
 python3 estado/verificar_registro.py             # registra lo verificado
 ```
 
-- Sondea los tableros Greenhouse/Ashby/Lever/**Workday** de las empresas del registro.
-- Resuelve `ats`+`slug` leyendo la página de carreras de la empresa (el paso que
-  sí acierta en LATAM). Los slugs a ciegas están desactivados por defecto: miden
-  ~0 % y costaban ~10 peticiones por empresa.
+- Sondea los tableros de **diez ATS** (Greenhouse, Ashby, Lever, Workday,
+  Workable, Recruitee, Teamtailor, SmartRecruiters, BambooHR, Personio).
+- Resuelve `ats`+`slug` leyendo la página de carreras de la empresa y, si la web
+  es una SPA, probando el host natural de la empresa (`--host-directo`, activo).
+  Los slugs a ciegas están desactivados por defecto: miden ~0 % y costaban ~10
+  peticiones por empresa.
 - Filtra **aplicabilidad**: descarta lo presencial en país no LATAM sin señal de
   remoto. `--min-score N` descarta por puntuación.
 - Cachea 24 h por empresa en `estado/empresas_cache.json`.
 - Puntúa 0-100 (Flutter en título, remoto, LATAM-friendly, seniority).
-- Dedup entre sesiones contra `estado/historial.json` (categoría `vacantes_empresa`).
+- Dedup entre sesiones contra `estado/historial.json` (categoría `vacantes_empresa`);
+  `--nuevas` emite solo el delta y **auto-encola** lo detectado en
+  `estado/cola_aplicaciones.json` (`--no-encolar` lo desactiva).
+- Sondea en paralelo (`EMPRESAS_WORKERS`) y guarda cada 10 empresas y en
+  `finally`: una ronda cortada no pierde el sondeo.
 - `verificar_registro.py` **agranda el registro solo con tableros verificados**:
   parte de `estado/empresas_seed.json` y da de alta únicamente las empresas cuyo
-  tablero devuelve ≥1 vacante real. Corre en paralelo y es idempotente.
+  tablero devuelve ≥1 vacante real. Corre en paralelo, es idempotente y
+  `--podar` marca `sin_dominio` y fusiona duplicados.
 - Output: `resultados/empresas-target/{YYYY-MM-DD}-empresas-vacantes.md`
 
 ## 3. linkedin-hidden-jobs — Mercado laboral oculto
@@ -223,7 +230,7 @@ python3 estado/verificar_registro.py             # registra lo verificado
 No hay skill propia: las vacantes de `vacantes_empresa` se aplican **una a una**
 con `cv-apply` y la postulación se hace en el navegador del usuario.
 
-- Los tableros Greenhouse/Ashby/Lever/Workday usan **reCAPTCHA invisible** (v3,
+- Los diez tableros ATS soportados usan **reCAPTCHA invisible** (v3,
   sin casilla) y renderizan el formulario por JavaScript: **no es automatizable
   por HTTP**. El usuario abre la URL de la vacante y postea.
 - A diferencia de un marketplace con anti-bot, **no hay desafío visible ni cupo

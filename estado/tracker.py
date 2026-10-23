@@ -32,10 +32,12 @@ Uso standalone (CLI):
     python3 tracker.py purge                 # limpia categorías vacías
 """
 
+import difflib
 import json
 import os
 import re
 import sys
+import unicodedata
 from datetime import datetime, timedelta, timezone
 
 # TLDs compuestos de 2 letras (ej: .com.br, .co.ve, .com.mx, .net.ar)
@@ -100,6 +102,47 @@ def normalize_title(t):
     t = re.sub(r"[^\w\s]", " ", t)
     t = re.sub(r"\s+", " ", t)
     return t.strip()
+
+
+def canon_name(name):
+    """Nombre de empresa comparable: sin acentos, paréntesis ni separadores.
+
+    Lo comparten `verificar_registro` (poda de duplicados) y `empresas_search`
+    (alta desde leads-db): si cada uno usa su propia regla, la poda se deshace
+    sola en la ronda siguiente porque el alta vuelve a crear el duplicado.
+    """
+    s = unicodedata.normalize("NFKD", name or "").encode("ascii", "ignore").decode()
+    s = re.sub(r"\([^)]*\)", "", s)  # "Proppit (Lifull Connect)" → "Proppit"
+    return re.sub(r"[^a-z0-9]", "", s.lower())
+
+
+def canon_domain(domain):
+    """Dominio comparable: sin esquema, sin `www.` y sin path."""
+    d = re.sub(r"^https?://", "", (domain or "").strip().lower())
+    d = d.split("/")[0]
+    return d[4:] if d.startswith("www.") else d
+
+
+def names_similar(a, b):
+    """¿Dos nombres canónicos son la misma empresa con otra grafía?
+
+    Dos fuentes de duplicado que se colaban entre rondas:
+      · sufijo corporativo ("Serasa" / "Serasa Experian", "Remote" /
+        "Remote.com"), que se resuelve por prefijo;
+      · variación de acentos/espacios ("Su Musica" / "Sua Música"), que el
+        canon no unifica porque el acento cambia la letra, así que se mide la
+        similitud (0.94 en ese caso).
+
+    Ojo: no compara región. "Patagonia" y "Patagonia IT" comparten prefijo pero
+    son empresas distintas, así que el llamador debe exigir misma región.
+    """
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    if len(a) >= 4 and len(b) >= 4 and (a.startswith(b) or b.startswith(a)):
+        return True
+    return difflib.SequenceMatcher(None, a, b).ratio() >= 0.92
 
 
 def vacancy_key(company, title):

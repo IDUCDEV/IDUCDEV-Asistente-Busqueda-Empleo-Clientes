@@ -51,7 +51,7 @@ flowchart TD
     INICIO([¡Haz la ronda de hoy!]) --> PASO1
 
     PASO1["1️⃣ job-search<br/>vacantes Flutter/remoto LATAM<br/><i>scripts · sin navegador</i>"]
-    PASO2["2️⃣ flutter-employers<br/>tableros ATS (Greenhouse/Ashby/Lever/Workday)<br/><i>scripts · sin navegador</i>"]
+    PASO2["2️⃣ flutter-employers<br/>10 tableros ATS · delta + auto-encolado<br/><i>scripts · sin navegador</i>"]
 
     PASO1 & PASO2 --> ORQ["estado/orquestador.py ronda --empleos<br/>(lanza 1 y 2 + anota rondas.json)"]
 

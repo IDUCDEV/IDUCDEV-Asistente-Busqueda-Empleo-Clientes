@@ -191,9 +191,9 @@
       "asunto": "",
       "cuerpo": "Hola, le escribo de IDUCDEV.\n\nLos vi en Infoguia, en Altamira, y me llamó la atención que un lugar con tan buenas referencias no tenga una web propia donde ver la carta.\n\nHoy quien quiere ver el menú, los precios o reservar tiene que escribirles por WhatsApp; en ese paso se pierden pedidos de gente que justo estaba buscando dónde comer.\n\nYo desarrollo web y apps — tengo 3 web-apps y 3 apps Flutter en producción, pueden verlas en mi portafolio: www.iducdev.org\n\n¿Le interesa que le cuente cómo quedaría una web con menú, fotos y reservas/pedidos en línea en su caso? Le paso una propuesta breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
       "mensaje_path": "resultados/mensajes-clientes/antoninos-pizza-napoletana-2026-10-09.md",
-      "estado": "pendiente",
+      "estado": "enviado",
       "creado": "2026-10-09T13:49:38+00:00",
-      "enviado_en": null,
+      "enviado_en": "2026-10-15T13:46:56+00:00",
       "error": null
     },
     {
@@ -221,6 +221,48 @@
       "mensaje_path": "resultados/mensajes-clientes/babas-burgers-2026-10-09.md",
       "estado": "pendiente",
       "creado": "2026-10-09T13:49:38+00:00",
+      "enviado_en": null,
+      "error": null
+    },
+    {
+      "id": "e-20261015103056-17",
+      "lead_key": "posadaelbotuto.com/reservations",
+      "nombre": "Posada El Botuto",
+      "canal": "whatsapp",
+      "destino": "584166220061",
+      "asunto": "",
+      "cuerpo": "Estimados señores de Posada El Botuto:\n\nLes escribo nuevamente desde IDUCDEV. Hace unas semanas les comenté la idea de habilitar reservas en línea con confirmación inmediata y pago, ya que hoy la reserva se gestiona por teléfono, fax o correo.\n\nUn alojamiento premium en Los Roques gana mucho con reservas directas sin fricción. Si les interesa, con gusto les comparto una propuesta breve y sin compromiso.\n\nSaludos cordiales,\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org | iducdev.inc@gmail.com",
+      "mensaje_path": "resultados/mensajes-clientes/posada-el-botuto-2026-10-15.md",
+      "estado": "pendiente",
+      "creado": "2026-10-15T14:30:56+00:00",
+      "enviado_en": null,
+      "error": null
+    },
+    {
+      "id": "e-20261015103056-18",
+      "lead_key": "fit club caracas",
+      "nombre": "Fit Club Caracas",
+      "canal": "whatsapp",
+      "destino": "584122566323",
+      "asunto": "",
+      "cuerpo": "¡Hola! Soy Isaac, de nuevo por acá de IDUCDEV.\n\nHace unas semanas les comenté la idea de una web de marca para Fit Club Caracas, con membresías y reserva de clases en línea. Su centro en Las Mercedes se ve premium, pero hoy todo se maneja solo por WhatsApp.\n\n¿Pudo verlo? Si quieren, les paso una propuesta breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/fit-club-caracas-2026-10-15.md",
+      "estado": "pendiente",
+      "creado": "2026-10-15T14:30:56+00:00",
+      "enviado_en": null,
+      "error": null
+    },
+    {
+      "id": "e-20261015103057-19",
+      "lead_key": "alfresko",
+      "nombre": "Alfresko",
+      "canal": "whatsapp",
+      "destino": "584123143412",
+      "asunto": "",
+      "cuerpo": "¡Hola! Soy Isaac, de IDUCDEV.\n\nLe escribí hace unos días por la idea de un menú digital con pedidos por WhatsApp para Alfresko: hoy sus platos gourmet se piden por teléfono y el perfil de Infoguia no tiene web propia.\n\n¿Le interesa que le cuente cómo quedaría? Le paso una idea breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/alfresko-2026-10-15.md",
+      "estado": "pendiente",
+      "creado": "2026-10-15T14:30:57+00:00",
       "enviado_en": null,
       "error": null
     }

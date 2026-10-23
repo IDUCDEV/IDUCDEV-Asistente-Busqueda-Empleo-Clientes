@@ -29,6 +29,7 @@ Notas:
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -40,7 +41,7 @@ from config import (  # noqa: E402
     EMPRESAS_REGISTRY_PATH, EMPRESAS_SEED_PATH, EMPRESAS_TIMEOUT_S,
     EMPRESAS_WORKERS, PROJECT_DIR,
 )
-from tracker import normalize_company  # noqa: E402
+from tracker import canon_domain, canon_name, names_similar, normalize_company  # noqa: E402
 
 SKILLS_DIR = os.path.join(PROJECT_DIR, ".opencode", "skills")
 EMP_DIR = os.path.join(SKILLS_DIR, "flutter-employers")
@@ -67,10 +68,150 @@ def save_json(path, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+STATUS_RANK = {
+    "con_vacante": 5, "sin_vacante_flutter": 4, "tablero_vacio": 3,
+    "sin_tablero": 2, "sin_dominio": 1, "nuevo": 0,
+}
+
+
+def _board_plausible(entry):
+    """¿El slug del tablero se parece al nombre/dominio de la empresa?
+
+    Detecta boards heredados de un slug adivinado (p. ej. "Remote" apuntando a
+    greenhouse/attotude, que es otra empresa). Sin esto, al fusionar duplicados
+    se conservaba un tablero que no era de la empresa.
+    """
+    slug_raw = entry.get("slug") or ""
+    if (entry.get("ats") or "").startswith("teamtailor"):
+        # "jobs.storytel.com" o "acme.teamtailor.com" → "storytel"/"acme".
+        parts = [p for p in slug_raw.split(".")
+                 if p not in ("www", "jobs", "careers", "teamtailor", "com")]
+        slug_raw = parts[0] if parts else ""
+    else:
+        slug_raw = slug_raw.split(".")[0]
+    slug = canon_name(slug_raw)
+    name = canon_name(entry.get("name"))
+    dom = canon_name(canon_domain(entry.get("domain")).split(".")[0])
+    if not slug:
+        return False
+    return bool((name and (slug in name or name in slug))
+                or (dom and (slug in dom or dom in slug)))
+
+
+def _merge_into(dst, src):
+    """Completa dst con lo que falte en src, sin pisar lo verificado."""
+    reset = False
+    d_ats, d_slug = dst.get("ats"), dst.get("slug")
+    s_ats, s_slug = src.get("ats"), src.get("slug")
+    if d_ats and d_slug and s_ats and s_slug and (d_ats, d_slug) != (s_ats, s_slug):
+        dp, sp = _board_plausible(dst), _board_plausible(src)
+        if sp and not dp:
+            dst["ats"], dst["slug"] = s_ats, s_slug
+            dst["careers_url"] = src.get("careers_url") or dst.get("careers_url")
+        elif not dp and not sp:
+            # Dos tableros distintos y ninguno encaja: no hay forma de saber
+            # cuál es el bueno, así que se deja sin resolver para re-sondearlo.
+            dst.pop("ats", None)
+            dst.pop("slug", None)
+            reset = True
+
+    for k, v in src.items():
+        if k in ("key", "name", "added", "aliases"):
+            continue
+        if not dst.get(k) and v:
+            dst[k] = v
+    dst["open_roles"] = max(dst.get("open_roles") or 0, src.get("open_roles") or 0)
+    if reset:
+        dst["status"] = "nuevo"
+        dst["last_checked"] = None
+    elif STATUS_RANK.get(src.get("status"), -1) > STATUS_RANK.get(dst.get("status"), -1):
+        dst["status"] = src.get("status")
+    aliases = set(dst.get("aliases") or [])
+    aliases.add(src.get("key") or "")
+    aliases.update(src.get("aliases") or [])
+    aliases.discard(dst.get("key"))
+    if aliases:
+        dst["aliases"] = sorted(a for a in aliases if a)
+
+
+def podar_registro(registry, dry_run=False):
+    """Limpia el registro: marca las entradas sin dominio y fusiona duplicados.
+
+    No borra información: los duplicados se fusionan en una entrada canónica
+    (conservando los alias) y las entradas sin dominio pasan a `sin_dominio`,
+    que el sondeo ignora. Así dejan de consumir ronda y de ensuciar el informe.
+    """
+    cs = registry.get("companies", {})
+    acciones = []
+
+    for key, c in list(cs.items()):
+        if (not c.get("domain") and not c.get("ats")
+                and c.get("status") not in ("con_vacante", "sin_vacante_flutter")):
+            if c.get("status") != "sin_dominio":
+                acciones.append(f"sin dominio → {key}")
+                if not dry_run:
+                    c["status"] = "sin_dominio"
+
+    # Union-find por nombre canónico, dominio y prefijo de nombre.
+    parent = {k: k for k in cs}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[rb] = ra
+
+    keys = list(cs)
+    for i, a in enumerate(keys):
+        ca, na, da = cs[a], canon_name(cs[a].get("name")), canon_domain(cs[a].get("domain"))
+        for b in keys[i + 1:]:
+            cb, nb, db = cs[b], canon_name(cs[b].get("name")), canon_domain(cs[b].get("domain"))
+            same = (na and na == nb) or (da and da == db)
+            if not same and na and nb and ca.get("region") == cb.get("region"):
+                # "Propi" / "Propi Latam", "Serasa" / "Serasa Experian" y las
+                # variantes de acentuación ("Su Musica" / "Sua Música").
+                same = names_similar(na, nb)
+            if same:
+                union(a, b)
+
+    grupos = {}
+    for k in keys:
+        grupos.setdefault(find(k), []).append(k)
+
+    for raiz, miembros in grupos.items():
+        if len(miembros) < 2:
+            continue
+        # Sobrevive la entrada con tablero verificado; si no, la más antigua.
+        def prioridad(k):
+            c = cs[k]
+            return (0 if (c.get("ats") and c.get("slug")) else 1,
+                    c.get("added") or "9999-12-31", len(k))
+        survivor = sorted(miembros, key=prioridad)[0]
+        for k in miembros:
+            if k == survivor:
+                continue
+            acciones.append(f"duplicado: {k} → {survivor}")
+            if not dry_run:
+                _merge_into(cs[survivor], cs[k])
+                cs.pop(k, None)
+
+    return acciones
+
+
 def fmt_stats(registry, seed):
     cs = registry.get("companies", {})
     cands = seed.get("candidates", [])
     print(f"== registro ==\n  empresas: {len(cs)}")
+    by_status = {}
+    for c in cs.values():
+        st = c.get("status", "nuevo")
+        by_status[st] = by_status.get(st, 0) + 1
+    print("  por estado: " + ", ".join(f"{k}={v}" for k, v in sorted(by_status.items())))
     by_region = {}
     for c in cs.values():
         by_region[c.get("region", "?")] = by_region.get(c.get("region", "?"), 0) + 1
@@ -96,6 +237,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0,
                     help="Máximo de candidatos a probar (0 = todos)")
     ap.add_argument("--stats", action="store_true", help="Resumen y sale")
+    ap.add_argument("--podar", action="store_true",
+                    help="Marca sin_dominio y fusiona empresas duplicadas")
     ap.add_argument("--verbose", action="store_true", help="Muestra cada sondeo")
     ap.add_argument("--slugs-ciegos", action="store_true", dest="slugs_ciegos",
                     help="Prueba slugs adivinados si falla la página de carreras")
@@ -108,6 +251,21 @@ def main():
 
     if args.stats:
         fmt_stats(registry, seed)
+        return 0
+
+    if args.podar:
+        acciones = podar_registro(registry, dry_run=args.dry_run)
+        for a in acciones:
+            print(f"  · {a}")
+        if not acciones:
+            print("Registro ya limpio: nada que podar.")
+        elif args.dry_run:
+            print(f"[dry-run] {len(acciones)} acción(es) no aplicadas")
+        else:
+            registry["updated"] = datetime.now(timezone.utc).date().isoformat()
+            save_json(EMPRESAS_REGISTRY_PATH, registry)
+            print(f"{len(acciones)} acción(es) aplicadas; "
+                  f"empresas ahora: {len(registry['companies'])}")
         return 0
 
     candidates = seed.get("candidates", [])

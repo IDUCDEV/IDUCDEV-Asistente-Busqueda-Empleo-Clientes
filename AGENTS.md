@@ -69,14 +69,21 @@ informes/  (ya no — ahora resultados/informes/)
 - **Búsqueda de empleo en 2 carriles:**
   - `job_search.py` (sin navegador, 12 fuentes agregadoras) →
     `resultados/vacantes/`. `--dry-run` no escribe nada.
-  - `empresas_search.py` (tableros directos Greenhouse/Ashby/Lever/Workday) →
+  - `empresas_search.py` (tableros directos de diez ATS) →
     `resultados/empresas-target/`. Resuelve `ats`+`slug` leyendo la página de
-    carreras del registro y cachea 24 h (`empresas_cache.json`). Un tablero que
-    responde vacío se marca `tablero_vacio`, **nunca** "sin vacantes": suele ser
-    slug equivocado. Workday **sí** tiene API pública (endpoint CXS, `POST`):
-    el `<site>` del path va **sin locale** y el `<tenant>` no es el subdominio
-    `wd<N>`. Los slugs a ciegas están **desactivados por defecto** (`--slugs-ciegos`
-    los activa): miden ~0 % en LATAM y costaban ~10 peticiones por empresa.
+    carreras del registro, probando el **host natural** de la empresa
+    (`--host-directo`, activo: cubre Workable/Recruitee/BambooHR/Teamtailor/
+    SmartRecruiters/Personio + Greenhouse/Ashby/Lever con el slug del dominio) y
+    cachea 24 h (`empresas_cache.json`). Sondea en paralelo
+    (`EMPRESAS_WORKERS`, un `Prober` por empresa), guarda cada 10 empresas y en
+    `finally` (una ronda cortada no pierde el sondeo), emite solo el delta con
+    `--nuevas` y **auto-encola** en `cola_aplicaciones.json` (`--no-encolar` lo
+    desactiva). Un tablero que responde vacío se marca `tablero_vacio`, **nunca**
+    "sin vacantes": suele ser slug equivocado. Workday **sí** tiene API pública
+    (endpoint CXS, `POST`): el `<site>` del path va **sin locale** y el
+    `<tenant>` no es el subdominio `wd<N>`. Los slugs a ciegas están
+    **desactivados por defecto** (`--slugs-ciegos` los activa): miden ~0 % en
+    LATAM y costaban ~10 peticiones por empresa.
   - `verificar_registro.py` **agranda el registro de forma verificada**: parte de
     `empresas_seed.json` y da de alta solo las empresas cuyo tablero devuelve
     ≥1 vacante real (nunca empresas inventadas con slugs supuestos). Corre en
@@ -84,6 +91,10 @@ informes/  (ya no — ahora resultados/informes/)
     con tablero sin resolver o placeholders antiguos. `--stats` dice qué falta.
     Un tablero vacío solo se descarta si el slug se adivinó (`Prober.resolution`):
     si lo dedujo la página de la empresa, 0 vacantes es "no hay vacantes".
+    `--podar` marca `sin_dominio` y fusiona duplicados (nombre canónico,
+    dominio o similitud en `tracker.names_similar`); `migrate_leads_db` usa esas
+    mismas reglas para no volver a crear el duplicado que la poda acaba de
+    fusionar.
   - `hidden-jobs-web` cubre lo no parseable (mobile.career, YC, X,
     `site:boards.*`) y da de alta empresas en `empresas_registry.json`.
 - `orquestador.py estado` expone historial + bandeja + vencidos (pendientes
@@ -101,10 +112,12 @@ informes/  (ya no — ahora resultados/informes/)
   `orquestador.py marcar clientes <clave> contactado` (crea el D+3).
   Límite diario `ENVIO_MAX_DIA` (default 12) y pausa 15-35s entre WhatsApp.
 - **Flujo de postulación a tableros ATS (1 skill):** las vacantes de
-  `vacantes_empresa` se aplican con `cv-apply` **una a una**. Al marcar
+  `vacantes_empresa` se aplican con `cv-apply` **una a una**; el sondeo de
+  `empresas_search.py` ya las deja en `cola_aplicaciones.json`. Al marcar
   `orquestador.py marcar vacantes_empresa "<empresa>::<titulo>" applied` se crea
   el seguimiento D+7 (`SEGUIMIENTO_DIAS["vacantes_empresa"]`).
-  Los cuatro tableros soportados (Greenhouse/Ashby/Lever/Workday) usan
+  Los diez tableros soportados (Greenhouse, Ashby, Lever, Workday, Workable,
+  Recruitee, Teamtailor, SmartRecruiters, BambooHR y Personio) usan
   **reCAPTCHA invisible** (v3, sin casilla) y renderizan el formulario por
   JavaScript: el envío **no** se puede automatizar por HTTP y lo hace el usuario
   en su navegador, pero **no hay desafío visible ni cupo semanal**.

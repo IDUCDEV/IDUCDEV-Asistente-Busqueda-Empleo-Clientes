@@ -1,6 +1,100 @@
 {
   "rondas": [
     {
+      "fecha": "2026-10-22",
+      "inicio": "2026-10-22T14:07:25+00:00",
+      "tipo": "parcial",
+      "fases": [
+        {
+          "fase": "linkedin-hidden-jobs",
+          "archivo": "resultados/vacantes-ocultas/2026-10-22-hidden.md",
+          "nuevas": 7,
+          "omitidas": 21,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-22T15:39:18+00:00"
+        },
+        {
+          "fase": "prospectar-clientes",
+          "archivo": "resultados/clientes-potenciales/2026-10-22-leads.md",
+          "nuevas": 12,
+          "omitidas": 4,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-22T15:39:18+00:00"
+        },
+        {
+          "fase": "job-search",
+          "archivo": "resultados/vacantes/2026-10-22.md",
+          "nuevas": 87,
+          "omitidas": 58,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-22T15:49:57+00:00"
+        }
+      ]
+    },
+    {
+      "fecha": "2026-10-15",
+      "inicio": "2026-10-15T12:42:14+00:00",
+      "tipo": "parcial",
+      "fases": [
+        {
+          "fase": "enviar-clientes",
+          "archivo": "resultados/mensajes-clientes/",
+          "nuevas": 1,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "email:0 wa:1 li:0 errores:0 saltados:2",
+          "fin": "2026-10-15T13:55:00+00:00"
+        },
+        {
+          "fase": "linkedin-hidden-jobs",
+          "archivo": "resultados/vacantes-ocultas/2026-10-15-hidden.md",
+          "nuevas": 2,
+          "omitidas": 55,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-15T14:12:34+00:00"
+        },
+        {
+          "fase": "empresas-search",
+          "archivo": "resultados/empresas-target/2026-10-15-empresas-vacantes.md",
+          "nuevas": 5,
+          "omitidas": 5,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-15T14:13:33+00:00"
+        },
+        {
+          "fase": "prospectar-clientes",
+          "archivo": "resultados/clientes-potenciales/2026-10-15-leads.md",
+          "nuevas": 76,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "hamburguesas+foodtrucks; 31 hot",
+          "fin": "2026-10-15T14:25:49+00:00"
+        },
+        {
+          "fase": "job-search",
+          "archivo": "resultados/vacantes/2026-10-15.md",
+          "nuevas": 79,
+          "omitidas": 60,
+          "errores": [],
+          "ok": true,
+          "notas": "LinkedIn:7; LinkedIn7d:6; RemoteJobs:2; Remotico:2; Wellfound:62; 3x LinkedIn 429",
+          "fin": "2026-10-15T14:26:21+00:00"
+        }
+      ]
+    },
+    {
       "fecha": "2026-10-09",
       "inicio": "2026-10-09T13:09:15+00:00",
       "tipo": "empleos",

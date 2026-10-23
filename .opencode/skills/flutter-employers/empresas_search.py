@@ -18,17 +18,21 @@ Uso:
   python3 empresas_search.py --limit 20          # solo 20 (rápido)
   python3 empresas_search.py --company nubank    # una empresa concreta
   python3 empresas_search.py --refresh           # ignora la cache
+  python3 empresas_search.py --nuevas            # solo lo no visto (delta)
+  python3 empresas_search.py --no-encolar        # no tocar la cola
   python3 empresas_search.py --dry-run           # no escribe NADA
   python3 empresas_search.py --stats             # resumen del registro
   python3 empresas_search.py --min-score 45      # solo roles con buen encaje
 
-Tableros soportados: Greenhouse, Ashby, Lever (JSON GET público) y Workday
-(CXS, JSON POST público). Los cuatro exponen la vacante en JSON sin credenciales;
-lo que NO se automatiza es el ENVÍO de la postulación (reCAPTCHA invisible +
-formulario renderizado por JS): eso lo hace el usuario en su navegador.
+Tableros soportados: Greenhouse, Ashby, Lever, Workable, Recruitee, Teamtailor,
+SmartRecruiters, BambooHR y Personio (JSON/XML GET público), más Workday (CXS,
+JSON POST público). Todos exponen la vacante sin credenciales; lo que NO se
+automatiza es el ENVÍO de la postulación (reCAPTCHA invisible + formulario
+renderizado por JS): eso lo hace el usuario en su navegador.
 """
 
 import argparse
+import copy
 import html
 import json
 import os
@@ -38,6 +42,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -70,10 +76,12 @@ sys.path.insert(0, os.path.join(PROJECT_DIR, "estado"))
 from config import (  # noqa: E402
     EMPRESAS_CACHE_PATH, EMPRESAS_CACHE_HORAS, EMPRESAS_CAREERS_TIMEOUT_S,
     EMPRESAS_FALLOS_MAX, EMPRESAS_PAUSA_S, EMPRESAS_REGISTRY_PATH,
-    EMPRESAS_TIMEOUT_S, OUTPUT_DIRS,
+    EMPRESAS_TIMEOUT_S, EMPRESAS_WORKERS, OUTPUT_DIRS,
 )
 from job_search import has_flutter_dart, normalize_company, normalize_title  # noqa: E402
-from tracker import Historial, vacancy_key  # noqa: E402
+from tracker import (  # noqa: E402
+    Historial, canon_domain, canon_name, names_similar, vacancy_key,
+)
 
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -88,6 +96,22 @@ ATS_PROBES = {
     "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true",
     "ashby": "https://api.ashbyhq.com/posting-api/job-board/{slug}",
     "lever": "https://api.lever.co/v0/postings/{slug}?mode=json",
+    # Los seis siguientes cubren el hueco real de LATAM/EU: sus tableros viven
+    # en un subdominio de la propia empresa y por eso no aparecían al buscar
+    # enlaces de Greenhouse/Ashby/Lever en /careers.
+    "workable": "https://apply.workable.com/api/v1/widget/accounts/{slug}?details=true",
+    "recruitee": "https://{slug}.recruitee.com/api/offers/",
+    # Teamtailor se codifica como host completo (sirve tanto jobs.empresa.com
+    # como empresa.teamtailor.com) y su feed público es /jobs.json.
+    "teamtailor": "https://{slug}/jobs.json",
+    "smartrecruiters": "https://api.smartrecruiters.com/v1/companies/{slug}/postings?limit=100",
+    "bamboohr": "https://{slug}.bamboohr.com/careers/list",
+    "personio": "https://{slug}.jobs.personio.de/xml?language=en",
+}
+
+# Variantes de URL para un mismo proveedor (Personio usa .de y .com según país).
+ATS_URL_ALTS = {
+    "personio": ["https://{slug}.jobs.personio.com/xml?language=en"],
 }
 
 SUFFIXES = ["", "tech", "techcareers", "digital", "hiring", "careers", "jobs", "labs", "io", "group"]
@@ -109,6 +133,22 @@ ATS_FINGERPRINTS = [
         r"(?:https?://)?([a-z0-9][a-z0-9\-]*\.[a-z0-9\-]+\.myworkdayjobs\.com)/"
         r"([a-z]{2}(?:-[A-Za-z]{2,4})?/)?([A-Za-z0-9_\-]+)",
         re.I)),
+    # Los tableros "de subdominio" se detectan igual de fácil que los tres
+    # grandes; antes se ignoraban y la empresa acababa como "sin tablero".
+    ("workable", re.compile(
+        r"apply\.workable\.com/([a-z0-9\-_]+)"
+        r"|([a-z0-9\-_]+)\.workable\.com", re.I)),
+    ("recruitee", re.compile(r"([a-z0-9\-_]+)\.recruitee\.com", re.I)),
+    # Teamtailor no siempre usa subdominio propio: el career site puede vivir
+    # en jobs.empresa.com. La huella `teamtailor-cdn.com` está también ahí, así
+    # que el slug se resuelve al host de la página (ver discover_ats).
+    ("teamtailor", re.compile(
+        r"([a-z0-9\-_]+)\.teamtailor\.com|teamtailor-cdn\.com", re.I)),
+    ("smartrecruiters", re.compile(
+        r"(?:careers|jobs)\.smartrecruiters\.com/([a-z0-9\-_]+)", re.I)),
+    ("bamboohr", re.compile(r"([a-z0-9\-_]+)\.bamboohr\.com", re.I)),
+    ("personio", re.compile(
+        r"([a-z0-9\-_]+)\.jobs\.personio\.(?:com|de)", re.I)),
 ]
 
 # Rutas de página de carreras que se prueban, en orden de probabilidad.
@@ -142,6 +182,15 @@ def discover_ats(careers_url, timeout=None, raw=None):
             if not (host and site) or site.lower() in ("index", "jobs", "embed"):
                 continue
             return f"workday:{host.lower()}", f"{locale}{site}"
+        if ats == "teamtailor":
+            # Con subdominio propio el slug es el host; en un dominio custom
+            # (jobs.empresa.com) el feed vive en el mismo host que la página.
+            sub = m.group(1)
+            host = (f"{sub.lower()}.teamtailor.com" if sub
+                    else urllib.parse.urlparse(careers_url).netloc.lower())
+            if host:
+                return "teamtailor", host
+            continue
         slug = next((g for g in m.groups() if g), None)
         if slug and slug.lower() not in ("embed", "jobs", "en", "es", "index"):
             return ats, slug.lower()
@@ -432,7 +481,7 @@ def parse_relative_date(text):
     return (datetime.now(timezone.utc) - timedelta(days=dias)).date().isoformat()
 
 
-def norm_greenhouse(data):
+def norm_greenhouse(data, slug=None):
     out = []
     for j in (data.get("jobs") or []):
         loc = (j.get("location") or {}).get("name", "") or ""
@@ -446,7 +495,7 @@ def norm_greenhouse(data):
     return out
 
 
-def norm_ashby(data):
+def norm_ashby(data, slug=None):
     out = []
     for j in (data.get("jobs") or []):
         loc = j.get("location") or ""
@@ -462,7 +511,7 @@ def norm_ashby(data):
     return out
 
 
-def norm_lever(data):
+def norm_lever(data, slug=None):
     out = []
     if not isinstance(data, list):
         return out
@@ -505,28 +554,233 @@ def norm_workday(data, host, slug, matched="flutter"):
     return out
 
 
-NORMALIZERS = {"greenhouse": norm_greenhouse, "ashby": norm_ashby, "lever": norm_lever}
+def norm_workable(data, slug=None):
+    """Widget público de Workable (apply.workable.com/api/v1/widget/...)."""
+    out = []
+    for j in (data.get("jobs") or []):
+        loc = ", ".join(str(x) for x in (j.get("city"), j.get("state"), j.get("country")) if x)
+        if not loc and j.get("telecommuting"):
+            loc = "Remote"
+        out.append({
+            "title": (j.get("title") or "").strip(),
+            "location": loc,
+            "url": j.get("application_url") or j.get("url") or "",
+            "description": strip_html(j.get("description") or "")[:400],
+            "published": to_iso_date(j.get("published_on")),
+        })
+    return out
+
+
+def norm_recruitee(data, slug=None):
+    """API pública de Recruitee: https://{slug}.recruitee.com/api/offers/."""
+    out = []
+    for j in (data.get("offers") or []):
+        loc = j.get("location") or ""
+        if not loc:
+            locs = j.get("locations") or []
+            loc = (locs[0].get("name", "") if locs and isinstance(locs[0], dict) else "")
+        if j.get("remote") and "remote" not in (loc or "").lower():
+            loc = f"{loc} (Remote)".strip()
+        out.append({
+            "title": (j.get("title") or "").strip(),
+            "location": loc,
+            "url": j.get("careers_url") or j.get("careers_apply_url") or "",
+            "description": strip_html(j.get("description") or "")[:400],
+            "published": to_iso_date(j.get("published_at")),
+        })
+    return out
+
+
+def norm_teamtailor(data, slug=None):
+    """JSON Feed público de Teamtailor (https://{host}/jobs.json)."""
+    out = []
+    for j in (data.get("items") or []):
+        jp = j.get("_jobposting") or {}
+        loc = ""
+        jl = jp.get("jobLocation")
+        addrs = jl if isinstance(jl, list) else [jl]
+        for item in addrs:
+            if not isinstance(item, dict):
+                continue
+            addr = item.get("address") if isinstance(item.get("address"), dict) else item
+            loc = ", ".join(str(addr.get(k)) for k in
+                            ("addressLocality", "addressRegion", "addressCountry")
+                            if isinstance(addr, dict) and addr.get(k))
+            if loc:
+                break
+        if not loc and jp.get("jobLocationType"):
+            loc = "Remote"
+        out.append({
+            "title": (j.get("title") or "").strip(),
+            "location": loc,
+            "url": j.get("url") or "",
+            "description": strip_html(
+                j.get("content_text") or j.get("content_html") or "")[:400],
+            "published": to_iso_date(j.get("date_published")),
+        })
+    return out
+
+
+def norm_smartrecruiters(data, slug=None):
+    """Public Posting API de SmartRecruiters (limit 100 por página)."""
+    out = []
+    for j in (data.get("content") or []):
+        loc = (j.get("location") or {}).get("fullLocation") or ""
+        company = (j.get("company") or {}).get("identifier") or slug or ""
+        url = (f"https://jobs.smartrecruiters.com/{company}/{j.get('id')}"
+               if company and j.get("id") else "")
+        out.append({
+            "title": (j.get("name") or "").strip(),
+            "location": loc,
+            "url": url,
+            "description": "",
+            "published": to_iso_date(j.get("releasedDate")),
+        })
+    return out
+
+
+def norm_bamboohr(data, slug=None):
+    """BambooHR: https://{slug}.bamboohr.com/careers/list (Accept: JSON)."""
+    out = []
+    for j in (data.get("result") or []):
+        loc = j.get("location") or {}
+        if isinstance(loc, dict):
+            loc = ", ".join(str(loc.get(k)) for k in ("city", "state") if loc.get(k))
+        ats_loc = j.get("atsLocation") or {}
+        if not loc and isinstance(ats_loc, dict):
+            loc = ", ".join(str(ats_loc.get(k)) for k in
+                            ("city", "state", "country") if ats_loc.get(k))
+        if j.get("isRemote") or str(j.get("locationType")) == "1":
+            loc = f"{loc} (Remote)".strip()
+        jid = j.get("id")
+        out.append({
+            "title": (j.get("jobOpeningName") or "").strip(),
+            "location": loc,
+            "url": (f"https://{slug}.bamboohr.com/careers/{jid}"
+                    if slug and jid else ""),
+            "description": "",
+            "published": "",
+        })
+    return out
+
+
+def norm_personio(raw, slug=None):
+    """Personio: feed XML público (jobs.personio.de|com/xml)."""
+    out = []
+    try:
+        root = ET.fromstring(raw)
+    except ET.ParseError:
+        return out
+    for p in root.findall("position"):
+        def txt(tag):
+            el = p.find(tag)
+            return (el.text or "").strip() if el is not None else ""
+        desc = " ".join((v.text or "").strip() for v in
+                        p.findall("jobDescriptions/jobDescription/value"))
+        jid = txt("id")
+        out.append({
+            "title": txt("name"),
+            "location": txt("office"),
+            "url": (f"https://{slug}.jobs.personio.de/job/{jid}"
+                    if slug and jid else ""),
+            "description": strip_html(desc)[:400],
+            "published": to_iso_date(txt("createdAt")),
+        })
+    return out
+
+
+NORMALIZERS = {
+    "greenhouse": norm_greenhouse, "ashby": norm_ashby, "lever": norm_lever,
+    "workable": norm_workable, "recruitee": norm_recruitee,
+    "teamtailor": norm_teamtailor, "smartrecruiters": norm_smartrecruiters,
+    "bamboohr": norm_bamboohr, "personio": norm_personio,
+}
+
+
+def board_urls(ats, slug):
+    """URLs a probar para un tablero (Personio tiene dos dominios)."""
+    urls = [ATS_PROBES[ats].format(slug=slug)]
+    urls += [u.format(slug=slug) for u in ATS_URL_ALTS.get(ats, [])]
+    return urls
+
+
+def normalize_board(ats, data, slug):
+    """Normaliza la respuesta del tablero, sea JSON (dict) o XML (str)."""
+    return NORMALIZERS[ats](data, slug)
 
 
 # ── Sondeo ───────────────────────────────────────────────────────────
 
-class Prober:
-    MAX_INTENTOS = 10  # por EMPRESA: 12 slugs × 3 ATS sería demasiado lento
+def host_slugs(company):
+    """Slugs plausibles a partir del dominio y del nombre.
 
-    def __init__(self, verbose=False, slug_ciegos=False):
+    Para los tableros de subdominio (Recruitee, Personio, BambooHR, Workable)
+    el slug coincide casi siempre con la primera etiqueta del dominio, así que
+    probarlo no es "adivinar a ciegas": es el camino natural cuando /careers es
+    una SPA y no expone ningún enlace al ATS.
+    """
+    domain = (company.get("domain") or "").strip().lower()
+    domain = re.sub(r"^https?://", "", domain).split("/")[0]
+    prefix = domain.split(".")[0] if domain else ""
+    base = re.sub(r"[^a-z0-9]", "", normalize_company(company.get("name", "")))
+    out = []
+    for s in (prefix, base):
+        if s and s not in out:
+            out.append(s)
+    return out[:2]
+
+
+GENERIC_WORDS = {
+    # Sufijos que no cambian de empresa: "Somnio" y "Somnio Software" son la
+    # misma. Cualquier otra palabra extra ("Rows" vs "Rows Financial") se toma
+    # como otra compañía y el tablero se descarta.
+    "software", "technologies", "technology", "tech", "tecnologia", "tecnologias",
+    "sistemas", "systems", "labs", "lab", "digital", "group", "grupo", "studio",
+    "studios", "inc", "llc", "corp", "global", "latam", "com", "app", "mobile",
+    "sa", "sas", "ltda", "brasil", "brazil", "colombia", "mexico", "chile",
+    "argentina", "jobs", "careers", "beneficios", "servicos", "services",
+}
+
+
+def board_matches_company(declarado, company_name):
+    """¿El nombre que declara el tablero es el de esta empresa?
+
+    Comparación estricta a propósito: los slugs globales salen del dominio y una
+    palabra genérica puede ser el board de otro (`Remote` apuntando al tablero
+    de un tercero). Se acepta el mismo nombre canónico o uno con sufijo
+    corporativo; cualquier palabra extra descarta el tablero y se sigue probando.
+    """
+    a, b = canon_name(declarado), canon_name(company_name)
+    if not a or not b:
+        return True  # sin datos no se descarta por prejuicio
+    if a == b:
+        return True
+    short, long_ = sorted((a, b), key=len)
+    if long_.startswith(short):
+        return long_[len(short):] in GENERIC_WORDS
+    return False
+
+
+class Prober:
+    MAX_INTENTOS = 20  # por EMPRESA: 1 ruta de carreras + 2 slugs × (6 ATS de
+    # subdominio + 3 globales). Con 14 el descubrimiento global no llegaba a
+    # probarse en empresas que gastaban presupuesto en los ATS de subdominio.
+
+    def __init__(self, verbose=False, slug_ciegos=False, host_directo=True):
         self.verbose = verbose
-        # Path 3 (slugs a ciegas) está DESACTIVADO por defecto: medido, rinde
-        # ~0% en LATAM (25 empresas LATAM → 0 tableros) y se come 10 peticiones
-        # + 10 pausas por empresa, o sea la ronda entera. Se activa con
-        # `--slugs-ciegos` cuando se quiere una pasada opportunista sobre una
-        # empresa suelta y no importa tardar.
+        # Path 4 (slugs a ciegas sobre los 3 grandes) sigue DESACTIVADO por
+        # defecto: medido, rinde ~0% en LATAM (25 empresas LATAM → 0 tableros).
+        # `host_directo` es distinto: solo prueba tableros cuyo host ES el de la
+        # empresa (recruitee/personio/bamboohr/...), donde el slug sí correlaciona
+        # con el dominio, y exige que el tablero devuelva roles.
         self.slug_ciegos = slug_ciegos
+        self.host_directo = host_directo
         self.fallos = 0
         self.intentos = 0   # acumulado de toda la ronda (solo para el resumen)
         self._usados = 0    # consumido en la empresa actual (reinicia en probe)
         # De la última probe: de dónde salió el tablero y qué URL de carreras lo
-        # reveló. `resolution` distingue un tablero que la propia empresa enlazó
-        # ("careers", fiable) de uno adivinado ("ciego", puede estar equivocado).
+        # reveló. `resolution` distingue un tablero verificado ("registro"),
+        # deducido de la web ("careers") o de host directo ("host-directo").
         self.resolution = None
         self.last_careers_url = None
 
@@ -560,6 +814,35 @@ class Prober:
         except json.JSONDecodeError:
             return None
 
+    def _raw_board(self, ats, slug):
+        """Descarga el primer endpoint que responda de un tablero."""
+        for url in board_urls(ats, slug):
+            if self.fallos >= EMPRESAS_FALLOS_MAX or not self.gastar():
+                return None
+            raw = http_get(url)
+            if raw == "__404__" or raw == "__NET__":
+                continue
+            if raw.startswith("__ERR__"):
+                self.fallos += 1
+                continue
+            return raw
+        return None
+
+    def board(self, ats, slug):
+        """Sondea un tablero no-Workday. Devuelve (ats, slug, roles) o None.
+
+        `roles == []` es una respuesta válida (tablero vacío) y se conserva: el
+        llamador decide si es fiable (deducido de /careers) o no (host directo).
+        """
+        raw = self._raw_board(ats, slug)
+        if raw is None:
+            return None
+        try:
+            data = raw if ats == "personio" else json.loads(raw)
+        except json.JSONDecodeError:
+            return None
+        return ats, slug, normalize_board(ats, data, slug)
+
     def workday(self, ats, slug, search="flutter"):
         """Sondea un tablero Workday. Devuelve (ats, slug, roles) o None."""
         host = ats.split(":", 1)[1] if ats.startswith("workday:") else ats
@@ -570,18 +853,82 @@ class Prober:
             return None
         return ats, slug, norm_workday(data, host, slug, matched=search)
 
+    def _board_name(self, ats, slug):
+        """Nombre que declara el tablero, si el proveedor lo publica.
+
+        Solo Greenhouse expone metadatos del board (`/v1/boards/{slug}`). Sirve
+        para no dar por bueno un tablero global homónimo: el slug sale del
+        dominio de la empresa, pero una palabra genérica puede pertenecer a otra
+        compañía (el caso real fue `Remote` apuntando al board de un tercero).
+        """
+        if ats != "greenhouse" or not self.gastar():
+            return None
+        raw = http_get(f"https://boards-api.greenhouse.io/v1/boards/{slug}")
+        if not raw or raw.startswith("__") or raw.startswith("__ERR__"):
+            return None
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            return None
+        return (data.get("name") or "").strip() or None
+
+    def probe_host_directo(self, company):
+        """Prueba los ATS cuyo slug se deriva del nombre/dominio de la empresa.
+
+        Es la respuesta a las webs de carreras que son una SPA (o están tras
+        Cloudflare): no hace falta leer ningún HTML, se consulta directamente
+        el identificador habitual de cada proveedor. Solo se acepta un tablero
+        si devuelve ≥1 vacante, porque SmartRecruiters responde 200 con 0 para
+        identificadores inexistentes.
+
+        Cubre los dos mundos: los ATS de subdominio (Recruitee, Personio,
+        BambooHR, Workable, Teamtailor) y los globales (Greenhouse, Ashby,
+        Lever) con el slug natural. Estos últimos parecían "adivinar a ciegas",
+        pero el slug es el prefijo del dominio de la empresa, no una palabra
+        inventada: así apareció `greenhouse/quintoandar` (110 vacantes) en una
+        empresa cuya web no enlaza ningún tablero.
+        """
+        if not self.host_directo:
+            return None
+        slugs = host_slugs(company)
+        if not slugs:
+            return None
+        for cand in slugs:
+            for ats in ("workable", "recruitee", "bamboohr", "teamtailor",
+                        "smartrecruiters", "personio",
+                        "greenhouse", "ashby", "lever"):
+                if self.fallos >= EMPRESAS_FALLOS_MAX:
+                    return None
+                slug = f"{cand}.teamtailor.com" if ats == "teamtailor" else cand
+                if self.verbose:
+                    print(f"    · {company['name']} → {ats}/{slug} (host directo)")
+                hit = self.board(ats, slug)
+                if hit and hit[2]:
+                    if ats == "greenhouse":
+                        declarado = self._board_name(ats, slug)
+                        if declarado and not board_matches_company(
+                                declarado, company.get("name")):
+                            if self.verbose:
+                                print(f"      ✗ {ats}/{slug}: es '{declarado}', "
+                                      f"no {company['name']}")
+                            continue
+                    if self.verbose:
+                        print(f"      ✓ {ats}/{slug}: {len(hit[2])} roles")
+                    self.resolution = "host-directo"
+                    return hit
+        return None
+
     def probe(self, company):
-        """Devuelve (ats, slug, roles) para la primera fuente que responda con vacantes.
+        """Devuelve (ats, slug, roles) para la primera fuente que responda.
 
         Orden: (1) ats/slug ya conocidos, (2) deducidos de la página de carreras,
-        (3) slugs candidatos a ciegas. Los slugs a ciegas casi nunca aciertan en
-        LATAM, así que (2) es el paso que realmente rinde.
+        (3) tablero en el host natural de la empresa, (4) slugs a ciegas (opt-in).
 
         Deja en `self.resolution` de dónde salió el tablero ("registro",
-        "careers" o "ciego") y en `self.last_careers_url` la página que lo
-        reveló. Importa porque un tablero vacío deducido de la página de la
-        empresa es fiable ("no hay vacantes"), mientras que uno adivinado a
-        ciegas vacío casi siempre es slug equivocado.
+        "careers", "host-directo" o "ciego") y en `self.last_careers_url` la
+        página que lo reveló. Importa porque un tablero vacío deducido de la
+        página de la empresa es fiable ("no hay vacantes"), mientras que uno
+        adivinado vacío casi siempre es slug equivocado.
         """
         self._usados = 0  # el presupuesto de peticiones es por empresa
         self.resolution = None
@@ -599,13 +946,12 @@ class Prober:
                               f"{len(hit[2])} roles")
                     return hit
             elif known_ats in ATS_PROBES:
-                if self.gastar():
-                    data = self.get(ATS_PROBES[known_ats].format(slug=company["slug"]))
-                    if data is not None:
-                        self.resolution = "registro"
-                        return known_ats, company["slug"], NORMALIZERS[known_ats](data)
+                hit = self.board(known_ats, company["slug"])
+                if hit:
+                    self.resolution = "registro"
+                    return hit
 
-        # 2) Deducir de la página de carreras (el paso que de verdad rinde).
+        # 2) Deducir de la página de carreras (sigue siendo el paso más fiable).
         #    Si la empresa no trae `careers_url`, se deduce del dominio.
         if self.gastar():
             ats, slug, careers = resolve_board(company)
@@ -627,19 +973,23 @@ class Prober:
                     if self.verbose:
                         print(f"      ✓ {ats}/{slug}: {len(hit[2])} roles (buscando dart)")
                     return hit
-            elif ats in ATS_PROBES and self.gastar():
-                data = self.get(ATS_PROBES[ats].format(slug=slug))
-                if data is not None:
-                    roles = NORMALIZERS[ats](data)
+            elif ats in ATS_PROBES:
+                hit = self.board(ats, slug)
+                if hit:
                     if self.verbose:
-                        print(f"      ✓ {ats}/{slug}: {len(roles)} roles")
-                    return ats, slug, roles
+                        print(f"      ✓ {ats}/{slug}: {len(hit[2])} roles")
+                    return hit
                 time.sleep(EMPRESAS_PAUSA_S)
 
-        # 3) Slugs candidatos a ciegas (opt-in: ver Prober.slug_ciegos).
+        # 3) Host natural de la empresa (SPA/Cloudflare en /careers).
+        hit = self.probe_host_directo(company)
+        if hit:
+            return hit
+
+        # 4) Slugs candidatos a ciegas (opt-in: ver Prober.slug_ciegos).
         vacios = None
         if not self.slug_ciegos:
-            return vacios or (None, None, [])
+            return None, None, []
         for slug in slug_candidates(company):
             for ats, url_tpl in ATS_PROBES.items():
                 if self.fallos >= EMPRESAS_FALLOS_MAX or not self.gastar():
@@ -647,23 +997,22 @@ class Prober:
                     # (p. ej. greenhouse/nubank existe pero Nubank usa otro):
                     # se reporta, pero nunca como "la empresa no tiene vacantes".
                     return vacios or (None, None, [])
-                url = url_tpl.format(slug=slug)
+                blind = f"{slug}.teamtailor.com" if ats == "teamtailor" else slug
                 if self.verbose:
-                    print(f"    · {company['name']} → {ats}/{slug}")
-                data = self.get(url)
-                if data is None:
+                    print(f"    · {company['name']} → {ats}/{blind}")
+                hit = self.board(ats, blind)
+                if hit is None:
                     time.sleep(EMPRESAS_PAUSA_S)
                     continue
-                roles = NORMALIZERS[ats](data)
-                if not roles:
+                if not hit[2]:
                     if vacios is None:
-                        vacios = (ats, slug, [])
+                        vacios = hit
                     time.sleep(EMPRESAS_PAUSA_S)
                     continue
                 if self.verbose:
-                    print(f"      ✓ {ats}/{slug}: {len(roles)} roles")
+                    print(f"      ✓ {ats}/{blind}: {len(hit[2])} roles")
                 self.resolution = "ciego"
-                return ats, slug, roles
+                return hit
         if vacios:
             self.resolution = "ciego"
         return vacios or (None, None, [])
@@ -768,12 +1117,15 @@ def select_roles(roles, company):
 # ── Informe ──────────────────────────────────────────────────────────
 
 def fmt_report(hits, date_str, time_str, checked, errs):
+    nuevas = sum(1 for h in hits for r in h["roles"] if r.get("_nueva"))
     lines = [
         f"# Empresas Flutter con vacantes - {date_str}\n",
         f"> 🔎 Sondeo de tableros de empresa · {time_str} UTC · "
         f"{len(hits)} empresas con vacantes Flutter de {checked} sondeadas\n",
-        "> 📍 Prioridad: empresas LATAM que contratan LATAM, luego EE.UU. remote-first\n",
     ]
+    if nuevas:
+        lines.append(f"> 🆕 {nuevas} vacante(s) no vista(s) antes en esta ronda\n")
+    lines.append("> 📍 Prioridad: empresas LATAM que contratan LATAM, luego EE.UU. remote-first\n")
     if not hits:
         lines.append("\n## Sin resultados\n\n> Ninguna empresa con vacante Flutter/Dart.\n")
     for h in hits:
@@ -787,7 +1139,8 @@ def fmt_report(hits, date_str, time_str, checked, errs):
             lines.append(f"**Web:** {c['domain']}\n")
         for n, r in enumerate(h["roles"], 1):
             flag = " ⚠ **verificar:** solo Flutter en la descripción" if r.get("review") else ""
-            lines.append(f"### {n}. {r['title']} _(score {r['score']})_")
+            nueva = "🆕 " if r.get("_nueva") else ""
+            lines.append(f"### {n}. {nueva}{r['title']} _(score {r['score']})_")
             lines.append(f"**Ubicación:** {r.get('location') or 'N/A'}")
             if r.get("published"):
                 lines.append(f"**⏰** {r['published']}")
@@ -827,21 +1180,42 @@ def migrate_leads_db(registry, dry_run=False):
 
     added = 0
     today = datetime.now(timezone.utc).date().isoformat()
+    # Índices de lo ya conocido: clave, nombre canónico y dominio canónico. Sin
+    # esto, la poda de `verificar_registro` se deshacía en la ronda siguiente:
+    # el alta volvía a meter "Serasa Experian" junto a "Serasa" porque solo se
+    # comparaba la clave normalizada.
+    keys = {k for k in registry["companies"]}
+    # canon_name → región: la similitud de nombres solo vale dentro de la misma
+    # región, porque "Patagonia" (US) y "Patagonia IT" (LATAM) son otra empresa.
+    names = {}
+    for c in registry["companies"].values():
+        n = canon_name(c.get("name"))
+        if n:
+            names.setdefault(n, c.get("region"))
+    domains = {canon_domain(c.get("domain")) for c in registry["companies"].values()}
+    domains.discard("")
     for it in items:
         name = (it.get("nombre") or it.get("empresa") or it.get("name") or "").strip()
         if not name:
             continue
         key = normalize_company(name)
-        if not key or key in registry["companies"]:
+        if not key or key in keys:
             continue
         domain = it.get("dominio") or it.get("domain") or it.get("website") or ""
         if domain.startswith("http"):
             domain = re.sub(r"^https?://(www\.)?", "", domain).split("/")[0]
-        stack = " ".join(str(t) for t in (it.get("tech_stack") or []))
-        usa_flutter = "flutter" in stack.lower() or "dart" in stack.lower()
         loc = it.get("location") or it.get("ubicacion") or ""
         region = "us" if re.search(r"united states|estados unidos|\busa\b|\bcanada\b",
                                    loc, re.I) else "latam"
+        cname, cdom = canon_name(name), canon_domain(domain)
+        if cdom and cdom in domains:
+            continue  # mismo dominio con otro nombre: no se duplica
+        if any(n == cname or (names_similar(cname, n)
+                              and names[n] in (None, region))
+               for n in names):
+            continue  # misma empresa con otra grafía: no se duplica
+        stack = " ".join(str(t) for t in (it.get("tech_stack") or []))
+        usa_flutter = "flutter" in stack.lower() or "dart" in stack.lower()
         registry["companies"][key] = {
             "key": key,
             "name": name,
@@ -860,10 +1234,46 @@ def migrate_leads_db(registry, dry_run=False):
             "usa_flutter": usa_flutter,
         }
         added += 1
+        keys.add(key)
+        if cname:
+            names.setdefault(cname, region)
+        if cdom:
+            domains.add(cdom)
     return added
 
 
 # ── Main ─────────────────────────────────────────────────────────────
+
+def encolar_roles(company, roles):
+    """Añade las vacantes a estado/cola_aplicaciones.json (dedup por URL).
+
+    La cola es la puerta de entrada de `cv-apply`: dejarlas ahí convierte el
+    informe en trabajo accionable sin tener que copiar URLs a mano. No envía
+    nada; el envío sigue siendo manual por el reCAPTCHA de los ATS.
+    """
+    if not roles:
+        return 0
+    try:
+        from cola_aplicaciones import Cola
+    except Exception as exc:  # la cola es opcional: no debe romper la ronda
+        print(f"[cola] no disponible: {exc}")
+        return 0
+    cola = Cola()
+    n = 0
+    for r in roles:
+        url = (r.get("url") or "").strip()
+        if not url:
+            continue
+        try:
+            _, nuevo = cola.add(
+                url, r.get("title", ""), company.get("name", ""),
+                ubicacion=r.get("location", ""), fuente="empresa",
+            )
+            n += int(nuevo)
+        except ValueError:
+            continue
+    return n
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
@@ -880,6 +1290,15 @@ def main():
                     help="Prueba slugs adivinados si falla la página de carreras "
                          "(~0%% de acierto en LATAM, pero cada empresa cuesta ~10 "
                          "peticiones: úsalo solo para una empresa concreta)")
+    ap.add_argument("--host-directo", action=argparse.BooleanOptionalAction,
+                    dest="host_directo", default=True,
+                    help="Prueba el tablero en el host natural de la empresa "
+                         "(Recruitee/Personio/BambooHR/Workable/Teamtailor). "
+                         "Activado por defecto; --no-host-directo lo desactiva")
+    ap.add_argument("--nuevas", action="store_true",
+                    help="Emite solo vacantes no vistas antes (delta de la ronda)")
+    ap.add_argument("--no-encolar", action="store_false", dest="encolar",
+                    default=True, help="No añadir las vacantes a cola_aplicaciones.json")
     args = ap.parse_args()
 
     now = datetime.now(timezone.utc)
@@ -925,93 +1344,179 @@ def main():
             return
         targets = cands
     else:
-        # Prioridad: sin sondear > con vacante > todo lo demás; y Tier 1 LATAM primero.
-        targets = sorted(
-            companies.values(),
-            key=lambda c: (
-                0 if c.get("status") == "nuevo" else 1,
-                c.get("tier", 9) if isinstance(c.get("tier"), int) else 9,
-                0 if c.get("region") == "latam" else 1,
-            ),
-        )[: args.limit]
+        # Prioridad: sin sondear > sin tablero > resto; Tier 1 LATAM primero y,
+        # dentro del grupo, la que lleva más tiempo sin revisarse. Las entradas
+        # sin dominio no se pueden sondear: van al final (se marcan sin_dominio).
+        def prioridad(c):
+            rank = {"nuevo": 0, "sin_tablero": 1, "tablero_vacio": 2,
+                    "con_vacante": 3, "sin_vacante_flutter": 4,
+                    "sin_dominio": 9}.get(c.get("status"), 5)
+            return (rank,
+                    c.get("tier", 9) if isinstance(c.get("tier"), int) else 9,
+                    0 if c.get("region") == "latam" else 1,
+                    c.get("last_checked") or "")
+
+        pool = [c for c in companies.values()
+                if c.get("domain") or c.get("ats") or c.get("status") != "sin_dominio"]
+        targets = sorted(pool, key=prioridad)[: args.limit]
 
     cache = load_json(EMPRESAS_CACHE_PATH, {})
-    prober = Prober(verbose=args.verbose, slug_ciegos=args.slugs_ciegos)
-    hits, errs, checked, skipped = [], [], 0, 0
+    hits, errs, checked, skipped, encoladas = [], [], 0, 0, 0
 
     hist = Historial() if not args.dry_run else None
 
-    for c in targets:
-        key = c["key"]
-        ckey = cache.get(key)
-        if not args.refresh and cache_is_fresh(ckey):
-            ats, slug, roles = ckey["ats"], ckey["slug"], ckey["roles"]
-        else:
-            checked += 1
-            ats, slug, roles = prober.probe(c)
-            if ats and not args.dry_run:
-                cache[key] = {"ts": now.isoformat(timespec="seconds"), "ats": ats,
-                              "slug": slug, "roles": roles}
-            time.sleep(EMPRESAS_PAUSA_S)
+    def _probe(company, cached):
+        """Sondea una empresa. Cada una lleva su propio `Prober`.
 
-        if not ats:
-            errs.append(f"{c['name']}: sin tablero localizado")
-            if not args.dry_run:
-                c["status"] = c.get("status") or "sin_tablero"
-            continue
+        El Prober acumula estado (presupuesto de peticiones, fallos, resolución),
+        así que no se comparte entre hilos: uno por empresa deja el sondeo en
+        paralelo sin carreras y el presupuesto sigue siendo por empresa.
+        """
+        if not args.refresh and cache_is_fresh(cached):
+            # Copia: el scoring y el delta escriben en los roles y no queremos
+            # que esos campos acaben guardados en la cache.
+            return {"ats": cached["ats"], "slug": cached["slug"],
+                    "roles": copy.deepcopy(cached["roles"]), "cached": True}
+        prober = Prober(verbose=args.verbose, slug_ciegos=args.slugs_ciegos,
+                        host_directo=args.host_directo)
+        ats, slug, roles = prober.probe(company)
+        time.sleep(EMPRESAS_PAUSA_S)  # cortesía: ni en paralelo van en ráfaga
+        return {"ats": ats, "slug": slug, "roles": roles, "cached": False}
 
-        selected = select_roles(roles, c)
-        if args.min_score:
-            selected = [r for r in selected if r["score"] >= args.min_score]
-        if args.verbose and selected:
-            descartados = len(select_roles(roles, c)) - len(selected)
-            if descartados:
-                print(f"      ✗ {c['name']}: {descartados} roles bajo "
-                      f"--min-score {args.min_score}")
-        if not args.dry_run:
-            c["ats"], c["slug"] = ats, slug
-            c["last_checked"] = now.isoformat(timespec="seconds")
-            c["open_roles"] = len(selected)
-            if selected:
-                c["status"] = "con_vacante"
-            elif roles:
-                # El tablero tiene vacantes pero ninguna de Flutter.
-                c["status"] = "sin_vacante_flutter"
-            else:
-                c["status"] = "tablero_vacio"
-        if not selected:
-            continue
+    def _persist(aviso=False):
+        """Guarda registro, cache e historial (parcial durante la ronda).
 
-        best = max(r["score"] for r in selected)
-        hits.append({"company": c, "ats": ats, "slug": slug, "roles": selected, "score": best})
-
-        # Dedup central: no re-listar vacantes ya vistas en días anteriores.
-        for r in selected:
-            if not hist:
-                continue
-            vkey = vacancy_key(c["name"], r["title"])
-            prev = hist.get(CATEGORY, vkey)
-            if not prev or (prev.get("fecha_visto") or "").startswith(date_str):
-                hist.add(CATEGORY, vkey, meta={
-                    "empresa": c["name"],
-                    "titulo": r["title"],
-                    "url": r.get("url", ""),
-                    "tablero": f"{ats}/{slug}",
-                    "score": r["score"],
-                })
-            else:
-                skipped += 1
-
-    if not args.dry_run:
+        Antes solo se escribía al final: una ronda de 60 empresas que se cortaba
+        a mitad (timeout, Ctrl-C) perdía TODO el trabajo y el informe no existía.
+        """
+        if args.dry_run:
+            return
         registry["updated"] = date_str
         save_json(EMPRESAS_REGISTRY_PATH, registry)
         save_json(EMPRESAS_CACHE_PATH, cache)
         if hist:
             hist.save()
+        if aviso:
+            print(f"[parcial] {procesadas}/{len(targets)} empresas sondeadas",
+                  flush=True)
+
+    procesadas = 0
+    workers = max(1, min(EMPRESAS_WORKERS, len(targets)))
+    try:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futuros = [pool.submit(_probe, c, cache.get(c["key"])) for c in targets]
+            # Se itera en el orden de `targets` (no en orden de llegada) para que
+            # el informe y el historial queden deterministas entre rondas.
+            for fut, c in zip(futuros, targets):
+                try:
+                    res = fut.result()
+                except Exception as exc:  # una empresa caída no tumba la ronda
+                    errs.append(f"{c['name']}: error {exc}")
+                    continue
+                procesadas += 1
+                key = c["key"]
+                ats, slug, roles = res["ats"], res["slug"], res["roles"]
+                if not res["cached"]:
+                    checked += 1
+                    if ats and not args.dry_run:
+                        cache[key] = {"ts": now.isoformat(timespec="seconds"),
+                                      "ats": ats, "slug": slug, "roles": roles}
+
+                if not ats:
+                    sin_dominio = not c.get("domain")
+                    errs.append(f"{c['name']}: " + (
+                        "sin dominio (no se puede sondear)" if sin_dominio
+                        else "sin tablero localizado"))
+                    if not args.dry_run:
+                        c["last_checked"] = now.isoformat(timespec="seconds")
+                        if sin_dominio:
+                            c["status"] = "sin_dominio"
+                        elif c.get("status") in (None, "nuevo", "sin_tablero", "sin_dominio"):
+                            # No se degrada una empresa que ayer sí tenía tablero: un
+                            # fallo puntual de red no es "ha cerrado su tablero".
+                            c["status"] = "sin_tablero"
+                    continue
+
+                selected = select_roles(roles, c)
+                if args.min_score:
+                    selected = [r for r in selected if r["score"] >= args.min_score]
+                if args.verbose and selected:
+                    descartados = len(select_roles(roles, c)) - len(selected)
+                    if descartados:
+                        print(f"      ✗ {c['name']}: {descartados} roles bajo "
+                              f"--min-score {args.min_score}")
+                if not args.dry_run:
+                    c["ats"], c["slug"] = ats, slug
+                    c["last_checked"] = now.isoformat(timespec="seconds")
+                    c["open_roles"] = len(selected)
+                    if selected:
+                        c["status"] = "con_vacante"
+                    elif roles:
+                        # El tablero tiene vacantes pero ninguna de Flutter.
+                        c["status"] = "sin_vacante_flutter"
+                    else:
+                        c["status"] = "tablero_vacio"
+
+                # Delta: comparar con el historial central. `_nueva` marca lo que no se
+                # había visto nunca; con --nuevas el informe emite solo eso.
+                nuevas = []
+                for r in selected:
+                    vkey = vacancy_key(c["name"], r["title"])
+                    prev = hist.get(CATEGORY, vkey) if hist else None
+                    r["_nueva"] = prev is None
+                    if prev is None:
+                        nuevas.append(r)
+                    elif not (prev.get("fecha_visto") or "").startswith(date_str):
+                        skipped += 1
+
+                report_roles = nuevas if args.nuevas else selected
+                if not report_roles:
+                    if not args.dry_run and procesadas % 10 == 0:
+                        _persist(aviso=True)
+                    continue
+
+                best = max(r["score"] for r in report_roles)
+                hits.append({"company": c, "ats": ats, "slug": slug,
+                             "roles": report_roles, "score": best})
+
+                # Auto-encolar en la cola de aplicaciones (dedup por URL). No envía
+                # nada: deja el trabajo listo para `cv-apply`.
+                if args.encolar and not args.dry_run and selected:
+                    encoladas += encolar_roles(c, selected)
+
+                # Historial: añade las no vistas (o refresca las de hoy).
+                for r in selected:
+                    if not hist:
+                        continue
+                    vkey = vacancy_key(c["name"], r["title"])
+                    prev = hist.get(CATEGORY, vkey)
+                    if not prev or (prev.get("fecha_visto") or "").startswith(date_str):
+                        hist.add(CATEGORY, vkey, meta={
+                            "empresa": c["name"],
+                            "titulo": r["title"],
+                            "url": r.get("url", ""),
+                            "tablero": f"{ats}/{slug}",
+                            "score": r["score"],
+                        })
+
+                if not args.dry_run and procesadas % 10 == 0:
+                    _persist(aviso=True)
+    finally:
+        # También con Ctrl-C o timeout: lo sondeado hasta aquí queda guardado.
+        _persist()
+
+    if not args.dry_run:
         os.makedirs(OUT_DIR, exist_ok=True)
         out_path = os.path.join(OUT_DIR, f"{date_str}-empresas-vacantes.md")
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(fmt_report(hits, date_str, time_str, checked, errs))
+        # Ronda sin novedades con `--nuevas`: no se pisa el informe del día con
+        # un "sin resultados", que borraría lo encontrado hace un rato (la
+        # vacante sigue en la cola y en el historial, pero el .md es la prueba
+        # que lee el humano).
+        if args.nuevas and not hits and os.path.exists(out_path):
+            print(f"[sin novedades] se conserva {out_path}")
+        else:
+            with open(out_path, "w", encoding="utf-8") as f:
+                f.write(fmt_report(hits, date_str, time_str, checked, errs))
         print(out_path)
     else:
         print("[dry-run] no se escribió registro, cache, historial ni informe")
@@ -1019,6 +1524,10 @@ def main():
 
     print("---JOBCOUNT---")
     print(sum(len(h["roles"]) for h in hits))
+    print("---NUEVAS---")
+    print(sum(1 for h in hits for r in h["roles"] if r.get("_nueva")))
+    print("---ENCOLADAS---")
+    print(encoladas)
     print("---SKIPPED---")
     print(skipped)
     print("---SOURCES---")

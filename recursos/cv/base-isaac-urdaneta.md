@@ -110,6 +110,9 @@ Hechos reutilizables. Combinar en un párrafo de 3-5 líneas según la vacante.
   releases reales de su app (sección 5, E-05).
 - **Diferenciador 4 — producto end-to-end:** diseña, desarrolla, despliega y
   da soporte post-lanzamiento. 25 repositorios públicos de código propio.
+- **Diferenciador 5 — IA en el flujo diario:** usa herramientas de IA para
+  codificar (Cursor, Claude Code, Copilot) como parte del trabajo normal, no
+  como experimento. Confirmado por el usuario 2026-10-22.
 - **Contexto de mercado:** trabaja desde Venezuela para clientes y
   Employers globales; accustomed a comunicación asíncrona y a entregar
   sin supervisión directa.
@@ -188,6 +191,7 @@ atribuirle experiencia verificable.
 | Linux / SSH / Bash | [M] | administración de servidores |
 | Git · GitHub Flow | [M] | — |
 | GitHub Releases | [M] | canal de distribución de binarios (E-05) |
+| AI coding tools (Cursor, Claude Code, Copilot) | [M] | uso diario — confirmado por el usuario 2026-10-22 |
 
 ---
 

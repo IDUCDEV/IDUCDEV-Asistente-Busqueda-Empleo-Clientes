@@ -12,6 +12,7 @@ http_post_json.
 import os
 import sys
 import unittest
+from datetime import datetime, timedelta, timezone
 
 # .../<proyecto>/estado/tests/ → RAIZ = <proyecto>
 RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -20,6 +21,11 @@ sys.path.insert(0, os.path.join(RAIZ, "estado"))
 sys.path.insert(0, os.path.join(RAIZ, ".opencode", "skills", "flutter-employers"))
 
 import empresas_search as es  # noqa: E402
+
+
+def hace(dias):
+    """Fecha YYYY-MM-DD de hace N días: los tests de fechas no deben caducar."""
+    return (datetime.now(timezone.utc) - timedelta(days=dias)).date().isoformat()
 
 
 class TestFechas(unittest.TestCase):
@@ -34,16 +40,16 @@ class TestFechas(unittest.TestCase):
 
     def test_workday_relativas(self):
         # El listado CXS no manda ISO, manda "Posted 13 Days Ago".
-        self.assertEqual(es.parse_relative_date("Posted 13 Days Ago"), "2026-09-22")
-        self.assertEqual(es.parse_relative_date("Posted Today"), "2026-10-05")
+        self.assertEqual(es.parse_relative_date("Posted 13 Days Ago"), hace(13))
+        self.assertEqual(es.parse_relative_date("Posted Today"), hace(0))
 
     def test_workday_relativas_con_signo_mas(self):
         # "Posted 30+ Days Ago": el "+" rompe un \\d+\\s*([a-z]+) ingenuo.
-        self.assertEqual(es.parse_relative_date("Posted 30+ Days Ago"), "2026-09-05")
+        self.assertEqual(es.parse_relative_date("Posted 30+ Days Ago"), hace(30))
 
     def test_workday_meses_y_anos(self):
-        self.assertEqual(es.parse_relative_date("Posted 2 Months Ago"), "2026-08-06")
-        self.assertEqual(es.parse_relative_date("Posted 1 Year Ago"), "2025-10-05")
+        self.assertEqual(es.parse_relative_date("Posted 2 Months Ago"), hace(60))
+        self.assertEqual(es.parse_relative_date("Posted 1 Year Ago"), hace(365))
 
     def test_fecha_ilegible_no_inventa(self):
         self.assertEqual(es.parse_relative_date("nonsense"), "")
@@ -115,7 +121,7 @@ class TestNormWorkday(unittest.TestCase):
         self.assertEqual(len(roles), 2)
         self.assertEqual(roles[0]["title"], "Mobile Engineer")
         self.assertEqual(roles[0]["location"], "Colombia, Bogota")
-        self.assertEqual(roles[0]["published"], "2026-09-22")
+        self.assertEqual(roles[0]["published"], hace(13))
         self.assertEqual(roles[0]["ref"], "JR1")
 
     def test_url_de_aplicacion_lleva_locale(self):
@@ -217,9 +223,11 @@ class TestPresupuestoPorEmpresa(unittest.TestCase):
 
     def test_slugs_ciegos_desactivado_por_defecto(self):
         # Medido: rinde ~0% en LATAM y cuesta ~10 peticiones por empresa. El
-        # default rápido es leer la página de carreras y nada más.
+        # default rápido es leer la página de carreras (y, si falla, probar el
+        # host natural del ATS, que es otra cosa).
         self.assertFalse(es.Prober().slug_ciegos)
-        p = es.Prober()
+        self.assertTrue(es.Prober().host_directo)
+        p = es.Prober(host_directo=False)
         for i in range(30):
             p.probe({"name": f"Empresa{i}", "domain": f"e{i}.com"})
         self.assertEqual(p.intentos, 30, "una sola petición: la de leer /careers")
@@ -302,7 +310,7 @@ class TestProcedenciaDelTablero(unittest.TestCase):
     def test_slug_adivinado_marca_ciego(self):
         es.http_get = lambda url, timeout=None: (
             "__404__" if "/careers" in url else '{"jobs":[{"title":"Dev"}]}')
-        p = es.Prober(slug_ciegos=True)
+        p = es.Prober(slug_ciegos=True, host_directo=False)
         p.probe({"name": "Acme", "domain": "acme.com"})
         self.assertEqual(p.resolution, "ciego")
 
@@ -335,3 +343,323 @@ class TestFetchWorkdaySimulado(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestHuellasNuevosATS(unittest.TestCase):
+    """Los ATS de subdominio son los que faltaban en LATAM/EU."""
+
+    def _detect(self, html, url="https://acme.com/careers"):
+        return es.discover_ats(url, raw=html)
+
+    def test_workable(self):
+        self.assertEqual(
+            self._detect('<a href="https://apply.workable.com/acme">Jobs</a>'),
+            ("workable", "acme"))
+
+    def test_recruitee(self):
+        self.assertEqual(
+            self._detect('<iframe src="https://acme.recruitee.com/o/flutter">'),
+            ("recruitee", "acme"))
+
+    def test_teamtailor_con_subdominio(self):
+        self.assertEqual(
+            self._detect('<a href="https://acme.teamtailor.com/jobs">Jobs</a>'),
+            ("teamtailor", "acme.teamtailor.com"))
+
+    def test_teamtailor_en_dominio_propio(self):
+        self.assertEqual(
+            self._detect('<script src="https://teamtailor-cdn.com/x.js"></script>',
+                         "https://jobs.acme.com/jobs"),
+            ("teamtailor", "jobs.acme.com"))
+
+    def test_smartrecruiters_bamboohr_personio(self):
+        self.assertEqual(
+            self._detect('<a href="https://careers.smartrecruiters.com/Acme">'),
+            ("smartrecruiters", "acme"))
+        self.assertEqual(
+            self._detect('<a href="https://acme.bamboohr.com/careers">'),
+            ("bamboohr", "acme"))
+        self.assertEqual(
+            self._detect('<a href="https://acme.jobs.personio.de/xml">'),
+            ("personio", "acme"))
+
+
+class TestNormalizadoresNuevosATS(unittest.TestCase):
+    def test_workable(self):
+        roles = es.norm_workable({"jobs": [{
+            "title": "Flutter Developer", "city": "Bogotá", "country": "Colombia",
+            "application_url": "https://apply.workable.com/j/X/apply",
+            "description": "<p>Dart</p>", "published_on": "2026-10-15"}]})
+        self.assertEqual(roles[0]["title"], "Flutter Developer")
+        self.assertEqual(roles[0]["location"], "Bogotá, Colombia")
+        self.assertEqual(roles[0]["description"], "Dart")
+        self.assertEqual(roles[0]["published"], "2026-10-15")
+        self.assertTrue(roles[0]["url"].endswith("/apply"))
+
+    def test_recruitee_marca_remoto(self):
+        roles = es.norm_recruitee({"offers": [{
+            "title": "Flutter Dev", "location": "LATAM", "remote": True,
+            "careers_url": "https://acme.recruitee.com/o/flutter",
+            "description": "<p>Dart</p>", "published_at": "2026-10-20 13:51:20 UTC"}]})
+        self.assertEqual(roles[0]["location"], "LATAM (Remote)")
+        self.assertEqual(roles[0]["published"], "2026-10-20")
+
+    def test_teamtailor_desde_json_feed(self):
+        roles = es.norm_teamtailor({"items": [{
+            "title": "Flutter Dev", "url": "https://jobs.acme.com/jobs/1",
+            "date_published": "2026-10-08T09:01:26+02:00",
+            "content_text": "Flutter and Dart",
+            "_jobposting": {"jobLocation": {"address": {
+                "addressLocality": "Madrid", "addressCountry": "ES"}}}}]})
+        self.assertEqual(roles[0]["location"], "Madrid, ES")
+        self.assertEqual(roles[0]["published"], "2026-10-08")
+        self.assertIn("Flutter", roles[0]["description"])
+
+    def test_smartrecruiters(self):
+        roles = es.norm_smartrecruiters({"content": [{
+            "id": "123", "name": "Flutter Dev",
+            "releasedDate": "2026-10-23T09:43:20.087Z",
+            "location": {"fullLocation": "Colombia, Remote"},
+            "company": {"identifier": "Acme"}}]})
+        self.assertEqual(roles[0]["location"], "Colombia, Remote")
+        self.assertEqual(roles[0]["url"],
+                         "https://jobs.smartrecruiters.com/Acme/123")
+
+    def test_bamboohr(self):
+        roles = es.norm_bamboohr({"result": [{
+            "id": "63", "jobOpeningName": "Flutter Developer",
+            "location": {"city": "Bogotá", "state": "Cundinamarca"},
+            "locationType": "1"}]}, slug="acme")
+        self.assertEqual(roles[0]["location"], "Bogotá, Cundinamarca (Remote)")
+        self.assertEqual(roles[0]["url"], "https://acme.bamboohr.com/careers/63")
+
+    def test_personio_xml(self):
+        xml = ("<workzag-jobs><position><id>9</id><office>Madrid</office>"
+               "<name>Flutter Dev</name><createdAt>2026-10-01</createdAt>"
+               "<jobDescriptions><jobDescription><name>D</name>"
+               "<value><![CDATA[<p>Dart</p>]]></value></jobDescription>"
+               "</jobDescriptions></position></workzag-jobs>")
+        roles = es.norm_personio(xml, slug="acme")
+        self.assertEqual(roles[0]["title"], "Flutter Dev")
+        self.assertEqual(roles[0]["url"], "https://acme.jobs.personio.de/job/9")
+        self.assertEqual(roles[0]["description"], "Dart")
+
+    def test_personio_prueba_los_dos_dominios(self):
+        self.assertEqual(len(es.board_urls("personio", "acme")), 2)
+
+
+class TestHostDirecto(unittest.TestCase):
+    def setUp(self):
+        self._get = es.http_get
+        self.addCleanup(lambda: setattr(es, "http_get", self._get))
+
+    def test_slugs_por_dominio_y_nombre(self):
+        self.assertEqual(
+            es.host_slugs({"name": "Somnio Software", "domain": "somniosoftware.com"}),
+            ["somniosoftware"])
+        self.assertEqual(
+            es.host_slugs({"name": "Senior Sistemas", "domain": "senior.com.br"}),
+            ["senior", "seniorsistemas"])
+
+    def test_encuentra_recruitee_aunque_careers_sea_una_spa(self):
+        def fake_get(url, timeout=None):
+            if "recruitee.com" in url:
+                return es.json.dumps({"offers": [{
+                    "title": "Flutter Developer", "careers_url": "https://x/1",
+                    "location": "LATAM", "description": "Dart",
+                    "published_at": "2026-10-20 13:51:20 UTC"}]})
+            if "/careers" in url or "/jobs" in url:
+                return "<html><body>SPA sin enlaces al ATS</body></html>"
+            return "__404__"
+
+        es.http_get = fake_get
+        p = es.Prober()
+        ats, slug, roles = p.probe(
+            {"name": "Somnio Software", "domain": "somniosoftware.com"})
+        self.assertEqual((ats, slug), ("recruitee", "somniosoftware"))
+        self.assertEqual(p.resolution, "host-directo")
+        self.assertEqual(len(roles), 1)
+
+    def test_no_registra_tablero_vacio_de_smartrecruiters(self):
+        def fake_get(url, timeout=None):
+            if "smartrecruiters.com" in url:
+                return es.json.dumps({"content": [], "totalFound": 0})
+            return "__404__"
+
+        es.http_get = fake_get
+        p = es.Prober()
+        ats, _, _ = p.probe({"name": "Acme", "domain": "acme.com"})
+        self.assertIsNone(ats)
+
+    def test_encuentra_greenhouse_con_el_slug_del_dominio(self):
+        """QuintoAndar: 110 vacantes en Greenhouse y su web no enlaza el tablero."""
+        def fake_get(url, timeout=None):
+            if url == "https://boards-api.greenhouse.io/v1/boards/quintoandar":
+                return es.json.dumps({"name": "QuintoAndar"})
+            if url.startswith("https://boards-api.greenhouse.io/v1/boards/quintoandar/"):
+                return es.json.dumps({"jobs": [{
+                    "title": "Pessoa Desenvolvedora Mobile", "id": 1,
+                    "absolute_url": "https://boards.greenhouse.io/quintoandar/jobs/1",
+                    "location": {"name": "Brazil"}, "updated_at": "2026-10-20",
+                    "content": "Flutter e Dart"}]})
+            if "/careers" in url or "/jobs" in url or "/vacantes" in url:
+                return "<html><body>SPA</body></html>"
+            return "__404__"
+
+        es.http_get = fake_get
+        p = es.Prober()
+        ats, slug, roles = p.probe(
+            {"name": "QuintoAndar", "domain": "quintoandar.com.br"})
+        self.assertEqual((ats, slug), ("greenhouse", "quintoandar"))
+        self.assertEqual(p.resolution, "host-directo")
+        self.assertEqual(len(roles), 1)
+
+    def test_descarta_tablero_global_de_otra_empresa(self):
+        """Slug genérico: el board existe pero es de un tercero homónimo."""
+        def fake_get(url, timeout=None):
+            if url == "https://boards-api.greenhouse.io/v1/boards/rows":
+                return es.json.dumps({"name": "Rows Financial"})
+            if url.startswith("https://boards-api.greenhouse.io/v1/boards/rows/"):
+                return es.json.dumps({"jobs": [{
+                    "title": "Senior Flutter Developer", "id": 9,
+                    "absolute_url": "https://boards.greenhouse.io/rows/jobs/9",
+                    "location": {"name": "Remote"}, "updated_at": "2026-10-20",
+                    "content": "Flutter"}]})
+            return "__404__"
+
+        es.http_get = fake_get
+        p = es.Prober()
+        ats, _, _ = p.probe({"name": "Rows", "domain": "rows.com"})
+        self.assertIsNone(ats)
+
+
+class TestIdentidadDelTablero(unittest.TestCase):
+    def test_acepta_el_mismo_nombre_o_con_sufijo_corporativo(self):
+        self.assertTrue(es.board_matches_company("QuintoAndar", "QuintoAndar"))
+        self.assertTrue(es.board_matches_company("Somnio", "Somnio Software"))
+        self.assertTrue(es.board_matches_company("Acme", "Acme"))
+
+    def test_descarta_una_marca_con_palabra_extra(self):
+        self.assertFalse(es.board_matches_company("Rows Financial", "Rows"))
+        self.assertFalse(es.board_matches_company("Acme", "Acme Health"))
+
+    def test_sin_datos_no_descarta(self):
+        self.assertTrue(es.board_matches_company("", "Acme"))
+
+
+class TestDedupEmpresas(unittest.TestCase):
+    """El alta desde leads-db no puede resucitar lo que la poda fusionó."""
+
+    def test_names_similar_une_grafias_de_la_misma_empresa(self):
+        import tracker
+        self.assertTrue(tracker.names_similar("serasa", "serasaexperian"))
+        self.assertTrue(tracker.names_similar("sumusica", "suamusica"))
+        self.assertFalse(tracker.names_similar("", "acme"))
+
+    def test_migracion_no_fusiona_marcas_de_otra_region(self):
+        """'Patagonia' (US) y 'Patagonia IT' (LATAM) comparten prefijo, no empresa."""
+        import json
+        import tempfile
+
+        reg = {"companies": {
+            "patagonia": {"key": "patagonia", "name": "Patagonia",
+                          "domain": "patagonia.com", "region": "us",
+                          "status": "sin_tablero"},
+        }}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "leads-db.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"2026-10-23": [{
+                    "name": "Patagonia IT", "website": "https://patagonia-it.com",
+                    "location": "Argentina"}]}, f)
+            original, es.LEADS_DB = es.LEADS_DB, path
+            try:
+                added = es.migrate_leads_db({"companies": reg["companies"]})
+            finally:
+                es.LEADS_DB = original
+
+        self.assertEqual(added, 1)
+        self.assertIn("patagonia it", reg["companies"])
+
+    def test_migracion_salta_duplicados_por_dominio_y_nombre(self):
+        import json
+        import tempfile
+        import tracker
+
+        reg = {"companies": {
+            "serasa": {"key": "serasa", "name": "Serasa", "domain": "serasa.com.br",
+                       "region": "latam", "status": "sin_vacante_flutter"},
+        }}
+        items = [{"last_updated": "2026-10-23", "companies": [
+            # mismo dominio, otro nombre → duplicado
+            {"name": "Serasa Experian", "website": "https://serasa.com.br"},
+            # misma empresa con acento cambiado, otro dominio → duplicado
+            {"name": "Sua Música", "website": "https://suamusica.com.br"},
+            # empresa nueva de verdad → entra
+            {"name": "Acme Mobile", "website": "https://acme.dev"},
+        ]}]
+        # "Su Musica" (sin acento) ya existe como clave canónica distinta.
+        reg["companies"]["sumusica"] = {
+            "key": "sumusica", "name": "Su Musica", "domain": "sumusica.app",
+            "region": "latam", "status": "nuevo"}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "leads-db.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"2026-10-23": items[0]["companies"]}, f)
+            original, es.LEADS_DB = es.LEADS_DB, path
+            try:
+                added = es.migrate_leads_db({"companies": reg["companies"]})
+            finally:
+                es.LEADS_DB = original
+
+        self.assertEqual(added, 1)
+        self.assertIn("acme mobile", reg["companies"])
+        self.assertNotIn("serasa experian", reg["companies"])
+        self.assertEqual(tracker.canon_name("Sua Música"), "suamusica")
+
+
+class TestPodarRegistro(unittest.TestCase):
+    def setUp(self):
+        import verificar_registro as vr
+        self.vr = vr
+
+    def test_marca_sin_dominio_y_fusiona_duplicados(self):
+        reg = {"companies": {
+            "seniorsistemas": {"key": "seniorsistemas", "name": "Senior Sistemas",
+                               "domain": "senior.com.br", "region": "latam",
+                               "status": "nuevo", "added": "2026-09-26"},
+            "senior sistemas": {"key": "senior sistemas", "name": "Senior Sistemas",
+                                "domain": "senior.com.br", "region": "latam",
+                                "status": "con_vacante", "added": "2026-09-27",
+                                "ats": "ashby", "slug": "senior", "open_roles": 2},
+            "junk": {"key": "junk", "name": "Junk", "domain": "",
+                     "region": "latam", "status": "nuevo", "added": "2026-09-26"},
+        }}
+        acciones = self.vr.podar_registro(reg)
+        self.assertEqual(len(reg["companies"]), 2)
+        self.assertEqual(reg["companies"]["junk"]["status"], "sin_dominio")
+        vivo = reg["companies"]["senior sistemas"]
+        self.assertEqual(vivo["ats"], "ashby")
+        self.assertEqual(vivo["status"], "con_vacante")
+        self.assertTrue(any("duplicado" in a for a in acciones))
+
+    def test_poda_fusiona_variantes_de_acentuacion(self):
+        reg = {"companies": {
+            "sumusica": {"key": "sumusica", "name": "Su Musica",
+                         "domain": "sumusica.app", "region": "latam",
+                         "status": "sin_tablero", "added": "2026-09-26"},
+            "sua música": {"key": "sua música", "name": "Sua Música",
+                           "domain": "suamusica.com.br", "region": "latam",
+                           "status": "sin_tablero", "added": "2026-10-23"},
+        }}
+        acciones = self.vr.podar_registro(reg)
+        self.assertEqual(len(reg["companies"]), 1)
+        self.assertTrue(any("duplicado" in a for a in acciones))
+
+    def test_dry_run_no_modifica(self):
+        reg = {"companies": {"junk": {"key": "junk", "name": "Junk", "domain": "",
+                                      "status": "nuevo"}}}
+        self.vr.podar_registro(reg, dry_run=True)
+        self.assertEqual(reg["companies"]["junk"]["status"], "nuevo")
+
