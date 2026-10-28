@@ -1,6 +1,6 @@
 ---
 name: job-search
-description: Úsala cuando el usuario pida buscar vacantes Flutter/Dart remotas (LATAM o US). Consulta 12 fuentes (LinkedIn ≤24h y ≤7d, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto, Wellfound, elempleo.co), filtra, deduplica contra el historial central y genera el listado markdown. Para mobile.career/YC/X o para buscar empresas por tablero, ver hidden-jobs-web y flutter-employers.
+description: Úsala cuando el usuario pida buscar vacantes Flutter/Dart remotas (LATAM o US). Consulta 13 fuentes (LinkedIn ≤24h y ≤7d, GetOnBoard, Himalayas, RemoteJobs, Career Nest, Jobicy, Computrabajo, Remotico, Workremoto, Wellfound, elempleo.co, Jobgether), filtra, deduplica contra el historial central y genera el listado markdown. Para mobile.career/YC/X o para buscar empresas por tablero, ver hidden-jobs-web y flutter-employers.
 ---
 
 # Skill: job-search
@@ -285,6 +285,30 @@ sus datos en el atributo `data-ga4-offerdata` (JSON con `&quot;` escapado):
 > ~3-4 son Flutter. El filtro de relevancia es obligatorio; el resto es ruido
 > (cobol, rpa, cnc). Colombia → solo remoto, se descartan híbrido/presencial.
 
+### 13. Jobgether (agregador global)
+`GET jobgether.com/api/v1/jobs?keyword=flutter&limit=25&page=N&sort=date`.
+Es una **API pública documentada para agentes** (su referencia machine-readable
+vive en `jobgether.com/astroapi/ai/jobs/docs`, y hay OpenAPI en
+`/openapi.json`). Dos queries: `flutter` y `dart`.
+
+- Devuelve JSON: `title`, `company`, `url`, `location` (continentes/países
+  separados por coma), `remote` (`Full Remote`), `experience`,
+  `salaryRange` (`"90000-120000 USD"`), `postedAt`.
+- **No devuelve descripción**, así que el filtro Flutter/Dart se apoya en
+  título + `jobFunctions` + empresa (el `keyword` ya acota en origen).
+- **Máximo 25 por página**, `page` topa en 10 (`pagination.hasMore` avisa).
+- **Mezcla avisos viejos:** de 92 avisos Flutter, 75 pasaban de 30 días. El
+  script pagina con `sort=date` y corta en cuanto una página se sale de la
+  ventana `JOBGETHER_MAX_DAYS` (30); el parser además descarta los avisos
+  fuera de ventana de esa misma página.
+- `locations` acepta slugs de país/continente (`brazil`, `latam`,
+  `south-america`, `anywhere`); el script no filtra por ahí y deja que
+  `is_latam_remote` decida, para no perder los `Anywhere`.
+
+> El **dashboard** del portal (`/talent/dashboard`) está detrás de login y
+> responde 403: el match score, el CV review y el auto-apply son de la cuenta
+> del usuario, no se automatizan. Lo que sí se explota es el buscador público.
+
 ---
 
 ## Filtros globales (aplicar DESPUÉS de parsear cada fuente)
@@ -297,7 +321,7 @@ sus datos en el atributo `data-ga4-offerdata` (JSON con `&quot;` escapado):
 | **Venezuela (Computrabajo VE)** | Incluir remoto + híbrido + presencial |
 | **Resto de fuentes/países** | Solo remoto |
 | **Duplicados** | Misma empresa + mismo título → fusionar, mostrar una vez (priorizar la fuente con más datos) |
-| **Antigüedad** | LinkedIn: ≤24 h. Otras fuentes: ordenar por más reciente |
+| **Antigüedad** | LinkedIn: ≤24 h. Otras fuentes: ordenar por más reciente. Jobgether: descartar >30 días |
 
 ---
 
@@ -369,6 +393,15 @@ sus datos en el atributo `data-ga4-offerdata` (JSON con `&quot;` escapado):
 **💰** {salario si aplica}
 **🔗** [{url}]({url})
 `⚠ verificar` (solo Flutter en la descripción)
+
+## Jobgether ({n} vacantes · ≤30 días · remoto global)
+
+### {ID}. {Título}
+**Empresa:** {empresa}
+**Ubicación:** {ubicación} | **Modalidad:** remoto
+**⏰** {fecha} | **Seniority:** {experiencia}
+**🔗** [Jobgether]({url})
+`[Aplicar con cv-apply]`
 
 > 📝 Para aplicar: copia el `🔗 link` y dímelo con "aplica a esta vacante" para generar CV personalizado con `cv-apply`.
 ```

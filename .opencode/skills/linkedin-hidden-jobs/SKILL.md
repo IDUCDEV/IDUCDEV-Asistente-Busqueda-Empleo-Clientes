@@ -37,11 +37,19 @@ Para cada query, navega a la URL de busqueda de LinkedIn y extrae los posts visi
 
 **URL base de busqueda:**
 ```
-https://www.linkedin.com/search/results/content/?keywords={query}&origin=GLOBAL_SEARCH_HEADER&sid=s%2C~%3Afsb&datePosted=r259200
+https://www.linkedin.com/search/results/content/?keywords={query}&origin=GLOBAL_SEARCH_HEADER&sid=s%2C~%3Afsb&datePosted=past-week
 ```
 
-El parametro `datePosted=r259200` filtra ultimos 3 dias.
-⚠️ LinkedIn auto-encodifica el valor a `%22r259200%22` (con dobles comillas). Esto es normal y el filtro funciona parcialmente: muestra posts recientes del periodo + algunos resultados antiguos promocionados. No modificar la URL.
+El parametro `datePosted=past-week` filtra la **ultima semana**; el corte a 3 dias se
+aplica a mano (filtro 6). LinkedIn no ofrece "3 dias" en el filtro actual.
+
+⚠️ **`datePosted=r259200` ya NO filtra** (verificado 2026-10-26 comparando ambas URLs
+con la misma query: con `r259200` el feed devolvia posts de 8-10 meses por relevancia,
+con `past-week` devolvia 1-5 dias). Si algun dia `past-week` deja de filtrar, comprobar
+el valor contra la UI (filtros → Fecha de publicacion) antes de seguir.
+
+⚠️ LinkedIn auto-encodifica el valor a `%22past-week%22` (con dobles comillas). Es normal
+y el filtro funciona igual: no tocar la URL.
 
 **Queries a ejecutar (TODAS) — mezcla de español e inglés para max cobertura:**
 
@@ -118,7 +126,9 @@ Si esta en ingles, incluir igual si las palabras clave de hiring/remote estan pr
 Si la misma URL aparece en multiples queries, mantener solo una ocurrencia. Si el mismo post aparece con distinta URL pero mismo autor y contenido, deduplicar.
 
 ### 6. Limite temporal — EXIGENTE
-LinkedIn muestra resultados del filtro `datePosted=r259200` pero su algoritmo de relevancia incluye posts promocionados fuera del periodo. **Debes filtrar manualmente por fecha:**
+LinkedIn filtra por `datePosted=past-week` (una semana), asi que el corte a 3 dias lo
+haces tu. Aun asi, comprueba siempre la fecha real de cada post: el algoritmo de
+relevancia sigue colando algun resultado mas antiguo. **Debes filtrar manualmente por fecha:**
 
 ✅ **Aceptar** si la fecha es: `{n} h`, `{n}h`, `{n} d`, `{n}d`, `{n} día`, `{n} dias`, `hace {n} hora`, `hace {n} horas`, `hace {n} día`, `hace {n} días` (donde `{n} < 4`)
 

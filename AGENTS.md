@@ -67,7 +67,7 @@ informes/  (ya no — ahora resultados/informes/)
   (hidden-jobs, prospectar, empresas) se registran con
   `orquestador.py registrar <fase> <archivo> --nuevas N`.
 - **Búsqueda de empleo en 2 carriles:**
-  - `job_search.py` (sin navegador, 12 fuentes agregadoras) →
+  - `job_search.py` (sin navegador, 13 fuentes agregadoras) →
     `resultados/vacantes/`. `--dry-run` no escribe nada.
   - `empresas_search.py` (tableros directos de diez ATS) →
     `resultados/empresas-target/`. Resuelve `ats`+`slug` leyendo la página de

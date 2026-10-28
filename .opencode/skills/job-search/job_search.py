@@ -270,6 +270,98 @@ def parse_getonboard(text):
     return jobs
 
 
+def parse_jobgether(text):
+    """Parser de Jobgether (API pública /api/v1/jobs, pensada para agentes).
+
+    Campos propios: `salaryRange` ("90000-120000 USD"), `experience`
+    ("Senior (5-10 years)"), `remote` ("Full Remote"). La ubicación llega como
+    lista de continentes/países ("South America, Latin America, Brazil"), así
+    que la alcanzabilidad desde LATAM se resuelve con `is_latam_remote`.
+    El API no devuelve descripción: el filtro Flutter/Dart se apoya en título,
+    función y empresa (el `keyword` de la petición ya acota).
+    """
+    jobs = []
+    try:
+        data = json.loads(text)
+    except Exception:
+        return jobs
+    for item in data.get("jobs", []):
+        title = item.get("title", "")
+        company = item.get("company", "")
+        funcs = item.get("jobFunctions", []) or []
+        blob = f"{title} {' '.join(funcs)}"
+        if not has_flutter_dart(blob, company):
+            continue
+        location = item.get("location", "")
+        loc_restrictions = [x.strip() for x in location.split(",") if x.strip()]
+        if not is_latam_remote(loc_restrictions, location):
+            continue
+        sal_min = sal_max = None
+        currency = None
+        rng = item.get("salaryRange") or ""
+        m = re.match(r"\s*(\d+)\s*-\s*(\d+)\s*([A-Z]{3})", rng)
+        if m:
+            sal_min, sal_max, currency = int(m.group(1)), int(m.group(2)), m.group(3)
+        elif rng:
+            m2 = re.match(r"\s*(\d+)\s*([A-Z]{3})", rng)
+            if m2:
+                sal_min, currency = int(m2.group(1)), m2.group(2)
+        pub_date = ""
+        posted = item.get("postedAt") or ""
+        age_days = None
+        if posted:
+            try:
+                dt = datetime.fromisoformat(posted.replace("Z", "+00:00"))
+                age_days = (datetime.now(timezone.utc) - dt).days
+                pub_date = dt.strftime("%Y-%m-%d")
+            except Exception:
+                pub_date = ""
+        # El API mezcla avisos de meses atrás: fuera de la ventana se descarta.
+        if age_days is not None and age_days > JOBGETHER_MAX_DAYS:
+            continue
+        remote = item.get("remote") or ""
+        modality = "Remoto" if "remote" in remote.lower() else (remote or "Remoto")
+        jobs.append({
+            "source": "Jobgether",
+            "title": title,
+            "company": company or "No especificada",
+            "location": location or "Worldwide",
+            "url": item.get("url", ""),
+            "time": pub_date,
+            "modality": modality,
+            "salary_min": sal_min,
+            "salary_max": sal_max,
+            "salary_currency": currency,
+            "seniority": item.get("experience", ""),
+            "employment_type": item.get("contractType", ""),
+            "description": " ".join(funcs)[:500],
+        })
+    return jobs
+
+
+def jobgether_oldest_days(text):
+    """Días de antigüedad del aviso más viejo de la página (para cortar paginación).
+
+    La API se pide con `sort=date`, así que en cuanto una página trae avisos
+    fuera de la ventana, las siguientes también lo estarán.
+    """
+    try:
+        data = json.loads(text)
+    except Exception:
+        return None
+    now = datetime.now(timezone.utc)
+    oldest = None
+    for item in data.get("jobs", []):
+        posted = item.get("postedAt") or ""
+        try:
+            dt = datetime.fromisoformat(posted.replace("Z", "+00:00"))
+        except Exception:
+            continue
+        days = (now - dt).days
+        oldest = days if oldest is None else max(oldest, days)
+    return oldest
+
+
 def parse_himalayas(text):
     jobs = []
     try:
@@ -1043,6 +1135,19 @@ SOURCES_ELEMPLEO = [
     ("elempleo CO", "https://www.elempleo.com/co/ofertas-empleo/trabajo-desarrollador-flutter",
      "html", parse_elempleo),
 ]
+# Jobgether: agregador global (200K+ remotas). Su API pública /api/v1/jobs está
+# documentada para agentes (25 por página, `sort=date`, `keyword`). El buscador
+# devuelve mucho aviso viejo (de 92 avisos Flutter, 75 pasaban de 30 días), así
+# que se pagina con corte por antigüedad: en cuanto una página se sale de la
+# ventana, las siguientes también (vienen ordenadas por fecha).
+SOURCES_JOBGETHER = [
+    ("Jobgether (flutter)",
+     "https://jobgether.com/api/v1/jobs?keyword=flutter&limit=25&page={page}&sort=date"),
+    ("Jobgether (dart)",
+     "https://jobgether.com/api/v1/jobs?keyword=dart&limit=25&page={page}&sort=date"),
+]
+JOBGETHER_MAX_DAYS = 30
+JOBGETHER_MAX_PAGES = 4
 
 
 def fetch_source(name, url, fmt, parser, pages=1, step=10, start=0):
@@ -1169,6 +1274,7 @@ def main():
         + SOURCES_HIMALAYAS + SOURCES_REMOTEJOBS + SOURCES_CAREERNEST
         + SOURCES_JOBICY + SOURCES_COMPUTRABAJO + SOURCES_REMOTICO
         + SOURCES_WORKREMOTO + SOURCES_WELLFOUND + SOURCES_ELEMPLEO
+        + SOURCES_JOBGETHER
     )
     total_sources = len(all_sources)
 
@@ -1325,6 +1431,26 @@ def main():
     all_jobs.extend(wr_jobs)
     source_counts["Workremoto"] = len(wr_jobs)
 
+    # 10. Jobgether (API pública para agentes, remoto global)
+    jg_jobs = []
+    for jg_name, jg_url in SOURCES_JOBGETHER:
+        for p in range(JOBGETHER_MAX_PAGES):
+            raw = fetch(jg_url.format(page=p + 1))
+            if raw.startswith("__FETCH_ERR__"):
+                source_errors.append(f"{jg_name} (page {p + 1}): {raw.split(':',1)[1] if ':' in raw else raw}")
+                break
+            jg_jobs.extend(parse_jobgether(raw))
+            oldest = jobgether_oldest_days(raw)
+            if oldest is None or oldest > JOBGETHER_MAX_DAYS:
+                break
+            try:
+                if not json.loads(raw).get("pagination", {}).get("hasMore"):
+                    break
+            except Exception:
+                break
+    all_jobs.extend(jg_jobs)
+    source_counts["Jobgether"] = len(jg_jobs)
+
     # ── Deduplicate ──
     seen = {}
     deduped = []
@@ -1466,6 +1592,12 @@ def main():
     wr_jobs_f = [j for j in deduped if j.get("source") == "Workremoto"]
     sections.append(f"---\n")
     sections.append(fmt_section("Workremoto", wr_jobs_f))
+
+    # Jobgether (agregador global)
+    jg_jobs_f = [j for j in deduped if j.get("source") == "Jobgether"]
+    sections.append(f"---\n")
+    sections.append(fmt_section("Jobgether", jg_jobs_f,
+                                f" · ≤{JOBGETHER_MAX_DAYS} días · remoto global"))
 
     if source_errors:
         sections.append(f"---\n")

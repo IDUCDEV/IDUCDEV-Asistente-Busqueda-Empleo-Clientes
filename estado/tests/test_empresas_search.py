@@ -314,6 +314,21 @@ class TestProcedenciaDelTablero(unittest.TestCase):
         p.probe({"name": "Acme", "domain": "acme.com"})
         self.assertEqual(p.resolution, "ciego")
 
+    def test_descarta_tablero_ajeno_enlazado_desde_careers(self):
+        """Caso real: Remote → greenhouse/zinier (board de otra empresa)."""
+        pagina = '<a href="https://boards.greenhouse.io/zinier">Jobs</a>'
+
+        def fake_get(url, timeout=None):
+            if "/careers" in url or "/jobs" in url:
+                return pagina
+            return "__404__"
+
+        es.http_get = fake_get
+        p = es.Prober(host_directo=False)
+        ats, _, _ = p.probe({"name": "Remote", "domain": "remote.com"})
+        self.assertIsNone(ats)
+        self.assertIsNone(p.resolution)
+
 
 class TestFetchWorkdaySimulado(unittest.TestCase):
     def test_prueba_otro_tenant_si_el_primero_falla(self):

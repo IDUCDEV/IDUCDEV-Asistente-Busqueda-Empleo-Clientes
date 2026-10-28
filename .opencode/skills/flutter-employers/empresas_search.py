@@ -742,6 +742,35 @@ GENERIC_WORDS = {
 }
 
 
+def board_slug_plausible(ats, slug, company):
+    """¿El identificador del tablero se parece al nombre/dominio de la empresa?
+
+    Una página de carreras puede enlazar tableros que no son suyos (un partner,
+    un footer): en la semilla real aparecieron `Etsy Labs → personio/code` y
+    `Remote → greenhouse/zinier`, boards legítimos de otra empresa. Si el slug no
+    se parece al nombre ni al dominio, el tablero no se acepta: es preferible
+    dejarla `sin_tablero` (se reintenta en otra ronda) a llenar el informe con
+    vacantes de un tercero.
+    """
+    if not slug:
+        return False
+    base = slug
+    if ats.startswith("workday:"):
+        base = ats.split(":", 1)[1].split(".")[0]
+    elif ats == "teamtailor":
+        partes = [p for p in slug.split(".")
+                  if p not in ("www", "jobs", "careers", "teamtailor", "com",
+                               "io", "net", "app")]
+        base = partes[0] if partes else slug
+    s = canon_name(base.split(".")[0])
+    if not s:
+        return False
+    nombre = canon_name(company.get("name"))
+    dominio = canon_name(canon_domain(company.get("domain")).split(".")[0])
+    return bool((nombre and (s in nombre or nombre in s))
+                or (dominio and (s in dominio or dominio in s)))
+
+
 def board_matches_company(declarado, company_name):
     """¿El nombre que declara el tablero es el de esta empresa?
 
@@ -956,6 +985,12 @@ class Prober:
         if self.gastar():
             ats, slug, careers = resolve_board(company)
             self.last_careers_url = careers
+            if ats and not board_slug_plausible(ats, slug, company):
+                # La página enlaza un tablero que no es de esta empresa.
+                if self.verbose:
+                    print(f"    ✗ {company['name']}: {ats}/{slug} no se parece a "
+                          f"la empresa (descartado)")
+                ats, slug = None, None
             if ats:
                 self.resolution = "careers"
             if self.verbose and ats:
@@ -1397,8 +1432,10 @@ def main():
         if hist:
             hist.save()
         if aviso:
+            # stderr: stdout es el canal máquina que parsea el orquestador
+            # (`[parcial] 20/60` se leía como si fuese la ruta del informe).
             print(f"[parcial] {procesadas}/{len(targets)} empresas sondeadas",
-                  flush=True)
+                  file=sys.stderr, flush=True)
 
     procesadas = 0
     workers = max(1, min(EMPRESAS_WORKERS, len(targets)))
@@ -1513,7 +1550,7 @@ def main():
         # vacante sigue en la cola y en el historial, pero el .md es la prueba
         # que lee el humano).
         if args.nuevas and not hits and os.path.exists(out_path):
-            print(f"[sin novedades] se conserva {out_path}")
+            print(f"[sin novedades] se conserva {out_path}", file=sys.stderr)
         else:
             with open(out_path, "w", encoding="utf-8") as f:
                 f.write(fmt_report(hits, date_str, time_str, checked, errs))

@@ -321,36 +321,15 @@ def main():
                 "resolution": prober.resolution,
                 "careers_url": prober.last_careers_url or ""}
 
-    print(f"Probando {len(candidates)} candidatos con {EMPRESAS_WORKERS} hilos…",
-          flush=True)
-    resultados = []
-    with ThreadPoolExecutor(max_workers=EMPRESAS_WORKERS) as pool:
-        # Progreso en vivo: sin esto una corrida de 15-50 min parece colgada y no
-        # hay forma de saber si va bien. Los resultados llegan en orden de la
-        # semilla, así que se imprime cada uno (acierto o no) con el avance.
-        for i, res in enumerate(pool.map(sondear, candidates), 1):
-            if res is not None:
-                resultados.append(res)
-            if res is None:
-                continue
-            nombre = res["company"]["name"]
-            if res["ats"]:
-                print(f"  [{i}/{len(candidates)}] ✓ {nombre} → "
-                      f"{res['ats']}/{res['slug']} ({len(res['roles'])} roles)",
-                      flush=True)
-            elif args.verbose:
-                print(f"  [{i}/{len(candidates)}] · {nombre} → sin tablero",
-                      flush=True)
-
     nuevos, refrescados, sin_tablero = [], [], []
-    for res in resultados:
-        if res is None:
-            continue
+
+    def aplicar(res):
+        """Clasifica un sondeo y actualiza el registro (no escribe a disco)."""
         company = res["company"]
         ats, slug, roles = res["ats"], res["slug"], res["roles"]
         if not ats:
             sin_tablero.append(company["name"])
-            continue
+            return
         # Solo se registra lo que tiene vacantes reales. Pero hay un matiz: un
         # tablero vacío puede significar dos cosas según de dónde salió el slug.
         #   · "careers"  → lo dedujo la página de la propia empresa: el slug es
@@ -360,7 +339,7 @@ def main():
         #     equivocado, así que no se registra nada.
         if not roles and res["resolution"] != "careers":
             sin_tablero.append(f"{company['name']}(tablero vacío, slug adivinado)")
-            continue
+            return
 
         selected = es.select_roles(roles, company)
         entry = registry["companies"].get(company["key"])
@@ -390,11 +369,41 @@ def main():
                     "source": "verificar_registro (tablero verificado)",
                 }
 
-    if not args.dry_run:
+    def guardar():
+        if args.dry_run:
+            return
         registry["updated"] = today
         registry["version"] = max(registry.get("version", 1), 2)
         save_json(EMPRESAS_REGISTRY_PATH, registry)
-    else:
+
+    print(f"Probando {len(candidates)} candidatos con {EMPRESAS_WORKERS} hilos…",
+          flush=True)
+    resultados = []
+    with ThreadPoolExecutor(max_workers=EMPRESAS_WORKERS) as pool:
+        # Progreso en vivo: sin esto una corrida de 15-50 min parece colgada y no
+        # hay forma de saber si va bien. Los resultados llegan en orden de la
+        # semilla, así que se imprime cada uno (acierto o no) con el avance.
+        # Cada resultado se aplica en cuanto llega y se guarda cada 15: antes TODO
+        # se escribía al final, así que una interrupción (timeout, Ctrl-C,
+        # reinicio) tiraba la corrida completa.
+        for i, res in enumerate(pool.map(sondear, candidates), 1):
+            if res is None:
+                continue
+            resultados.append(res)
+            aplicar(res)
+            if i % 15 == 0:
+                guardar()
+            nombre = res["company"]["name"]
+            if res["ats"]:
+                print(f"  [{i}/{len(candidates)}] ✓ {nombre} → "
+                      f"{res['ats']}/{res['slug']} ({len(res['roles'])} roles)",
+                      flush=True)
+            elif args.verbose:
+                print(f"  [{i}/{len(candidates)}] · {nombre} → sin tablero",
+                      flush=True)
+
+    guardar()
+    if args.dry_run:
         print("[dry-run] no se escribió el registro")
 
     print("---RESUMEN---")

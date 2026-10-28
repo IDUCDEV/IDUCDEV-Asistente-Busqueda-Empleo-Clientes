@@ -66,6 +66,47 @@ computrabajo: fallo conexión
         self.assertIsNone(res["path"])
         self.assertEqual(res["nuevas"], 0)
 
+    def test_parse_ignora_avisos_de_progreso_como_ruta(self):
+        """`[parcial] 20/60` sale antes que la ruta: no puede ser el archivo."""
+        out = """[parcial] 20/60 empresas sondeadas
+[parcial] 60/60 empresas sondeadas
+resultados/empresas-target/2026-10-26-empresas-vacantes.md
+---JOBCOUNT---
+6
+---NUEVAS---
+1
+---ENCOLADAS---
+5
+---SKIPPED---
+5
+"""
+        res = oq._parse_script_output(out)
+        self.assertEqual(res["path"],
+                         "resultados/empresas-target/2026-10-26-empresas-vacantes.md")
+        self.assertEqual(res["nuevas"], 1, "NUEVAS manda sobre JOBCOUNT")
+        self.assertEqual(res["jobcount"], 6)
+        self.assertEqual(res["encoladas"], 5)
+        self.assertEqual(res["omitidas"], 5)
+
+    def test_parse_sin_seccion_nuevas_usa_jobcount(self):
+        """job-search no emite ---NUEVAS---: JOBCOUNT ya son las nuevas."""
+        out = """resultados/vacantes/2026-10-26.md
+---JOBCOUNT---
+65
+---SKIPPED---
+80
+"""
+        res = oq._parse_script_output(out)
+        self.assertEqual(res["nuevas"], 65)
+        self.assertEqual(res["encoladas"], 0)
+
+    def test_parse_seccion_desconocida_no_contamina_la_ruta(self):
+        out = """---STATS---
+empresas: 154
+"""
+        res = oq._parse_script_output(out)
+        self.assertIsNone(res["path"])
+
 
 class TestTareas(OrquestadorTestCase):
     def test_tarea_nueva_y_done(self):
@@ -109,6 +150,25 @@ class TestRondas(OrquestadorTestCase):
         self.assertTrue(os.path.exists(informe), "debe generar informe del día")
         with open(informe, encoding="utf-8") as fh:
             self.assertIn("## Fases ejecutadas hoy", fh.read())
+
+    def test_fase_completada_con_errores_sale_ok_y_avisa(self):
+        """Corrió entera pero con fuentes caídas: ok=True y ⚠️ en el informe."""
+        oq.registrar_fase("empresas-search", "resultados/empresas-target/x.md",
+                          nuevas=1, omitidas=5, errores=["Clip: sin tablero localizado"],
+                          ok=True)
+        fase = oq.load_rondas()["rondas"][0]["fases"][0]
+        self.assertTrue(fase["ok"])
+        self.assertEqual(fase["errores"], ["Clip: sin tablero localizado"])
+        with open(os.path.join(self.info_dir, f"{oq.today()}-resumen.md"),
+                  encoding="utf-8") as fh:
+            texto = fh.read()
+        self.assertIn("⚠️", texto)
+        self.assertNotIn("❌", texto)
+
+    def test_fase_marcada_fallida_sale_fallida(self):
+        oq.registrar_fase("job-search", "resultados/vacantes/x.md",
+                          errores=["linkedin: timeout"], ok=False)
+        self.assertFalse(oq.load_rondas()["rondas"][0]["fases"][0]["ok"])
 
 
 class TestCmdMarcar(OrquestadorTestCase):

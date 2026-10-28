@@ -159,8 +159,15 @@ def _ronda_hoy(tipo="parcial"):
     return rondas, r
 
 
-def registrar_fase(fase, archivo, nuevas=0, omitidas=0, errores=None, notas="", tipo="parcial"):
-    """Registra el resultado de una fase en la ronda del día (idempotente por fase)."""
+def registrar_fase(fase, archivo, nuevas=0, omitidas=0, errores=None, notas="", tipo="parcial",
+                   ok=True):
+    """Registra el resultado de una fase en la ronda del día (idempotente por fase).
+
+    Una fase registrada se presume **completada** (`ok=True`): si además anotó
+    fuentes caídas, en el informe sale ⚠️ con sus errores, no ❌ (AGENTS.md: una
+    fuente caída no bloquea la ronda, solo se anota). Para una fase que de
+    verdad falló (timeout, exit != 0, script ausente) se registra `ok=False`.
+    """
     rondas, r = _ronda_hoy(tipo)
     if archivo and os.path.isabs(archivo) and archivo.startswith(PROJECT_DIR):
         archivo = os.path.relpath(archivo, PROJECT_DIR)
@@ -171,7 +178,7 @@ def registrar_fase(fase, archivo, nuevas=0, omitidas=0, errores=None, notas="", 
         "nuevas": int(nuevas or 0),
         "omitidas": int(omitidas or 0),
         "errores": errores or [],
-        "ok": not errores,
+        "ok": bool(ok),
         "notas": notas or "",
         "fin": now_iso(),
     })
@@ -183,41 +190,65 @@ def registrar_fase(fase, archivo, nuevas=0, omitidas=0, errores=None, notas="", 
 # ─────────────────────────── Scripts (ronda) ───────────────────────────
 
 
+_SECCIONES_SALIDA = {
+    "JOBCOUNT": "count",
+    "NUEVAS": "nuevas",
+    "ENCOLADAS": "encoladas",
+    "SKIPPED": "skipped",
+    "SOURCES": "sources",
+    "ERRORS": "errors",
+}
+
+
+def _a_entero(texto, actual=0):
+    try:
+        return int(texto)
+    except ValueError:
+        return actual
+
+
 def _parse_script_output(stdout):
-    """Extrae las secciones ---JOBCOUNT---/---SKIPPED---/---SOURCES---/---ERRORS---."""
-    res = {"path": None, "nuevas": 0, "omitidas": 0, "fuentes": {}, "errores": []}
-    lines = stdout.splitlines()
+    """Extrae las secciones ---JOBCOUNT---/---NUEVAS---/... del stdout de una skill.
+
+    Contrato de los scripts (stdout = canal máquina):
+      * la ruta del informe es la primera línea del bloque inicial;
+      * los avisos de progreso van con la forma `[parcial] 20/60` o
+        `[sin novedades] …` y **nunca** son la ruta;
+      * `---JOBCOUNT---` son las nuevas en job-search, pero en
+        empresas-search es el total de roles vistos: ahí las nuevas llegan
+        en `---NUEVAS---`, que manda cuando existe.
+    """
+    res = {"path": None, "nuevas": None, "jobcount": 0, "encoladas": 0,
+           "omitidas": 0, "fuentes": {}, "errores": []}
     section = "head"
-    for ln in lines:
+    for ln in stdout.splitlines():
         stripped = ln.strip()
-        if stripped == "---JOBCOUNT---":
-            section = "count"
-        elif stripped == "---SKIPPED---":
-            section = "skipped"
-        elif stripped == "---SOURCES---":
-            section = "sources"
-        elif stripped == "---ERRORS---":
-            section = "errors"
-        elif stripped.startswith("---") and stripped.endswith("---"):
-            section = "head"
-        elif section == "head" and stripped:
-            if res["path"] is None and not ln.startswith("#"):
+        if stripped.startswith("---") and stripped.endswith("---") and len(stripped) > 6:
+            section = _SECCIONES_SALIDA.get(stripped.strip("-").strip().upper(), "other")
+            continue
+        if not stripped or section == "other":
+            continue
+        if section == "head":
+            # `[parcial] 20/60 empresas sondeadas` no es una ruta.
+            if res["path"] is None and not ln.startswith("#") and not stripped.startswith("["):
                 res["path"] = stripped
-        elif section == "count" and stripped:
-            try:
-                res["nuevas"] = int(stripped)
-            except ValueError:
-                pass
-        elif section == "skipped" and stripped:
-            try:
-                res["omitidas"] = int(stripped)
-            except ValueError:
-                pass
+        elif section == "count":
+            res["jobcount"] = _a_entero(stripped, res["jobcount"])
+        elif section == "nuevas":
+            res["nuevas"] = _a_entero(stripped, res["nuevas"] or 0)
+        elif section == "encoladas":
+            res["encoladas"] = _a_entero(stripped, res["encoladas"])
+        elif section == "skipped":
+            res["omitidas"] = _a_entero(stripped, res["omitidas"])
         elif section == "sources" and ":" in ln:
             k, _, v = ln.partition(":")
             res["fuentes"][k.strip()] = v.strip()
-        elif section == "errors" and stripped:
+        elif section == "errors":
             res["errores"].append(stripped)
+
+    # job-search no emite ---NUEVAS---: allí JOBCOUNT ya son las nuevas.
+    if res["nuevas"] is None:
+        res["nuevas"] = res["jobcount"]
     return res
 
 
@@ -253,9 +284,12 @@ def cmd_ronda(args):
         errores = res["errores"]
         for e in errores:
             print(f"   [error fuente] {e}")
+        notas = "; ".join(f"{k}: {v}" for k, v in res["fuentes"].items())
+        if res.get("encoladas"):
+            notas = (f"encoladas: {res['encoladas']}" +
+                     (f" · {notas}" if notas else ""))
         registrar_fase(nombre, res["path"], res["nuevas"], res["omitidas"], errores,
-                       notas="; ".join(f"{k}: {v}" for k, v in res["fuentes"].items()),
-                       tipo=tipo)
+                       notas=notas, tipo=tipo, ok=True)
         resultados.append((nombre, res, []))
 
     print("\nronda registrada. Informe: " + generar_informe())
@@ -293,7 +327,12 @@ def generar_informe():
         lines.append("| Fase | Nuevas | Omitidas | Ok | Archivo |")
         lines.append("|---|---|---|---|---|")
         for f in ronda_hoy.get("fases", []):
-            ok = "✅" if f.get("ok") else "❌"
+            if not f.get("ok"):
+                ok = "❌"
+            elif f.get("errores"):
+                ok = "⚠️"  # completó, pero hubo fuentes/empresas caídas
+            else:
+                ok = "✅"
             notas = f.get("notas", "")
             archivo = f.get("archivo", "-") or "-"
             line = f"| {f['fase']} | {f.get('nuevas', 0)} | {f.get('omitidas', 0)} | {ok} | `{archivo}` |"
@@ -508,6 +547,8 @@ def main(argv=None):
     p_reg.add_argument("--omitidas", type=int, default=0)
     p_reg.add_argument("--errores", default="")
     p_reg.add_argument("--notas", default="")
+    p_reg.add_argument("--fallida", action="store_true",
+                       help="marca la fase como fallida (por defecto: falla solo si hay --errores)")
     p_reg.add_argument("--tipo", default="parcial", choices=["parcial", "empleos", "clientes", "ronda_completa"])
     p_reg.set_defaults(func=lambda a: print_msg(a))
 
@@ -515,7 +556,7 @@ def main(argv=None):
         registrar_fase(
             a.fase, a.archivo, a.nuevas, a.omitidas,
             [e.strip() for e in a.errores.split(";")] if a.errores else [],
-            a.notas, tipo=a.tipo)
+            a.notas, tipo=a.tipo, ok=False if a.fallida else True)
         print(f"Fase {a.fase} registrada.")
 
     for name in ("estado", "seguimientos"):

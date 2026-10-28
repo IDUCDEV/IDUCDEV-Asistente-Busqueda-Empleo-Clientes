@@ -205,9 +205,9 @@
       "asunto": "",
       "cuerpo": "¡Hola! Les escribo de IDUCDEV.\n\nVi su gimnasio en La Castellana en Infoguia y se ve que tienen buen ambiente; me llamó la atención que para saber planes, horarios y precios haya que llamar o ir hasta allá.\n\nMucha gente que quiere entrenar no da ese paso, y ahí se les van clientes sin que se enteren.\n\nYo hago webs y apps en IDUCDEV — tengo 3 web-apps y 3 apps Flutter en producción, pueden verlas acá: www.iducdev.org\n\n¿Qué tal si lo vemos un momento? Les paso ideas sin costo de una web con planes, horarios y precios visibles, más inscripción por WhatsApp.\n\n— Isaac, IDUCDEV\nwww.iducdev.org",
       "mensaje_path": "resultados/mensajes-clientes/gimnasio-planet-fit-2026-10-09.md",
-      "estado": "pendiente",
+      "estado": "enviado",
       "creado": "2026-10-09T13:49:38+00:00",
-      "enviado_en": null,
+      "enviado_en": "2026-10-27T14:35:52+00:00",
       "error": null
     },
     {
@@ -219,9 +219,9 @@
       "asunto": "",
       "cuerpo": "Hola, le escribo de IDUCDEV.\n\nLos vi en Infoguia, en El Hatillo, con muy buenas reseñas, pero sin una web donde ver la carta; me llamó la atención porque el producto se ve muy cuidado.\n\nHoy los pedidos dependen de que alguien pregunte precios y combos por WhatsApp, y eso frena a los que quieren pedir rápido.\n\nYo desarrollo web y apps — tengo 3 web-apps y 3 apps Flutter en producción, pueden verlas en mi portafolio: www.iducdev.org\n\n¿Le interesa que le muestre cómo quedaría una web con menú, fotos, combos y botón de pedido por WhatsApp para su negocio? Es una propuesta breve y sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
       "mensaje_path": "resultados/mensajes-clientes/babas-burgers-2026-10-09.md",
-      "estado": "pendiente",
+      "estado": "enviado",
       "creado": "2026-10-09T13:49:38+00:00",
-      "enviado_en": null,
+      "enviado_en": "2026-10-27T14:45:17+00:00",
       "error": null
     },
     {
@@ -233,9 +233,9 @@
       "asunto": "",
       "cuerpo": "Estimados señores de Posada El Botuto:\n\nLes escribo nuevamente desde IDUCDEV. Hace unas semanas les comenté la idea de habilitar reservas en línea con confirmación inmediata y pago, ya que hoy la reserva se gestiona por teléfono, fax o correo.\n\nUn alojamiento premium en Los Roques gana mucho con reservas directas sin fricción. Si les interesa, con gusto les comparto una propuesta breve y sin compromiso.\n\nSaludos cordiales,\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org | iducdev.inc@gmail.com",
       "mensaje_path": "resultados/mensajes-clientes/posada-el-botuto-2026-10-15.md",
-      "estado": "pendiente",
+      "estado": "enviado",
       "creado": "2026-10-15T14:30:56+00:00",
-      "enviado_en": null,
+      "enviado_en": "2026-10-27T14:46:52+00:00",
       "error": null
     },
     {
@@ -247,9 +247,9 @@
       "asunto": "",
       "cuerpo": "¡Hola! Soy Isaac, de nuevo por acá de IDUCDEV.\n\nHace unas semanas les comenté la idea de una web de marca para Fit Club Caracas, con membresías y reserva de clases en línea. Su centro en Las Mercedes se ve premium, pero hoy todo se maneja solo por WhatsApp.\n\n¿Pudo verlo? Si quieren, les paso una propuesta breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
       "mensaje_path": "resultados/mensajes-clientes/fit-club-caracas-2026-10-15.md",
-      "estado": "pendiente",
+      "estado": "enviado",
       "creado": "2026-10-15T14:30:56+00:00",
-      "enviado_en": null,
+      "enviado_en": "2026-10-27T14:52:40+00:00",
       "error": null
     },
     {
@@ -261,9 +261,23 @@
       "asunto": "",
       "cuerpo": "¡Hola! Soy Isaac, de IDUCDEV.\n\nLe escribí hace unos días por la idea de un menú digital con pedidos por WhatsApp para Alfresko: hoy sus platos gourmet se piden por teléfono y el perfil de Infoguia no tiene web propia.\n\n¿Le interesa que le cuente cómo quedaría? Le paso una idea breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
       "mensaje_path": "resultados/mensajes-clientes/alfresko-2026-10-15.md",
-      "estado": "pendiente",
+      "estado": "enviado",
       "creado": "2026-10-15T14:30:57+00:00",
-      "enviado_en": null,
+      "enviado_en": "2026-10-27T14:54:53+00:00",
+      "error": null
+    },
+    {
+      "id": "e-20261027101246-20",
+      "lead_key": "inmobiliaria knepper real estate",
+      "nombre": "Inmobiliaria Knepper Real Estate",
+      "canal": "whatsapp",
+      "destino": "+584242109169",
+      "asunto": "",
+      "cuerpo": "¡Hola! Le escribe Isaac, de IDUCDEV.\n\nVi que Knepper Real Estate mueve propiedades en Las Mercedes, pero hoy todo se gestiona por TikTok y DM. Ahí se pierden muchos prospectos que solo quieren ver el catálogo con calma.\n\nYo desarrollo webs y apps. Les puedo hacer una web con catálogo de propiedades, buscador por zona/precio, fotos, ficha de inmueble y botón para agendar visita por WhatsApp. Así pasan de \"me gusta\" a solicitud directa sin el ida y vuelta por mensaje.\n\nTengo 3 web-apps y 3 apps Flutter en producción, las pueden ver en www.iducdev.org\n\n¿Les interesa que les cuente cómo quedaría? Les paso una propuesta breve sin compromiso.\n\n— Isaac Urdaneta | IDUCDEV\nwww.iducdev.org",
+      "mensaje_path": "resultados/mensajes-clientes/inmobiliaria-knepper-real-estate-2026-10-27.md",
+      "estado": "enviado",
+      "creado": "2026-10-27T14:12:46+00:00",
+      "enviado_en": "2026-10-27T14:59:20+00:00",
       "error": null
     }
   ]

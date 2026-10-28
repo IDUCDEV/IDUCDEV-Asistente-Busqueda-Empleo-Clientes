@@ -32,7 +32,7 @@ Frases que entiende:
 
 | Di esto | Qué hace por ti |
 |---------|-----------------|
-| **"Haz la ronda de hoy"** | Busca vacantes nuevas (12 fuentes) + tableros ATS de empresas + posts ocultos de LinkedIn + leads de clientes. **Omite lo ya visto** y te deja un resumen. |
+| **"Haz la ronda de hoy"** | Busca vacantes nuevas (13 fuentes) + tableros ATS de empresas + posts ocultos de LinkedIn + leads de clientes. **Omite lo ya visto** y te deja un resumen. |
 | **"Solo empleos"** | Solo la parte de búsqueda de trabajo. |
 | **"Solo clientes"** | Solo descubrir potenciales clientes. |
 | **"¿Qué hay nuevo?"** | Te dice lo pendiente de revisar y las tareas sin volver a buscar. |

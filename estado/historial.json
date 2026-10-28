@@ -182,12 +182,13 @@
     {
       "key": "canonical::web frontend engineer js css react flutter",
       "fecha_visto": "2026-09-20T16:30:43+00:00",
-      "estado": "nuevo",
+      "estado": "descartado",
       "empresa": "Canonical",
       "titulo": "Web Frontend Engineer - JS, CSS, React, Flutter",
       "url": "https://www.linkedin.com/jobs/view/web-frontend-engineer-js-css-react-flutter-at-canonical-4286647448",
       "fuente": "LinkedIn (7d)",
-      "salario": 48000
+      "salario": 48000,
+      "fecha_actualizado": "2026-10-28T14:18:07+00:00"
     },
     {
       "key": "gray media::flutter developer remote usa gdm gray media group",
@@ -637,7 +638,9 @@
       "titulo": "Senior Flutter Developer (Remote)",
       "url": "https://br.linkedin.com/jobs/view/senior-flutter-developer-remote-at-altimetrik-4474548071",
       "fuente": "LinkedIn (7d)",
-      "fecha_actualizado": "2026-10-03T14:27:29+00:00"
+      "fecha_actualizado": "2026-10-03T14:27:29+00:00",
+      "url_alterna": "https://www.linkedin.com/jobs/view/4474523919/",
+      "nota": "repost detectado 2026-10-26 (mismo puesto, otro job id); no reaplicar"
     },
     {
       "key": "bairesdev::senior flutter amp dart engineer remote work ref 302232",
@@ -961,7 +964,7 @@
       "estado": "nuevo",
       "empresa": "Sandcup Design Studio",
       "titulo": "Flutter Developer",
-      "url": "https://wellfound.com/jobs/528372-flutter-developer",
+      "url": "https://wellfound.com/jobs/3531451-flutter-developer",
       "fuente": "Wellfound"
     },
     {
@@ -970,7 +973,7 @@
       "estado": "nuevo",
       "empresa": "Tagbox",
       "titulo": "Flutter Developer",
-      "url": "https://wellfound.com/jobs/3531451-flutter-developer",
+      "url": "https://wellfound.com/jobs/4787110-flutter-developer",
       "fuente": "Wellfound"
     },
     {
@@ -1069,7 +1072,7 @@
       "estado": "nuevo",
       "empresa": "Techasoka (OPC)",
       "titulo": "Flutter Developer Intern",
-      "url": "https://wellfound.com/jobs/4209666-flutter-developer-intern",
+      "url": "https://wellfound.com/jobs/3264187-flutter-developer-intern",
       "fuente": "Wellfound"
     },
     {
@@ -1997,7 +2000,7 @@
       "empresa": "Inter",
       "titulo": "DEVELOPER MOBILE IOS/ANDROID (Pl, Sr &amp; Spec) | São Paulo",
       "url": "https://br.linkedin.com/jobs/view/developer-mobile-ios-android-pl-sr-spec-s%C3%A3o-paulo-at-inter-4430720237",
-      "fuente": "LinkedIn"
+      "fuente": "LinkedIn (7d)"
     },
     {
       "key": "levofácil::engenheiro de software android sênior",
@@ -2737,7 +2740,7 @@
       "estado": "nuevo",
       "empresa": "Les Amis",
       "titulo": "Flutter Developer",
-      "url": "https://wellfound.com/jobs/4787110-flutter-developer",
+      "url": "https://wellfound.com/jobs/528372-flutter-developer",
       "fuente": "Wellfound"
     },
     {
@@ -2773,7 +2776,7 @@
       "estado": "nuevo",
       "empresa": "beemz",
       "titulo": "Flutter Developer Intern",
-      "url": "https://wellfound.com/jobs/3264187-flutter-developer-intern",
+      "url": "https://wellfound.com/jobs/4209666-flutter-developer-intern",
       "fuente": "Wellfound"
     },
     {
@@ -3433,7 +3436,7 @@
       "estado": "nuevo",
       "empresa": "Lernn",
       "titulo": "Flutter Developer",
-      "url": "https://wellfound.com/jobs/2396575-flutter-developer",
+      "url": "https://wellfound.com/jobs/4627315-flutter-developer",
       "fuente": "Wellfound"
     },
     {
@@ -4039,7 +4042,7 @@
       "empresa": "SKY Airline",
       "titulo": "Desarrollador Mobile",
       "url": "https://cl.linkedin.com/jobs/view/desarrollador-mobile-at-sky-airline-4482198670",
-      "fuente": "LinkedIn"
+      "fuente": "LinkedIn (7d)"
     },
     {
       "key": "gulfstream aerospace::mobile web dev ii btw",
@@ -4057,7 +4060,7 @@
       "empresa": "Azkait",
       "titulo": "Desarrollador Mobile / Flutter Senior (Caracas)",
       "url": "https://ve.linkedin.com/jobs/view/desarrollador-mobile-flutter-senior-caracas-at-azkait-4481159990",
-      "fuente": "LinkedIn",
+      "fuente": "LinkedIn (7d)",
       "fecha_actualizado": "2026-10-22T21:33:52+00:00"
     },
     {
@@ -4825,6 +4828,739 @@
       "empresa": "iFood",
       "motivo": "F1",
       "fecha_actualizado": "2026-10-23T13:22:02+00:00"
+    },
+    {
+      "key": "stift::desenvolvedor full stack",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "Stift",
+      "titulo": "Desenvolvedor Full-Stack",
+      "url": "https://br.linkedin.com/jobs/view/desenvolvedor-full-stack-at-stift-4481442445",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "spot2mx::fullstack engineer fintech",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "descartado",
+      "empresa": "Spot2.mx",
+      "titulo": "Fullstack Engineer (Fintech)",
+      "url": "https://mx.linkedin.com/jobs/view/fullstack-engineer-fintech-at-spot2-mx-4482905696",
+      "fuente": "LinkedIn",
+      "motivo": "F1, F6, F11",
+      "fecha_actualizado": "2026-10-26T23:22:22+00:00"
+    },
+    {
+      "key": "inter::developer mobile ios android pl sr amp spec belo horizonte",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "Inter",
+      "titulo": "DEVELOPER MOBILE IOS/ANDROID (Pl, Sr &amp; Spec) | Belo Horizonte",
+      "url": "https://br.linkedin.com/jobs/view/developer-mobile-ios-android-pl-sr-spec-belo-horizonte-at-inter-4430721214",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "zanc assessoria nacional de cobrança::estágio desenvolvimento porto alegre vaga atualizada",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "ZANC Assessoria Nacional de Cobrança",
+      "titulo": "Estágio Desenvolvimento - Porto Alegre - Vaga Atualizada",
+      "url": "https://br.linkedin.com/jobs/view/est%C3%A1gio-desenvolvimento-porto-alegre-vaga-atualizada-at-zanc-assessoria-nacional-de-cobran%C3%A7a-4481416941",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "sparq::senior flutter dart mobile engineer",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "en_proceso",
+      "empresa": "Sparq",
+      "titulo": "Senior Flutter/Dart Mobile Engineer",
+      "url": "https://cl.linkedin.com/jobs/view/senior-flutter-dart-mobile-engineer-at-sparq-4483306830",
+      "fuente": "LinkedIn (7d)",
+      "cv": "resultados/cv/isaac-urdaneta-flutter-engineer-sparq.md",
+      "carta": "resultados/cv/carta-sparq.md",
+      "nota": "remoto; apply fuera de LinkedIn; D-07 offline confirmado 2026-10-26 (base pendiente de actualizar)",
+      "fecha_actualizado": "2026-10-26T23:32:13+00:00"
+    },
+    {
+      "key": "tivit latam::flutter dev ios android nativo",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "applied",
+      "empresa": "TIVIT LATAM",
+      "titulo": "Flutter Dev + Ios/Android nativo",
+      "url": "https://www.linkedin.com/jobs/view/flutter-dev-%2B-ios-android-nativo-at-tivit-latam-4480674299",
+      "fuente": "LinkedIn (7d)",
+      "nota": "aplicado pese a gap nativo (decision del usuario 2026-10-26). CV sin Riverpod/Melos/nativo: no afirmables. Carta declara el gap. Jornada europea (9-18 CET) CONFIRMADA por el usuario 2026-10-26.",
+      "fecha_actualizado": "2026-10-26T23:45:21+00:00",
+      "cv": "resultados/cv/isaac-urdaneta-flutter-engineer-tivit.md",
+      "carta": "resultados/cv/carta-tivit.md"
+    },
+    {
+      "key": "zetti::desenvolvedor flutter pleno",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "descartado",
+      "empresa": "Zetti",
+      "titulo": "Desenvolvedor Flutter Pleno",
+      "url": "https://br.linkedin.com/jobs/view/desenvolvedor-flutter-pleno-at-zetti-4483190346",
+      "fuente": "LinkedIn (7d)",
+      "modalidad": "presencial",
+      "nota": "PRESENCIAL en Brasil (metadata de LinkedIn; el cuerpo de la JD no lo dice) + beneficios CLT con vale-combustivel. Match tecnico alto (~80%): Pleno, Flutter core, Clean Architecture, BLoC/Provider, testing y persistencia local. Se descarta por modalidad, no por stack. Gap: camara/GPS/biometria/MethodChannels.",
+      "fecha_actualizado": "2026-10-26T23:46:06+00:00"
+    },
+    {
+      "key": "grupo boticário::pessoa desenvolvedora flutter iii demanda operação e finanças",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "descartado",
+      "empresa": "Grupo Boticário",
+      "titulo": "Pessoa Desenvolvedora Flutter III - Demanda, Operação e Finanças",
+      "url": "https://br.linkedin.com/jobs/view/pessoa-desenvolvedora-flutter-iii-demanda-opera%C3%A7%C3%A3o-e-finan%C3%A7as-at-grupo-botic%C3%A1rio-4483140553",
+      "fuente": "LinkedIn (7d)",
+      "modalidad": "remoto",
+      "cv": "resultados/cv/isaac-urdaneta-flutter-engineer-boticario.md",
+      "carta": "resultados/cv/carta-boticario.md",
+      "nota": "REMOTO (metadata LinkedIn). CV y carta en PT-BR. Match ~76%. Gancho: uso diario de Claude Code/Cursor/Copilot (la JD lo pone como diferencial). Sin afirmar: subida a tiendas, nativo, micro front end, monitoreo, OWASP/SSL pinning. Filtro dio PASS.",
+      "fecha_actualizado": "2026-10-26T23:55:31+00:00",
+      "motivo": "descartada por el usuario el 2026-10-26 despues de generar el paquete (motivo no indicado)"
+    },
+    {
+      "key": "john deere::mid level software engineer full stack amp mobile indaiatuba sp",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "John Deere",
+      "titulo": "Mid-level Software Engineer (Full Stack &amp; Mobile) - Indaiatuba/SP",
+      "url": "https://br.linkedin.com/jobs/view/mid-level-software-engineer-full-stack-mobile-indaiatuba-sp-at-john-deere-4481921008",
+      "fuente": "LinkedIn (7d)"
+    },
+    {
+      "key": "cloudsufi::mobile tester automation",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "CLOUDSUFI",
+      "titulo": "Mobile Tester(Automation)",
+      "url": "https://mx.linkedin.com/jobs/view/mobile-tester-automation-at-cloudsufi-4480632238",
+      "fuente": "LinkedIn (7d)"
+    },
+    {
+      "key": "kpaz::desarrollador mobile android ios multiplataforma",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "descartado",
+      "empresa": "KPaz",
+      "titulo": "Desarrollador Mobile: Android / iOS / Multiplataforma",
+      "url": "https://cl.linkedin.com/jobs/view/desarrollador-mobile-android-ios-multiplataforma-at-kpaz-4482756831",
+      "fuente": "LinkedIn (7d)",
+      "motivo": "F4",
+      "fecha_actualizado": "2026-10-26T23:56:43+00:00"
+    },
+    {
+      "key": "petmojo::flutter developer freelance",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "Petmojo",
+      "titulo": "Flutter Developer (Freelance)",
+      "url": "https://wellfound.com/jobs/4829669-flutter-developer-freelance",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "zuntra digital::flutter developer",
+      "fecha_visto": "2026-10-26T14:53:21+00:00",
+      "estado": "nuevo",
+      "empresa": "ZUNTRA Digital",
+      "titulo": "Flutter Developer",
+      "url": "https://wellfound.com/jobs/2396575-flutter-developer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "lupira::flutter developer intern",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Lupira",
+      "titulo": "Flutter Developer Intern",
+      "url": "https://wellfound.com/jobs/4869648-flutter-developer-intern",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "dafotalk::mobile app developer intern flutter",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "DafoTalk",
+      "titulo": "Mobile App Developer Intern (Flutter)",
+      "url": "https://wellfound.com/jobs/3710563-mobile-app-developer-intern-flutter",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "vogic ai::senior mobile flutter developer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "VOGIC AI",
+      "titulo": "Senior Mobile Flutter Developer",
+      "url": "https://wellfound.com/jobs/4696207-senior-mobile-flutter-developer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "bitkraft technologies::software engineer ii mobile developer android kotlin mobile app growth",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Bitkraft Technologies",
+      "titulo": "Software Engineer II (Mobile Developer - Android/Kotlin) - Mobile App Growth",
+      "url": "https://wellfound.com/jobs/4437310-software-engineer-ii-mobile-developer-android-kotlin-mobile-app-growth",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "brainstation::ai software developer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "BrainStation",
+      "titulo": "AI Software Developer",
+      "url": "https://wellfound.com/jobs/4465215-ai-software-developer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "gainscom::lead software engineer ios android immersity ai",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Gains.com",
+      "titulo": "Lead Software Engineer – iOS, Android (Immersity.ai)",
+      "url": "https://wellfound.com/jobs/3100754-lead-software-engineer-ios-android-immersity-ai",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "kitab::remote full stack engineer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Kitab",
+      "titulo": "Remote Full Stack Engineer",
+      "url": "https://wellfound.com/jobs/4302145-remote-full-stack-engineer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "bureau::brand marketer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Bureau",
+      "titulo": "Brand Marketer",
+      "url": "https://wellfound.com/jobs/3532932-brand-marketer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "docglasses ai::integration engineer sdk",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "DocGlasses AI",
+      "titulo": "Integration Engineer (SDK)",
+      "url": "https://wellfound.com/jobs/4238911-integration-engineer-sdk",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "spotsure biz::mobile application developer edge ai smart devices",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Spotsure Biz",
+      "titulo": "Mobile Application Developer – Edge AI & Smart Devices",
+      "url": "https://wellfound.com/jobs/4567588-mobile-application-developer-edge-ai-smart-devices",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "eitaciesinc::technical co founder founding cto",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Eitacies-Inc",
+      "titulo": "Technical Co-Founder / Founding CTO",
+      "url": "https://wellfound.com/jobs/4490098-technical-co-founder-founding-cto",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "loynova::sde 1 full stack developer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Loynova",
+      "titulo": "SDE-1 Full Stack Developer",
+      "url": "https://wellfound.com/jobs/3699491-sde-1-full-stack-developer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "superstars::senior full stack developer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Superstars",
+      "titulo": "Senior Full Stack Developer",
+      "url": "https://wellfound.com/jobs/4655350-senior-full-stack-developer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "itoolapk::python developer fastapi part time",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "ITOOLAPK",
+      "titulo": "Python Developer (FastAPI), part-time",
+      "url": "https://wellfound.com/jobs/4751291-python-developer-fastapi-part-time",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "jobsite911::flutter android developer freelance or internship",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Jobsite911",
+      "titulo": "Flutter / Android Developer (Freelance or Internship)",
+      "url": "https://wellfound.com/jobs/4779220-flutter-android-developer-freelance-or-internship",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "aethreallegence enterprise::mobile app developer volunteer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Aethreallegence Enterprise",
+      "titulo": "Mobile App Developer – Volunteer",
+      "url": "https://wellfound.com/jobs/3382068-mobile-app-developer-volunteer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "feelins app::mobile application developer intern flutter react native",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Feelin's App",
+      "titulo": "Mobile Application Developer Intern (Flutter / React Native)",
+      "url": "https://wellfound.com/jobs/4218469-mobile-application-developer-intern-flutter-react-native",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "inminutes::full stack developer internship clone",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "inMinutes",
+      "titulo": "Full Stack Developer Internship (Clone)",
+      "url": "https://wellfound.com/jobs/4677885-full-stack-developer-internship-clone",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "donttracecom::full stack developer intern",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "DontTrace.com",
+      "titulo": "Full Stack Developer Intern",
+      "url": "https://wellfound.com/jobs/4675504-full-stack-developer-intern",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "catalyst ai labs::full stack developer product support",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Catalyst AI Labs",
+      "titulo": "Full‑Stack Developer (Product Support)",
+      "url": "https://wellfound.com/jobs/4492803-full-stack-developer-product-support",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "zer0paper oü::full stack ai developer also owns qa testing and devops",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Zer0Paper OÜ",
+      "titulo": "Full Stack AI Developer - also owns QA testing and DevOps",
+      "url": "https://wellfound.com/jobs/4793782-full-stack-ai-developer-also-owns-qa-testing-and-devops",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "topsort::forward deployed engineer triage singapore",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Topsort",
+      "titulo": "Forward Deployed Engineer, Triage (Singapore)",
+      "url": "https://wellfound.com/jobs/4889913-forward-deployed-engineer-triage-singapore",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "lawnstarter::ai engineer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "LawnStarter",
+      "titulo": "AI Engineer",
+      "url": "https://wellfound.com/jobs/4881295-ai-engineer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "search atlas::lead full stack engineer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Search Atlas",
+      "titulo": "Lead Full Stack Engineer",
+      "url": "https://wellfound.com/jobs/3428281-2-lead-full-stack-engineer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "the mobilefirst company::senior full stack engineer django next js",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "The Mobile-First Company",
+      "titulo": "Senior Full-Stack Engineer (Django / Next.js)",
+      "url": "https://wellfound.com/jobs/4180436-senior-full-stack-engineer-django-next-js",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "checkr::software engineer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Checkr",
+      "titulo": "Software Engineer 🇦🇷",
+      "url": "https://wellfound.com/jobs/3312811-software-engineer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "cuseum::engineering manager",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Cuseum",
+      "titulo": "Engineering Manager",
+      "url": "https://wellfound.com/jobs/4114864-engineering-manager",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "brex::sales development representative",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Brex",
+      "titulo": "Sales Development Representative",
+      "url": "https://wellfound.com/jobs/712508-sales-development-representative",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "upcodes::computer vision data engineer fully remote usd latin america based",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "UpCodes",
+      "titulo": "Computer Vision DATA Engineer - Fully Remote USD - Latin America based",
+      "url": "https://wellfound.com/jobs/4522229-computer-vision-data-engineer-fully-remote-usd-latin-america-based",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "molten cloud::senior sales development representative",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "MOLTEN Cloud",
+      "titulo": "Senior Sales Development Representative",
+      "url": "https://wellfound.com/jobs/4849883-senior-sales-development-representative",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "bcgame::senior software engineer royalties fully remote us and latin america only",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "BC.GAME",
+      "titulo": "Senior Software Engineer, Royalties (Fully Remote, US and Latin America only)",
+      "url": "https://wellfound.com/jobs/4607173-senior-software-engineer-royalties-fully-remote-us-and-latin-america-only",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "lucidbot::influencer marketing team leader igaming experience needed",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Lucidbot",
+      "titulo": "Influencer Marketing Team Leader - Igaming Experience Needed",
+      "url": "https://wellfound.com/jobs/4868449-influencer-marketing-team-leader-igaming-experience-needed",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "no especificada::founder operations customer intelligence lead",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "No especificada",
+      "titulo": "Founder Operations & Customer Intelligence Lead",
+      "url": "https://wellfound.com/jobs/4717776-founder-operations-customer-intelligence-lead",
+      "fuente": "Wellfound",
+      "salario": 60
+    },
+    {
+      "key": "ae studio::senior software engineer product expansion team",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "AE Studio",
+      "titulo": "Senior Software Engineer - Product Expansion Team",
+      "url": "https://wellfound.com/jobs/4797269-senior-software-engineer-product-expansion-team",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "intuition machines::developer ror for iot startup wehaus",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Intuition Machines",
+      "titulo": "Developer RoR for IoT Startup - WeHaus",
+      "url": "https://wellfound.com/jobs/124283-developer-ror-for-iot-startup-wehaus",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "sunflower::cyber security fraud analyst",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Sunflower",
+      "titulo": "Cyber Security Fraud Analyst",
+      "url": "https://wellfound.com/jobs/3080887-cyber-security-fraud-analyst",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "infisical::ai seo lead",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Infisical",
+      "titulo": "AI SEO Lead",
+      "url": "https://wellfound.com/jobs/4829674-ai-seo-lead",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "doordash::full stack engineer",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "DoorDash",
+      "titulo": "Full Stack Engineer",
+      "url": "https://wellfound.com/jobs/4797239-full-stack-engineer",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "decentralized masters::technical lead and architect blockchain full stack engineer remote",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Decentralized Masters",
+      "titulo": "Technical Lead and Architect, Blockchain Full Stack Engineer (Remote)",
+      "url": "https://wellfound.com/jobs/2812374-technical-lead-and-architect-blockchain-full-stack-engineer-remote",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "kommo::affiliate and partnerships coordinator",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Kommo",
+      "titulo": "Affiliate and Partnerships Coordinator",
+      "url": "https://wellfound.com/jobs/4869607-affiliate-and-partnerships-coordinator",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "dentistry automation::partnership manager gerente de partner relations",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Dentistry Automation",
+      "titulo": "Partnership Manager/Gerente de Partner Relations",
+      "url": "https://wellfound.com/jobs/4869604-partnership-manager-gerente-de-partner-relations",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "nethermind::sr dental insurance and verification expert",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Nethermind",
+      "titulo": "Sr. Dental Insurance and Verification Expert",
+      "url": "https://wellfound.com/jobs/4463347-sr-dental-insurance-and-verification-expert",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "farmers business network::it department lead remote worldwide",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Farmers Business Network",
+      "titulo": "IT Department Lead - Remote, Worldwide",
+      "url": "https://wellfound.com/jobs/4751177-it-department-lead-remote-worldwide",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "levelup leads::sales development representative sdr ads placements",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "LevelUp Leads",
+      "titulo": "Sales Development Representative (SDR) - Ads placements",
+      "url": "https://wellfound.com/jobs/4728312-sales-development-representative-sdr-ads-placements",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "otterz::sales development representative sdr",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Otterz",
+      "titulo": "Sales Development Representative (SDR)",
+      "url": "https://wellfound.com/jobs/2362416-sales-development-representative",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "artefact::social media manager",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Artefact",
+      "titulo": "Social Media Manager",
+      "url": "https://wellfound.com/jobs/2942524-social-media-manager",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "clipboard::data scientist m f d",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Clipboard",
+      "titulo": "Data Scientist (m/f/d)",
+      "url": "https://wellfound.com/jobs/2620968-data-scientist-m-f-d",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "no especificada::onboarding expert",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "No especificada",
+      "titulo": "Onboarding Expert",
+      "url": "https://wellfound.com/jobs/4565962-onboarding-expert",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "quality digital::12773596 analista sênior de desenvolvimento mobile flutter vtex",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "descartado",
+      "empresa": "Quality Digital",
+      "titulo": "12773596-ANALISTA SÊNIOR DE DESENVOLVIMENTO MOBILE FLUTTER (VTEX)",
+      "url": "https://himalayas.app/companies/quality-digital/jobs/12773596-analista-senior-de-desenvolvimento-mobile-flutter-vtex",
+      "fuente": "Himalayas",
+      "url_ats": "https://qualitydigital.gupy.io/jobs/12773596",
+      "modalidad": "remoto",
+      "restriccion": "Himalayas marca 'Brazil only'; beneficios CLT brasileira. Quality Digital dice 'time espalhado pelo Brasil e pelo mundo'.",
+      "cv": "resultados/cv/isaac-urdaneta-flutter-engineer-quality-digital.md",
+      "carta": "resultados/cv/carta-quality-digital.md",
+      "nota": "PT-BR. Match ~72%. Filtro PASS (F4 no dispara: no es presencial ni CLT declarado en el cuerpo). Ganchos: BLoC/Cubit (diferencial), SOLID/Clean Code/Design Patterns, tests automatizados, code review, espanhol nativo (op. Colômbia), UTC-4 cubre 08-18 BRT. Sin afirmar: VTEX, GraphQL, Firebase, FastStore, publicación en tiendas.",
+      "fecha_actualizado": "2026-10-27T00:15:16+00:00",
+      "motivo": "Gupy rechaza la postulación: 'Location not eligible' — los permisos de trabajo del perfil no están en las ubicaciones elegibles (Brazil only). Descartada 2026-10-26 sin enviar.",
+      "bloqueo": "elegibilidad_geografica",
+      "ats": "Gupy"
+    },
+    {
+      "key": "xktalent inc rimutee::desarrollador mobile flutter latam",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "XKTalent Inc. - Rimutee",
+      "titulo": "DESARROLLADOR MOBILE FLUTTER - LATAM",
+      "url": "https://himalayas.app/companies/rekluti/jobs/desarrollador-mobile-flutter-latam",
+      "fuente": "Himalayas"
+    },
+    {
+      "key": "capital on tap::flutter engineer platform",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Capital on Tap",
+      "titulo": "Flutter Engineer - Platform",
+      "url": "https://remotejobs.org/remote-jobs/flutter-engineer-platform-capital-on-tap",
+      "fuente": "RemoteJobs.org"
+    },
+    {
+      "key": "capital on tap::flutter engineer banking",
+      "fecha_visto": "2026-10-26T14:53:22+00:00",
+      "estado": "nuevo",
+      "empresa": "Capital on Tap",
+      "titulo": "Flutter Engineer - Banking",
+      "url": "https://remotejobs.org/remote-jobs/flutter-engineer-banking-capital-on-tap",
+      "fuente": "RemoteJobs.org"
+    },
+    {
+      "key": "way tech::full stack developer php laravel net angular flutter",
+      "fecha_visto": "2026-10-26T16:25:07+00:00",
+      "estado": "descartado",
+      "titulo": "Full Stack Developer (PHP Laravel + .NET + Angular + Flutter)",
+      "empresa": "Way Tech",
+      "motivo": "F6, F10",
+      "fecha_actualizado": "2026-10-28T13:09:35+00:00"
+    },
+    {
+      "key": "weave::software engineer weave flutter dart",
+      "fecha_visto": "2026-10-26T23:14:51+00:00",
+      "estado": "applied",
+      "titulo": "Software Engineer (Weave) - Flutter & Dart",
+      "empresa": "Weave",
+      "url": "https://www.linkedin.com/posts/hiring-techjobs-frontend-share-7519774839709212675-P73J/",
+      "motivo": "PASS filtro; CV+carta generados 2026-10-26; pendiente de envio por el usuario",
+      "fecha_actualizado": "2026-10-26T23:20:54+00:00",
+      "cv": "resultados/cv/isaac-urdaneta-flutter-engineer-weave.md",
+      "carta": "resultados/cv/carta-weave.md"
+    },
+    {
+      "key": "inter::developer mobile ios android pl sr spec",
+      "fecha_visto": "2026-10-26T23:23:44+00:00",
+      "estado": "descartado",
+      "titulo": "Developer Mobile iOS/Android (Pl, Sr & Spec)",
+      "empresa": "Inter",
+      "motivo": "F4",
+      "fecha_actualizado": "2026-10-26T23:23:44+00:00"
+    },
+    {
+      "key": "zanc assessoria nacional de cobrança::estágio desenvolvimento porto alegre",
+      "fecha_visto": "2026-10-26T23:25:02+00:00",
+      "estado": "descartado",
+      "titulo": "Estágio Desenvolvimento - Porto Alegre",
+      "empresa": "ZANC Assessoria Nacional de Cobrança",
+      "motivo": "F1",
+      "fecha_actualizado": "2026-10-26T23:25:02+00:00"
+    },
+    {
+      "key": "jobgether::especialista de desenvolvimento mobile flutter",
+      "fecha_visto": "2026-10-27T14:28:51+00:00",
+      "estado": "applied",
+      "empresa": "Jobgether",
+      "titulo": "Especialista de Desenvolvimento Mobile Flutter",
+      "url": "https://br.linkedin.com/jobs/view/especialista-de-desenvolvimento-mobile-flutter-at-jobgether-4483279734",
+      "fuente": "LinkedIn",
+      "fecha_actualizado": "2026-10-28T13:30:24+00:00"
+    },
+    {
+      "key": "flex::analista de desenvolvimento de software i",
+      "fecha_visto": "2026-10-27T14:28:51+00:00",
+      "estado": "descartado",
+      "empresa": "Flex",
+      "titulo": "Analista de Desenvolvimento de Software I",
+      "url": "https://br.linkedin.com/jobs/view/analista-de-desenvolvimento-de-software-i-at-flex-4483288220",
+      "fuente": "LinkedIn",
+      "motivo": "F5",
+      "fecha_actualizado": "2026-10-28T13:31:09+00:00"
+    },
+    {
+      "key": "novacomp::mobile developer",
+      "fecha_visto": "2026-10-27T14:28:51+00:00",
+      "estado": "nuevo",
+      "empresa": "Novacomp",
+      "titulo": "Mobile Developer",
+      "url": "https://pe.linkedin.com/jobs/view/mobile-developer-at-novacomp-4483794571",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "finyks::desarrollador a android y backend kotlin apis y postgresql",
+      "fecha_visto": "2026-10-27T14:28:51+00:00",
+      "estado": "nuevo",
+      "empresa": "Finyks",
+      "titulo": "Desarrollador/a Android y Backend – Kotlin, APIs y PostgreSQL",
+      "url": "https://cl.linkedin.com/jobs/view/desarrollador-a-android-y-backend-%E2%80%93-kotlin-apis-y-postgresql-at-finyks-4481817799",
+      "fuente": "LinkedIn"
+    },
+    {
+      "key": "porto::analista de engenharia de software sr tech lead dynamics",
+      "fecha_visto": "2026-10-27T14:28:51+00:00",
+      "estado": "descartado",
+      "empresa": "Porto",
+      "titulo": "Analista de Engenharia de Software Sr | Tech Lead - Dynamics",
+      "url": "https://br.linkedin.com/jobs/view/analista-de-engenharia-de-software-sr-tech-lead-dynamics-at-porto-4483770859",
+      "fuente": "LinkedIn",
+      "motivo": "F1, F3, F4",
+      "fecha_actualizado": "2026-10-28T13:33:20+00:00"
+    },
+    {
+      "key": "catalyst ai labs::full stack developer internship clone",
+      "fecha_visto": "2026-10-27T14:28:51+00:00",
+      "estado": "nuevo",
+      "empresa": "Catalyst AI Labs",
+      "titulo": "Full Stack Developer Internship (Clone)",
+      "url": "https://wellfound.com/jobs/4677885-full-stack-developer-internship-clone",
+      "fuente": "Wellfound"
+    },
+    {
+      "key": "zeely::tech lead flutter",
+      "fecha_visto": "2026-10-28T14:18:56+00:00",
+      "estado": "descartado",
+      "titulo": "Tech Lead Flutter",
+      "empresa": "Zeely Inc.",
+      "motivo": "F3",
+      "fecha_actualizado": "2026-10-28T14:18:56+00:00"
+    },
+    {
+      "key": "labhouse::lead flutter developer",
+      "fecha_visto": "2026-10-28T14:30:15+00:00",
+      "estado": "descartado",
+      "titulo": "Lead Flutter Developer",
+      "empresa": "LABHOUSE",
+      "motivo": "F3",
+      "fecha_actualizado": "2026-10-28T14:30:15+00:00"
     }
   ],
   "empresas": [
@@ -5018,7 +5754,7 @@
       "fecha_visto": "2026-09-20T16:59:08+00:00",
       "estado": "contactado",
       "nombre": "Posada El Botuto",
-      "fecha_actualizado": "2026-09-22T14:03:41+00:00"
+      "fecha_actualizado": "2026-10-27T14:46:53+00:00"
     },
     {
       "key": "o2fz.com",
@@ -5039,7 +5775,7 @@
       "fecha_visto": "2026-09-20T16:59:08+00:00",
       "estado": "contactado",
       "nombre": "Fit Club Caracas",
-      "fecha_actualizado": "2026-09-24T13:36:40+00:00"
+      "fecha_actualizado": "2026-10-27T14:52:41+00:00"
     },
     {
       "key": "silverbackvzla",
@@ -5092,7 +5828,7 @@
       "fecha_visto": "2026-09-21T15:42:26+00:00",
       "estado": "contactado",
       "nombre": "Alfresko",
-      "fecha_actualizado": "2026-09-24T13:56:05+00:00"
+      "fecha_actualizado": "2026-10-27T14:54:53+00:00"
     },
     {
       "key": "altos munchies",
@@ -5566,24 +6302,24 @@
     {
       "key": "gimnasio planet fit",
       "fecha_visto": "2026-10-09T13:40:14+00:00",
-      "estado": "en_proceso",
+      "estado": "contactado",
       "nombre": "Gimnasio Planet Fit",
       "web": "",
       "rubro": "gimnasio",
       "score": 77,
       "canal": "whatsapp",
-      "fecha_actualizado": "2026-10-09T13:49:47+00:00"
+      "fecha_actualizado": "2026-10-27T14:35:53+00:00"
     },
     {
       "key": "babas burgers",
       "fecha_visto": "2026-10-09T13:40:14+00:00",
-      "estado": "en_proceso",
+      "estado": "contactado",
       "nombre": "Babas Burgers",
       "web": "",
       "rubro": "restaurante / comida rápida",
       "score": 76,
       "canal": "whatsapp",
-      "fecha_actualizado": "2026-10-09T13:49:47+00:00"
+      "fecha_actualizado": "2026-10-27T14:45:17+00:00"
     },
     {
       "key": "inverted crossfit",
@@ -6424,6 +7160,81 @@
       "rubro": "hotel_posada",
       "score": 10,
       "nota": "dominio reutilizado como agregador afiliado"
+    },
+    {
+      "key": "inmobiliaria knepper real estate",
+      "fecha_visto": "2026-10-26T15:20:25+00:00",
+      "estado": "contactado",
+      "nombre": "Inmobiliaria Knepper Real Estate",
+      "web": "",
+      "rubro": "inmobiliaria",
+      "score": 85,
+      "canal": "whatsapp",
+      "fecha_actualizado": "2026-10-27T14:59:20+00:00"
+    },
+    {
+      "key": "clínica hoffmann holistic health",
+      "fecha_visto": "2026-10-26T15:20:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Clínica Hoffmann Holistic Health",
+      "web": "",
+      "rubro": "clinica",
+      "score": 80,
+      "canal": "whatsapp"
+    },
+    {
+      "key": "gimnasio orinoco",
+      "fecha_visto": "2026-10-26T15:20:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Gimnasio Orinoco",
+      "web": "",
+      "rubro": "gimnasio",
+      "score": 75,
+      "canal": "whatsapp"
+    },
+    {
+      "key": "uneweb.edu.ve",
+      "fecha_visto": "2026-10-26T15:20:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Instituto Uneweb",
+      "web": "https://uneweb.edu.ve/",
+      "rubro": "instituto educativo",
+      "score": 60,
+      "canal": "whatsapp"
+    },
+    {
+      "key": "hotelcct.com",
+      "fecha_visto": "2026-10-26T15:20:25+00:00",
+      "estado": "nuevo",
+      "nombre": "Hotel CCT",
+      "web": "https://hotelcct.com/",
+      "rubro": "hotel_posada",
+      "score": 55,
+      "canal": "email"
+    },
+    {
+      "key": "pizzería_da_vinci",
+      "fecha_visto": "2026-10-27T14:47:17+00:00",
+      "estado": "nuevo",
+      "nombre": "Pizzería Da Vinci",
+      "web": "https://pizzeriadavinci.com",
+      "rubro": "restaurante"
+    },
+    {
+      "key": "clínica_dental_sonrisas",
+      "fecha_visto": "2026-10-27T14:47:17+00:00",
+      "estado": "nuevo",
+      "nombre": "Clínica Dental Sonrisas",
+      "web": "https://clinicasonrisasve.com",
+      "rubro": "clinica"
+    },
+    {
+      "key": "gimnasio_powerfit",
+      "fecha_visto": "2026-10-27T14:47:17+00:00",
+      "estado": "nuevo",
+      "nombre": "Gimnasio PowerFit",
+      "web": "https://powerfitve.com",
+      "rubro": "gimnasio"
     }
   ],
   "posts_linkedin": [
@@ -6646,6 +7457,25 @@
       "nota": "Aplicado vía formulario Loxo (fitnext.app.loxo.co)",
       "snippet": "Senior Front-End Engineer (Flutter) para startup PropTech US; iOS/Android/web; 5+ años software, 3+ Flutter.",
       "fecha_actualizado": "2026-10-22T21:48:49+00:00"
+    },
+    {
+      "key": "https://www.linkedin.com/posts/oportunidadlaboral-contratoinmediato-waytech-share-7520488848913670145-6sOg/",
+      "fecha_visto": "2026-10-26T15:12:22+00:00",
+      "estado": "nuevo",
+      "autor": "Way Tech / Sarah Leo Celis",
+      "empresa": "Way Tech",
+      "url": "https://www.linkedin.com/posts/oportunidadlaboral-contratoinmediato-waytech-share-7520488848913670145-6sOg/",
+      "snippet": "Full-Stack Developer (PHP/Laravel + .NET + Angular + Flutter), 5 vacantes, remoto, Lima"
+    },
+    {
+      "key": "https://www.linkedin.com/posts/hiring-techjobs-frontend-share-7519774839709212675-P73J/",
+      "fecha_visto": "2026-10-26T15:12:22+00:00",
+      "estado": "applied",
+      "autor": "Hireeing",
+      "empresa": "Weave",
+      "url": "https://www.linkedin.com/posts/hiring-techjobs-frontend-share-7519774839709212675-P73J/",
+      "snippet": "Software Engineer (Weave) remoto, Flutter/Dart 2-3 años, REST/SQLite/Firebase",
+      "fecha_actualizado": "2026-10-26T23:20:58+00:00"
     }
   ],
   "outreach": [],
@@ -6711,7 +7541,7 @@
     {
       "key": "labhouse::flutter developer",
       "fecha_visto": "2026-10-02T12:29:46+00:00",
-      "estado": "nuevo",
+      "estado": "applied",
       "empresa": "LABHOUSE",
       "titulo": "Flutter Developer",
       "url": "https://jobs.ashbyhq.com/labhouse/65c332e0-33ae-443d-be5e-ba1516f0370d",
@@ -6720,7 +7550,8 @@
       "fecha": "2026-03-17",
       "score": 45,
       "nota": "Startup barcelonesa de AI apps. Pide Flutter/Dart solido (o iOS/React Native con motivacion a migrar), ciclo de vida end-to-end. Publicada hace ~7 meses: verificar vigencia.",
-      "tablero": "ashby/labhouse"
+      "tablero": "ashby/labhouse",
+      "fecha_actualizado": "2026-10-28T14:21:18+00:00"
     },
     {
       "key": "labhouse::lead flutter developer",
@@ -6762,12 +7593,13 @@
     {
       "key": "somnio software::senior flutter developer",
       "fecha_visto": "2026-10-23T15:03:47+00:00",
-      "estado": "nuevo",
+      "estado": "applied",
       "empresa": "Somnio Software",
       "titulo": "Senior Flutter Developer",
       "url": "https://somniosoftware.recruitee.com/o/senior-flutter-developer-1",
       "tablero": "recruitee/somniosoftware",
-      "score": 80
+      "score": 80,
+      "fecha_actualizado": "2026-10-28T13:46:15+00:00"
     },
     {
       "key": "jobgether::pessoa desenvolvedora fullstack flutter node especialista ii backoffice franqueado",
@@ -6778,6 +7610,16 @@
       "url": "https://jobs.lever.co/jobgether/c16082fc-9282-4a5a-832c-a0ea95c1bf5c",
       "tablero": "lever/jobgether",
       "score": 60
+    },
+    {
+      "key": "klar::senior flutter engineer remote from eu only",
+      "fecha_visto": "2026-10-26T14:54:23+00:00",
+      "estado": "nuevo",
+      "empresa": "Klar",
+      "titulo": "Senior Flutter Engineer (Remote from EU only)",
+      "url": "https://klar.bamboohr.com/careers/437",
+      "tablero": "bamboohr/klar",
+      "score": 75
     }
   ]
 }
