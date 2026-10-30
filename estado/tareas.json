@@ -365,6 +365,72 @@
       "creado": "2026-10-28T14:21:18+00:00",
       "vencimiento": "2026-11-04T14:21:18+00:00",
       "estado": "pendiente"
+    },
+    {
+      "id": "t-20261029080504-34",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "futo::mobile developer immich",
+      "titulo": "Seguimiento: futo::mobile developer immich",
+      "url": "",
+      "creado": "2026-10-29T12:05:04+00:00",
+      "vencimiento": "2026-11-05T12:05:04+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261029080926-35",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "rimutee::desarrollador flutter",
+      "titulo": "Seguimiento: rimutee::desarrollador flutter",
+      "url": "",
+      "creado": "2026-10-29T12:09:26+00:00",
+      "vencimiento": "2026-11-05T12:09:26+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261029105956-36",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "micro1::senior mobile software engineer",
+      "titulo": "Seguimiento: micro1::senior mobile software engineer",
+      "url": "",
+      "creado": "2026-10-29T14:59:56+00:00",
+      "vencimiento": "2026-11-05T14:59:56+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261030180822-37",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "insi::desenvolvedor fullstack - flutter pleno",
+      "titulo": "Seguimiento: insi::desenvolvedor fullstack - flutter pleno",
+      "url": "",
+      "creado": "2026-10-30T22:08:22+00:00",
+      "vencimiento": "2026-11-06T22:08:22+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261030181704-38",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "sparq::senior flutter dart mobile engineer",
+      "titulo": "Seguimiento: sparq::senior flutter dart mobile engineer",
+      "url": "",
+      "creado": "2026-10-30T22:17:04+00:00",
+      "vencimiento": "2026-11-06T22:17:04+00:00",
+      "estado": "pendiente"
+    },
+    {
+      "id": "t-20261030182634-39",
+      "tipo": "seguimiento_aplicacion",
+      "categoria": "vacantes",
+      "key": "rimutee::desarrollador mobile flutter latam",
+      "titulo": "Seguimiento: rimutee::desarrollador mobile flutter latam",
+      "url": "",
+      "creado": "2026-10-30T22:26:34+00:00",
+      "vencimiento": "2026-11-06T22:26:34+00:00",
+      "estado": "pendiente"
     }
   ]
 }

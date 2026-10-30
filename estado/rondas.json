@@ -1,6 +1,86 @@
 {
   "rondas": [
     {
+      "fecha": "2026-10-29",
+      "inicio": "2026-10-29T11:30:27+00:00",
+      "tipo": "ronda_completa",
+      "fases": [
+        {
+          "fase": "job-search",
+          "archivo": "resultados/vacantes/2026-10-29.md",
+          "nuevas": 48,
+          "omitidas": 101,
+          "errores": [
+            "LinkedIn 7d (Mobile Engineer Flutter 7d page 1): HTTP Error 429: Too Many Requests"
+          ],
+          "ok": true,
+          "notas": "Himalayas: 1; Jobgether: 4; LinkedIn: 9; LinkedIn (7d): 2; Wellfound: 32",
+          "fin": "2026-10-29T11:31:06+00:00"
+        },
+        {
+          "fase": "empresas-search",
+          "archivo": "resultados/empresas-target/2026-10-29-empresas-vacantes.md",
+          "nuevas": 0,
+          "omitidas": 6,
+          "errores": [
+            "Clip: sin tablero localizado",
+            "iFood: sin tablero localizado",
+            "Rows: sin tablero localizado",
+            "Serasa: sin tablero localizado",
+            "Su Musica: sin tablero localizado",
+            "Paytrack: sin tablero localizado",
+            "Proppit: sin tablero localizado",
+            "Senior Sistemas: sin tablero localizado",
+            "Propi: sin tablero localizado",
+            "Grupo Boticário: sin tablero localizado",
+            "Remote.com: sin tablero localizado",
+            "Patagonia: sin tablero localizado",
+            "Jobgether: sin tablero localizado",
+            "Datadog: sin tablero localizado",
+            "Elastic: sin tablero localizado",
+            "MongoDB: sin tablero localizado",
+            "Redis: sin tablero localizado",
+            "Block: sin tablero localizado",
+            "Brex: sin tablero localizado",
+            "FlutterFlow: sin tablero localizado"
+          ],
+          "ok": true,
+          "notas": "Somnio Software (recruitee): 1; Klar (bamboohr): 1; Canonical (greenhouse): 1; Zeely Inc. (ashby): 1; LABHOUSE (ashby): 2",
+          "fin": "2026-10-29T11:31:52+00:00"
+        },
+        {
+          "fase": "linkedin-hidden-jobs",
+          "archivo": "resultados/vacantes-ocultas/2026-10-29-hidden.md",
+          "nuevas": 2,
+          "omitidas": 28,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-29T11:40:40+00:00"
+        },
+        {
+          "fase": "hidden-jobs",
+          "archivo": "resultados/vacantes-web/2026-10-29.md",
+          "nuevas": 2,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-29T11:43:45+00:00"
+        },
+        {
+          "fase": "prospectar-clientes",
+          "archivo": "resultados/clientes-potenciales/2026-10-29-leads.md",
+          "nuevas": 6,
+          "omitidas": 0,
+          "errores": [],
+          "ok": true,
+          "notas": "",
+          "fin": "2026-10-29T11:49:37+00:00"
+        }
+      ]
+    },
+    {
       "fecha": "2026-10-28",
       "inicio": "2026-10-28T14:26:32+00:00",
       "tipo": "empleos",
